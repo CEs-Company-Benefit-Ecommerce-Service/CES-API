@@ -1,6 +1,7 @@
 ﻿using CES.BusinessTier.RequestModels;
 using CES.BusinessTier.ResponseModels.BaseResponseModels;
 using CES.BusinessTier.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,6 +16,8 @@ namespace CES.API.Controllers
         {
             _accountServices = accountServices;
         }
+
+        //[Authorize(Roles = "Admin")]
         [HttpGet]
         public IActionResult Get([FromQuery] PagingModel pagingModel)
         {
