@@ -5,27 +5,21 @@ using System.Collections.Generic;
 
 namespace CES.DataTier.Models
 {
-    public partial class Account
+    public partial class Project
     {
-        public Account()
+        public Project()
         {
             ProjectAccount = new HashSet<ProjectAccount>();
         }
 
         public Guid Id { get; set; }
         public string? Name { get; set; }
-        public string? Email { get; set; }
         public string? Address { get; set; }
-        public string? Phone { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public DateTime? CreatedAt { get; set; }
-        public string? ImageUrl { get; set; }
         public int? Status { get; set; }
-        public int? RoleId { get; set; }
-        public int? CompanyId { get; set; }
+        public string? ImageUrl { get; set; }
 
-        public virtual Company? Company { get; set; }
-        public virtual Role? Role { get; set; }
         public virtual ICollection<ProjectAccount> ProjectAccount { get; set; }
     }
 }

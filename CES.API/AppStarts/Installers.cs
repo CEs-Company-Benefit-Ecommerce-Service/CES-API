@@ -1,4 +1,7 @@
-﻿using CES.DataTier.Models;
+﻿using CES.BusinessTier.Middlewares;
+using CES.BusinessTier.Services;
+using CES.BusinessTier.UnitOfWork;
+using CES.DataTier.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace CES.API.AppStarts
@@ -12,13 +15,16 @@ namespace CES.API.AppStarts
                 options.LowercaseUrls = true; ;
                 options.LowercaseQueryStrings = true;
             });
-            services.AddDbContext<CEsData_v1Context>(options =>
+            services.AddDbContext<CEsData_v2Context>(options =>
             {
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
             });
 
             //services.AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>));
-            //services.AddTransient<ExceptionMiddleware>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddTransient<ExceptionMiddleware>();
+            services.AddScoped<IAccountServices, AccountServices>();
+
 
         }
     }

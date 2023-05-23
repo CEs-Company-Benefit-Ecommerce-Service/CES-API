@@ -28,4 +28,12 @@ namespace CES.BusinessTier.ResponseModels.BaseResponseModels
         public string? Sort { get; set; }
         public string? Order { get; set; }
     }
+
+    public class BaseResponseViewModel<T>
+    {
+        public int? Code { get; set; }
+        public string? Message { get; set; }
+        public T Data { get; set; }
+    }
+
 }

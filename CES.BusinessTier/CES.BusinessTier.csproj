@@ -18,8 +18,4 @@
     <ProjectReference Include="..\CES.DataTier\CES.DataTier.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="RequestModels\" />
-  </ItemGroup>
-
 </Project>
