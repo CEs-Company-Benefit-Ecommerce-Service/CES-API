@@ -7,6 +7,8 @@ using CES.BusinessTier.UnitOfWork;
 using CES.BusinessTier.Utilities;
 using CES.DataTier.Models;
 using LAK.Sdk.Core.Utilities;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,16 +24,19 @@ namespace CES.BusinessTier.Services
         Task<BaseResponseViewModel<AccountResponseModel>> UpdateAsync(Guid id, AccountRequestModel requestModel);
         Task<BaseResponseViewModel<AccountResponseModel>> DeleteAsync(Guid id);
         Task<BaseResponseViewModel<AccountResponseModel>> CreateAsync(AccountRequestModel requestModel);
+        Task<AccountResponseModel> Login(LoginModel login);
     }
     public class AccountServices : IAccountServices
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration;
 
-        public AccountServices(IUnitOfWork unitOfWork, IMapper mapper)
+        public AccountServices(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _configuration = configuration;
         }
 
         public BaseResponseViewModel<AccountResponseModel> Get(Guid id)
@@ -166,6 +171,18 @@ namespace CES.BusinessTier.Services
                     Message = "Bad request" + "||" + ex.Message,
                 };
             }
+        }
+
+        public async Task<AccountResponseModel> Login(LoginModel login)
+        {
+            if (login.Email == null && login.Password == null) throw new ErrorResponse(StatusCodes.Status400BadRequest, StatusCodes.Status400BadRequest, "Invalid email/password");
+            var user = _unitOfWork.Repository<Account>().Find(x => (x.Email == login.Email || x.Name == login.Email));
+            if (user == null) throw new ErrorResponse(StatusCodes.Status404NotFound, StatusCodes.Status404NotFound, "Invalid email/password");
+            var verifyPassword = Authen.VerifyHashedPassword("", login.Password);
+            if (!verifyPassword) throw new ErrorResponse(StatusCodes.Status404NotFound, StatusCodes.Status404NotFound, "Invalid email/password");
+            var responseUser = _mapper.Map<AccountResponseModel>(user);
+            var token = Authen.GenerateToken(user, Roles.Employee.ToString(), _configuration);
+            return responseUser;
         }
     }
 }
