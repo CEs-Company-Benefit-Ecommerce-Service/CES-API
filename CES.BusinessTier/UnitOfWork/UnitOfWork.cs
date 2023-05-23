@@ -10,9 +10,9 @@ namespace CES.BusinessTier.UnitOfWork
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly CEsData_v1Context _context;
+        private readonly CEsData_v2Context _context;
 
-        public UnitOfWork(CEsData_v1Context context)
+        public UnitOfWork(CEsData_v2Context context)
         {
             _context = context;
         }

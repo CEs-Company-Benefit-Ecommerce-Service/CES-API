@@ -13,4 +13,10 @@ namespace CES.BusinessTier.Utilities
         EnterpriseAdmin,
         Employee
     }
+    public enum Status
+    {
+        Inactive,
+        Active,
+        Banned
+    }
 }
