@@ -7,6 +7,7 @@ using CES.BusinessTier.UnitOfWork;
 using CES.BusinessTier.Utilities;
 using CES.DataTier.Models;
 using LAK.Sdk.Core.Utilities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,7 @@ namespace CES.BusinessTier.Services
         Task<BaseResponseViewModel<AccountResponseModel>> UpdateAsync(Guid id, AccountRequestModel requestModel);
         Task<BaseResponseViewModel<AccountResponseModel>> DeleteAsync(Guid id);
         Task<BaseResponseViewModel<AccountResponseModel>> CreateAsync(AccountRequestModel requestModel);
+        Account GetAccountByEmail(string email);
     }
     public class AccountServices : IAccountServices
     {
@@ -111,8 +113,18 @@ namespace CES.BusinessTier.Services
                 #region validate value
 
                 #endregion
-
+                var checkEmailAccount = _unitOfWork.Repository<Account>().GetAll().Any(x => x.Email.Equals(requestModel.Email));
+                if (checkEmailAccount)
+                {
+                    return new BaseResponseViewModel<AccountResponseModel>
+                    {
+                        Code = 400,
+                        Message = "Email already existed!",
+                    };
+                }
+                var hashPassword = Authen.HashPassword(requestModel.Password);
                 var newAccount = _mapper.Map<Account>(requestModel);
+                newAccount.Password = hashPassword;
                 newAccount.Id = Guid.NewGuid();
                 newAccount.Status = (int)Status.Active;
                 newAccount.CreatedAt = DateTime.Now;
@@ -166,6 +178,15 @@ namespace CES.BusinessTier.Services
                     Message = "Bad request" + "||" + ex.Message,
                 };
             }
+        }
+        public Account GetAccountByEmail(string email)
+        {
+            var account = _unitOfWork.Repository<Account>().GetAll().Include(x => x.Role).Where(x => x.Email.Equals(email)).FirstOrDefault();
+            if (account == null)
+            {
+                return null;
+            }
+            return account;
         }
     }
 }

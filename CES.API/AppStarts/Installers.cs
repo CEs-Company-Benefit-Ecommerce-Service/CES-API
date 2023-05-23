@@ -23,8 +23,9 @@ namespace CES.API.AppStarts
             //services.AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddTransient<ExceptionMiddleware>();
-            services.AddScoped<IAccountServices, AccountServices>();
 
+            services.AddScoped<IAccountServices, AccountServices>();
+            services.AddScoped<ILoginServices, LoginServices>();
 
         }
     }
