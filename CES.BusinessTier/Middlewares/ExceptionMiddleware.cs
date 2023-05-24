@@ -35,6 +35,7 @@ namespace CES.BusinessTier.Middlewares
                 {
                     case ErrorResponse e:
                         errorResult.StatusCode = (int)e.Error.StatusCode;
+                        errorResult.ErrorCode = (int)e.Error.ErrorCode;
                         if (e.Error.Message is not null)
                         {
                             errorResult.Message = e.Error.Message;

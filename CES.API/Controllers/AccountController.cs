@@ -4,6 +4,7 @@ using CES.BusinessTier.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace CES.API.Controllers
 {
@@ -33,19 +34,21 @@ namespace CES.API.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(Guid id)
         {
-            var result = await _accountServices.DeleteAsync(id);
+            var result = await _accountServices.DeleteAccountAsync(id);
             return StatusCode((int)result.Code, result);
         }
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(Guid id, [FromBody] AccountRequestModel requestModel)
         {
-            var result = await _accountServices.UpdateAsync(id, requestModel);
+            var result = await _accountServices.UpdateAccountAsync(id, requestModel);
             return StatusCode((int)result.Code, result);
         }
+
+        [SwaggerOperation(summary: "Create account", description: "0 - System Admin, 1 - Supplier Admin, 2 - Enterprise Admin, 3 - Employee")]
         [HttpPost]
         public async Task<ActionResult> Create([FromBody] AccountRequestModel requestModel)
         {
-            var result = await _accountServices.CreateAsync(requestModel);
+            var result = await _accountServices.CreateAccountAsync(requestModel);
             return StatusCode((int)result.Code, result);
         }
     }

@@ -22,9 +22,9 @@ namespace CES.BusinessTier.Services
     {
         DynamicResponse<AccountResponseModel> Gets(PagingModel paging);
         BaseResponseViewModel<AccountResponseModel> Get(Guid id);
-        Task<BaseResponseViewModel<AccountResponseModel>> UpdateAsync(Guid id, AccountRequestModel requestModel);
-        Task<BaseResponseViewModel<AccountResponseModel>> DeleteAsync(Guid id);
-        Task<BaseResponseViewModel<AccountResponseModel>> CreateAsync(AccountRequestModel requestModel);
+        Task<BaseResponseViewModel<AccountResponseModel>> UpdateAccountAsync(Guid id, AccountRequestModel requestModel);
+        Task<BaseResponseViewModel<AccountResponseModel>> DeleteAccountAsync(Guid id);
+        Task<BaseResponseViewModel<AccountResponseModel>> CreateAccountAsync(AccountRequestModel requestModel);
         Task<AccountResponseModel> Login(LoginModel login);
         Account GetAccountByEmail(string email);
     }
@@ -77,7 +77,7 @@ namespace CES.BusinessTier.Services
             };
         }
 
-        public async Task<BaseResponseViewModel<AccountResponseModel>> UpdateAsync(Guid id, AccountRequestModel requestModel)
+        public async Task<BaseResponseViewModel<AccountResponseModel>> UpdateAccountAsync(Guid id, AccountRequestModel requestModel)
         {
             var existedAccount = _unitOfWork.Repository<Account>().GetByIdGuid(id);
             if (existedAccount == null)
@@ -111,50 +111,35 @@ namespace CES.BusinessTier.Services
 
 
         }
-        public async Task<BaseResponseViewModel<AccountResponseModel>> CreateAsync(AccountRequestModel requestModel)
+        public async Task<BaseResponseViewModel<AccountResponseModel>> CreateAccountAsync(AccountRequestModel requestModel)
         {
-            try
+            #region validate value
+
+            #endregion
+            var checkEmailAccount = _unitOfWork.Repository<Account>().GetAll().Any(x => x.Email.Equals(requestModel.Email));
+            if (checkEmailAccount)
             {
-                #region validate value
-
-                #endregion
-                var checkEmailAccount = _unitOfWork.Repository<Account>().GetAll().Any(x => x.Email.Equals(requestModel.Email));
-                if (checkEmailAccount)
-                {
-                    return new BaseResponseViewModel<AccountResponseModel>
-                    {
-                        Code = 400,
-                        Message = "Email already existed!",
-                    };
-                }
-                var hashPassword = Authen.HashPassword(requestModel.Password);
-                var newAccount = _mapper.Map<Account>(requestModel);
-                newAccount.Password = hashPassword;
-                newAccount.Id = Guid.NewGuid();
-                newAccount.Status = (int)Status.Active;
-                newAccount.CreatedAt = DateTime.Now;
-
-                await _unitOfWork.Repository<Account>().InsertAsync(newAccount);
-                await _unitOfWork.CommitAsync();
-
-                return new BaseResponseViewModel<AccountResponseModel>
-                {
-                    Code = 200,
-                    Message = "OK",
-                    Data = _mapper.Map<AccountResponseModel>(newAccount),
-                };
+                throw new ErrorResponse(StatusCodes.Status400BadRequest, StatusCodes.Status400BadRequest, "Email already existed!");
             }
-            catch (Exception ex)
+            var hashPassword = Authen.HashPassword(requestModel.Password);
+            var newAccount = _mapper.Map<Account>(requestModel);
+            newAccount.Password = hashPassword;
+            newAccount.Id = Guid.NewGuid();
+            newAccount.Status = (int)Status.Active;
+            newAccount.CreatedAt = DateTime.Now;
+
+            await _unitOfWork.Repository<Account>().InsertAsync(newAccount);
+            await _unitOfWork.CommitAsync();
+
+            return new BaseResponseViewModel<AccountResponseModel>
             {
-                return new BaseResponseViewModel<AccountResponseModel>
-                {
-                    Code = 400,
-                    Message = "Bad request" + "||" + ex.Message,
-                };
-            }
+                Code = StatusCodes.Status200OK,
+                Message = "OK",
+                Data = _mapper.Map<AccountResponseModel>(newAccount),
+            };
         }
 
-        public async Task<BaseResponseViewModel<AccountResponseModel>> DeleteAsync(Guid id)
+        public async Task<BaseResponseViewModel<AccountResponseModel>> DeleteAccountAsync(Guid id)
         {
             var account = _unitOfWork.Repository<Account>().GetByIdGuid(id);
             if (account == null)
