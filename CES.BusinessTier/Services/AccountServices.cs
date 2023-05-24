@@ -195,6 +195,7 @@ namespace CES.BusinessTier.Services
             var responseUser = _mapper.Map<AccountResponseModel>(user);
             var token = Authen.GenerateToken(user, Roles.Employee.ToString(), _configuration);
             return responseUser;
+        }
         public Account GetAccountByEmail(string email)
         {
             var account = _unitOfWork.Repository<Account>().GetAll().Include(x => x.Role).Where(x => x.Email.Equals(email)).FirstOrDefault();
