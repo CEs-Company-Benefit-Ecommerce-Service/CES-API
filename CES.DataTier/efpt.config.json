@@ -19,7 +19,31 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[Category]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[Company]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[DebtNotes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Discount]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Order]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[OrderDetail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Product]",
          "ObjectType": 0
       },
       {
@@ -31,7 +55,23 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[Receipts]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[Role]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Transaction]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Wallet]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[WalletTransaction]",
          "ObjectType": 0
       }
    ],

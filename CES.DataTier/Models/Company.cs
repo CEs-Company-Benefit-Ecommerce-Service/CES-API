@@ -10,6 +10,8 @@ namespace CES.DataTier.Models
         public Company()
         {
             Account = new HashSet<Account>();
+            DebtNotes = new HashSet<DebtNotes>();
+            Receipts = new HashSet<Receipts>();
         }
 
         public int Id { get; set; }
@@ -23,5 +25,7 @@ namespace CES.DataTier.Models
         public string? Phone { get; set; }
 
         public virtual ICollection<Account> Account { get; set; }
+        public virtual ICollection<DebtNotes> DebtNotes { get; set; }
+        public virtual ICollection<Receipts> Receipts { get; set; }
     }
 }

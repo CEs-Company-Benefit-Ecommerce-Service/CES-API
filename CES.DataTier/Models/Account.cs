@@ -9,7 +9,9 @@ namespace CES.DataTier.Models
     {
         public Account()
         {
+            Order = new HashSet<Order>();
             ProjectAccount = new HashSet<ProjectAccount>();
+            Wallet = new HashSet<Wallet>();
         }
 
         public Guid Id { get; set; }
@@ -21,12 +23,14 @@ namespace CES.DataTier.Models
         public DateTime? CreatedAt { get; set; }
         public string? ImageUrl { get; set; }
         public int? Status { get; set; }
-        public string? Password { get; set; }
         public int? RoleId { get; set; }
         public int? CompanyId { get; set; }
+        public string? Password { get; set; }
 
         public virtual Company? Company { get; set; }
         public virtual Role? Role { get; set; }
+        public virtual ICollection<Order> Order { get; set; }
         public virtual ICollection<ProjectAccount> ProjectAccount { get; set; }
+        public virtual ICollection<Wallet> Wallet { get; set; }
     }
 }
