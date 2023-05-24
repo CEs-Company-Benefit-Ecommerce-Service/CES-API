@@ -19,6 +19,7 @@ namespace CES.API.AppStarts
             });
             services.AddSwaggerGen(c =>
             {
+                c.EnableAnnotations();
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = appName, Version = "v1" });
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
@@ -47,6 +48,8 @@ namespace CES.API.AppStarts
                         new List<string>()
                     }
                 });
+                var filePath = Path.Combine(System.AppContext.BaseDirectory, "CES.Api.xml");
+                c.IncludeXmlComments(filePath);
             });
             services.AddVersionedApiExplorer(setup =>
             {
