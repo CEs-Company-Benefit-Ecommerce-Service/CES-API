@@ -1,7 +1,9 @@
-﻿using CES.BusinessTier.RequestModels;
+﻿using AutoMapper;
+using CES.BusinessTier.RequestModels;
 using CES.BusinessTier.ResponseModels;
 using CES.BusinessTier.ResponseModels.BaseResponseModels;
 using CES.BusinessTier.Utilities;
+using CES.DataTier.Models;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -13,42 +15,49 @@ namespace CES.BusinessTier.Services
 {
     public interface ILoginServices
     {
-        BaseResponseViewModel<TokenModel> Login(LoginModel loginModel);
+        BaseResponseViewModel<LoginResponseModel> Login(LoginModel loginModel);
     }
     public class LoginServices : ILoginServices
     {
         private IAccountServices _accountServices;
+        private IMapper _mapper;
         private IConfiguration _configuration;
-        public LoginServices(IAccountServices accountServices, IConfiguration configuration)
+        public LoginServices(IMapper mapper, IAccountServices accountServices, IConfiguration configuration)
         {
             _accountServices = accountServices;
             _configuration = configuration;
+            _mapper = mapper;
         }
 
-        public BaseResponseViewModel<TokenModel> Login(LoginModel loginModel)
+        public BaseResponseViewModel<LoginResponseModel> Login(LoginModel loginModel)
         {
             try
             {
                 var account = _accountServices.GetAccountByEmail(loginModel.Email);
                 if (!Authen.VerifyHashedPassword(account.Password, loginModel.Password))
                 {
-                    return new BaseResponseViewModel<TokenModel>()
+                    return new BaseResponseViewModel<LoginResponseModel>()
                     {
                         Code = 200,
                         Message = "Login failed",
                     };
                 }
                 var newToken = Authen.GenerateToken(account, account.Role.Name, _configuration);
-                return new BaseResponseViewModel<TokenModel>
+                var result = new LoginResponseModel()
+                {
+                    Account = _mapper.Map<AccountResponseModel>(account),
+                    Token = newToken
+                };
+                return new BaseResponseViewModel<LoginResponseModel>
                 {
                     Code = 200,
                     Message = "Login success",
-                    Data = newToken
+                    Data = result
                 };
             }
             catch (Exception ex)
             {
-                return new BaseResponseViewModel<TokenModel>
+                return new BaseResponseViewModel<LoginResponseModel>
                 {
                     Code = 400,
                     Message = "Something wrong" + "||" + ex.Message,
