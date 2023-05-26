@@ -27,6 +27,10 @@ namespace CES.API.AppStarts
             services.AddScoped<IAccountServices, AccountServices>();
             services.AddScoped<ILoginServices, LoginServices>();
 
+            services.AddScoped<IProjectAccountServices, ProjectAccountServices>();
+
+            services.AddScoped<IProjectServices, ProjectServices>();
+
         }
     }
 }
