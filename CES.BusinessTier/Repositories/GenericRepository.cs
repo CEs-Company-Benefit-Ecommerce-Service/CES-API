@@ -22,9 +22,9 @@ namespace CES.BusinessTier.Repositories
             Table = Context.Set<T>();
         }
 
-        public T Find(Func<T, bool> predicate)
+        public IEnumerable<T> Find(Expression<Func<T, bool>> predicate)
         {
-            return Table.FirstOrDefault(predicate);
+            return Context.Set<T>().AsQueryable().Where(predicate).ToList();
         }
         public async Task<T> FindAsync(Expression<Func<T, bool>> predicate)
         {
@@ -143,6 +143,16 @@ namespace CES.BusinessTier.Repositories
         public IQueryable<T> AsNoTracking()
         {
             return Table.AsNoTracking();
+        }
+
+        public IQueryable<T> AsQueryable()
+        {
+            return Context.Set<T>().AsQueryable();
+        }
+
+        public IQueryable<T> AsQueryable(Expression<Func<T, bool>> predicate)
+        {
+            return Context.Set<T>().AsQueryable().Where(predicate);
         }
     }
 }

@@ -23,13 +23,11 @@ namespace CES.BusinessTier.Utilities
             {
                 Subject = new ClaimsIdentity(new[]
                 {
+                    new Claim(ClaimTypes.NameIdentifier, account.Id.ToString()),
                     new Claim(ClaimTypes.Name, account.Name),
-                    new Claim(JwtRegisteredClaimNames.Email, account.Email),
-                    new Claim(JwtRegisteredClaimNames.Sub, account.Email),
-                    new Claim(JwtRegisteredClaimNames.Jti,  Guid.NewGuid().ToString()),
-                    new Claim("UserName", account.Name),
-                    new Claim("UserId", account.Id.ToString()),
+                    new Claim(ClaimTypes.Email, account.Email),
                     new Claim(ClaimTypes.Role, role.ToString()),
+                    new Claim(ClaimTypes.MobilePhone, account.Phone),
                     new Claim("TokenId", Guid.NewGuid().ToString())
                 }),
                 Expires = DateTime.UtcNow.AddHours(2),
