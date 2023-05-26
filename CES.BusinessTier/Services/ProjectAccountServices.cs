@@ -21,8 +21,8 @@ namespace CES.BusinessTier.Services
     }
     public class ProjectAccountServices : IProjectAccountServices
     {
-        private IUnitOfWork _unitOfWork;
-        private IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
         public ProjectAccountServices(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;

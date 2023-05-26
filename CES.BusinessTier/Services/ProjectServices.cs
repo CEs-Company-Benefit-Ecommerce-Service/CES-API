@@ -8,10 +8,12 @@ using CES.BusinessTier.UnitOfWork;
 using CES.BusinessTier.Utilities;
 using CES.DataTier.Models;
 using LAK.Sdk.Core.Utilities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,17 +32,22 @@ namespace CES.BusinessTier.Services
     }
     public class ProjectServices : IProjectServices
     {
-        private IProjectAccountServices _projectAccountServices;
-        private IUnitOfWork _unitOfWork;
-        private IMapper _mapper;
-        public ProjectServices(IUnitOfWork unitOfWork, IMapper mapper, IProjectAccountServices projectAccountServices)
+        private readonly IProjectAccountServices _projectAccountServices;
+        private readonly IAccountServices _accountServices;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IMapper _mapper;
+        public ProjectServices(IUnitOfWork unitOfWork, IMapper mapper, IProjectAccountServices projectAccountServices, IHttpContextAccessor contextAccessor, IAccountServices accountServices)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _projectAccountServices = projectAccountServices;
+            _contextAccessor = contextAccessor;
+            _accountServices = accountServices;
         }
         public DynamicResponse<ProjectResponseModel> Gets(PagingModel paging)
         {
+
             var projects = _unitOfWork.Repository<Project>().GetAll().Include(x => x.ProjectAccount).ThenInclude(y => y.Account)
                 .ProjectTo<ProjectResponseModel>(_mapper.ConfigurationProvider)
                 .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging);
@@ -130,7 +137,7 @@ namespace CES.BusinessTier.Services
             }
             try
             {
-                foreach(var projectAccount in project.ProjectAccount)
+                foreach (var projectAccount in project.ProjectAccount)
                 {
                     var deleteProjectAccountResult = _projectAccountServices.Deleted(projectAccount.Id);
                 }
