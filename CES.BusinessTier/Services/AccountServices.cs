@@ -25,7 +25,6 @@ namespace CES.BusinessTier.Services
         Task<BaseResponseViewModel<AccountResponseModel>> UpdateAccountAsync(Guid id, AccountRequestModel requestModel);
         Task<BaseResponseViewModel<AccountResponseModel>> DeleteAccountAsync(Guid id);
         Task<BaseResponseViewModel<AccountResponseModel>> CreateAccountAsync(AccountRequestModel requestModel);
-        Task<AccountResponseModel> Login(LoginModel login);
         Account GetAccountByEmail(string email);
     }
     public class AccountServices : IAccountServices
@@ -170,20 +169,11 @@ namespace CES.BusinessTier.Services
             }
         }
 
-        public async Task<AccountResponseModel> Login(LoginModel login)
-        {
-            if (login.Email == null && login.Password == null) throw new ErrorResponse(StatusCodes.Status400BadRequest, StatusCodes.Status400BadRequest, "Invalid email/password");
-            var user = _unitOfWork.Repository<Account>().Find(x => (x.Email == login.Email || x.Name == login.Email));
-            if (user == null) throw new ErrorResponse(StatusCodes.Status404NotFound, StatusCodes.Status404NotFound, "Invalid email/password");
-            var verifyPassword = Authen.VerifyHashedPassword("", login.Password);
-            if (!verifyPassword) throw new ErrorResponse(StatusCodes.Status404NotFound, StatusCodes.Status404NotFound, "Invalid email/password");
-            var responseUser = _mapper.Map<AccountResponseModel>(user);
-            var token = Authen.GenerateToken(user, Roles.Employee.ToString(), _configuration);
-            return responseUser;
-        }
         public Account GetAccountByEmail(string email)
         {
-            var account = _unitOfWork.Repository<Account>().GetAll().Include(x => x.Role).Where(x => x.Email.Equals(email)).FirstOrDefault();
+            var account = _unitOfWork.Repository<Account>().GetAll().Include(x => x.Role)
+                .Where(x => x.Email.Equals(email) || x.Name.ToLower().Equals(email.ToLower()))
+                .FirstOrDefault();
             if (account == null)
             {
                 return null;

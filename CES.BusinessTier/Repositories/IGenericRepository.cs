@@ -23,7 +23,7 @@ namespace CES.BusinessTier.Repositories
 
         IQueryable<TEntity> FindAll(Func<TEntity, bool> predicate);
 
-        TEntity Find(Func<TEntity, bool> predicate);
+        IEnumerable<TEntity> Find(Expression<Func<TEntity, bool>> predicate);
         Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> predicate);
         Task<TEntity> GetById(int Id);
 
@@ -51,5 +51,7 @@ namespace CES.BusinessTier.Repositories
         public Task UpdateDetached(TEntity entity);
         public Task DetachEntity(TEntity entity);
         public IQueryable<TEntity> AsNoTracking();
+        IQueryable<TEntity> AsQueryable();
+        IQueryable<TEntity> AsQueryable(Expression<Func<TEntity, bool>> predicate);
     }
 }
