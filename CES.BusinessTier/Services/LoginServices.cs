@@ -21,7 +21,7 @@ namespace CES.BusinessTier.Services
 {
     public interface ILoginServices
     {
-        BaseResponseViewModel<TokenModel> Login(LoginModel loginModel);
+        BaseResponseViewModel<LoginResponseModel> Login(LoginModel loginModel);
         Task<AccountResponseModel> GetCurrentLoginAccount();
     }
     public class LoginServices : ILoginServices
@@ -53,7 +53,7 @@ namespace CES.BusinessTier.Services
             return _mapper.Map<AccountResponseModel>(account);
         }
 
-        public BaseResponseViewModel<TokenModel> Login(LoginModel loginModel)
+        public BaseResponseViewModel<LoginResponseModel> Login(LoginModel loginModel)
         {
             var account = _accountServices.GetAccountByEmail(loginModel.Email);
             if (account == null)
@@ -65,11 +65,16 @@ namespace CES.BusinessTier.Services
                 throw new ErrorResponse(StatusCodes.Status400BadRequest, StatusCodes.Status400BadRequest, "Login failed");
             }
             var newToken = Authen.GenerateToken(account, account.Role.Name, _configuration);
-            return new BaseResponseViewModel<TokenModel>
+            var result = new LoginResponseModel()
+            {
+                Account = _mapper.Map<AccountResponseModel>(account),
+                Token = newToken,
+            };
+            return new BaseResponseViewModel<LoginResponseModel>
             {
                 Code = StatusCodes.Status200OK,
                 Message = LoginEnums.Success.GetDisplayName(),
-                Data = newToken
+                Data = result
             };
         }
     }
