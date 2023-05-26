@@ -47,20 +47,31 @@ namespace CES.BusinessTier.Services
         }
         public DynamicResponse<ProjectResponseModel> Gets(PagingModel paging)
         {
+            Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
+            var account = _accountServices.Get(accountLoginId);
 
-            var projects = _unitOfWork.Repository<Project>().GetAll().Include(x => x.ProjectAccount).ThenInclude(y => y.Account)
+            var projects = _unitOfWork.Repository<Project>().GetAll()
+                .Include(x => x.ProjectAccount).ThenInclude(y => y.Account)
                 .ProjectTo<ProjectResponseModel>(_mapper.ConfigurationProvider)
                 .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging);
+            var result = projects.Item2.Where(x => x.CompanyId == account.Data.CompanyId);
             return new DynamicResponse<ProjectResponseModel>
             {
                 Code = 200,
                 Message = "OK",
-                Data = projects.Item2.ToList()
+                Data = result.ToList()
             };
         }
         public async Task<BaseResponseViewModel<ProjectResponseModel>> Get(Guid id)
         {
-            var project = await _unitOfWork.Repository<Project>().GetAll().Include(x => x.ProjectAccount).ThenInclude(y => y.Account).Where(x => x.Id == id).FirstOrDefaultAsync();
+            Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
+            var account = _accountServices.Get(accountLoginId);
+
+            var project = await _unitOfWork.Repository<Project>().GetAll()
+                .Include(x => x.ProjectAccount)
+                .ThenInclude(y => y.Account)
+                .Where(x => x.Id == id && x.CompanyId == account.Data.CompanyId)
+                .FirstOrDefaultAsync();
             return new BaseResponseViewModel<ProjectResponseModel>
             {
                 Code = 200,
@@ -102,8 +113,12 @@ namespace CES.BusinessTier.Services
         }
         public async Task<BaseResponseViewModel<ProjectResponseModel>> Create(ProjectRequestModel request)
         {
+            Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
+            var account = _accountServices.Get(accountLoginId);
+
             var newProject = _mapper.Map<Project>(request);
             newProject.Id = Guid.NewGuid();
+            newProject.CompanyId = account.Data.CompanyId;
             try
             {
                 await _unitOfWork.Repository<Project>().InsertAsync(newProject);

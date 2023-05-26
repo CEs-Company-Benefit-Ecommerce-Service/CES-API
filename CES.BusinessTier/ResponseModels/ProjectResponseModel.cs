@@ -16,6 +16,7 @@ namespace CES.BusinessTier.ResponseModels
         public DateTime? CreatedAt { get; set; }
         public int? Status { get; set; }
         public string? ImageUrl { get; set; }
+        public int? CompanyId { get; set; }
 
         public ICollection<ProjectAccountResponse> ProjectAccount { get; set; }
     }

@@ -19,6 +19,7 @@ namespace CES.DataTier.Models
         public DateTime? CreatedAt { get; set; }
         public int? Status { get; set; }
         public string? ImageUrl { get; set; }
+        public int? CompanyId { get; set; }
 
         public virtual ICollection<ProjectAccount> ProjectAccount { get; set; }
     }
