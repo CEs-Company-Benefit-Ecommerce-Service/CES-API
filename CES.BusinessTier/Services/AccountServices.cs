@@ -15,6 +15,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Claims;
+using System.Security.Principal;
 
 namespace CES.BusinessTier.Services
 {
@@ -22,7 +24,7 @@ namespace CES.BusinessTier.Services
     {
         DynamicResponse<AccountResponseModel> Gets(PagingModel paging);
         BaseResponseViewModel<AccountResponseModel> Get(Guid id);
-        Task<BaseResponseViewModel<AccountResponseModel>> UpdateAccountAsync(Guid id, AccountRequestModel requestModel);
+        Task<BaseResponseViewModel<AccountResponseModel>> UpdateAccountAsync(Guid id, AccountUpdateModel updateModel);
         Task<BaseResponseViewModel<AccountResponseModel>> DeleteAccountAsync(Guid id);
         Task<BaseResponseViewModel<AccountResponseModel>> CreateAccountAsync(AccountRequestModel requestModel);
         Account GetAccountByEmail(string email);
@@ -32,12 +34,14 @@ namespace CES.BusinessTier.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _contextAccessor;
 
-        public AccountServices(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration)
+        public AccountServices(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration, IHttpContextAccessor contextAccessor)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _configuration = configuration;
+            _contextAccessor = contextAccessor;
         }
 
         public BaseResponseViewModel<AccountResponseModel> Get(Guid id)
@@ -76,20 +80,18 @@ namespace CES.BusinessTier.Services
             };
         }
 
-        public async Task<BaseResponseViewModel<AccountResponseModel>> UpdateAccountAsync(Guid id, AccountRequestModel requestModel)
+        public async Task<BaseResponseViewModel<AccountResponseModel>> UpdateAccountAsync(Guid id, AccountUpdateModel updateModel)
         {
             var existedAccount = _unitOfWork.Repository<Account>().GetByIdGuid(id);
             if (existedAccount == null)
             {
-                return new BaseResponseViewModel<AccountResponseModel>
-                {
-                    Code = 404,
-                    Message = "Not Found"
-                };
+                throw new ErrorResponse(404, (int)AccountErrorEnums.NOT_FOUND_ID,
+                    AccountErrorEnums.NOT_FOUND_ID.GetDisplayName());
             }
             try
             {
-                var temp = _mapper.Map<AccountRequestModel, Account>(requestModel, existedAccount.Result);
+                var temp = _mapper.Map<AccountUpdateModel, Account>(updateModel, existedAccount.Result);
+                temp.Id = id;
                 await _unitOfWork.Repository<Account>().UpdateDetached(temp);
                 await _unitOfWork.CommitAsync();
                 return new BaseResponseViewModel<AccountResponseModel>
@@ -113,8 +115,30 @@ namespace CES.BusinessTier.Services
         public async Task<BaseResponseViewModel<AccountResponseModel>> CreateAccountAsync(AccountRequestModel requestModel)
         {
             #region validate value
-
+            var validatePermission = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value;
+            switch (validatePermission)
+            {
+                case "Employee":
+                    throw new ErrorResponse(StatusCodes.Status403Forbidden, (int)AccountErrorEnums.NOT_HAVE_PERMISSION, AccountErrorEnums.NOT_HAVE_PERMISSION.GetDisplayName());
+                case "Enterprise Admin":
+                    if (requestModel.RoleId != (int)Roles.Employee)
+                    {
+                        throw new ErrorResponse(StatusCodes.Status403Forbidden, (int)AccountErrorEnums.NOT_HAVE_PERMISSION, AccountErrorEnums.NOT_HAVE_PERMISSION.GetDisplayName());
+                    };
+                    Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
+                    var accountLogin = await _unitOfWork.Repository<Account>().FindAsync(x => x.Id == accountLoginId);
+                    if (accountLogin.CompanyId != requestModel.CompanyId)
+                    {
+                        throw new ErrorResponse(StatusCodes.Status403Forbidden, (int)CompanyErrorEnums.INVALID_COMPANY_ID, CompanyErrorEnums.INVALID_COMPANY_ID.GetDisplayName());
+                    }
+                    break;
+                case "Supplier Admin":
+                    throw new ErrorResponse(StatusCodes.Status403Forbidden, (int)AccountErrorEnums.NOT_HAVE_PERMISSION, AccountErrorEnums.NOT_HAVE_PERMISSION.GetDisplayName());
+                default:
+                    break;
+            }
             #endregion
+
             var checkEmailAccount = _unitOfWork.Repository<Account>().GetAll().Any(x => x.Email.Equals(requestModel.Email));
             if (checkEmailAccount)
             {

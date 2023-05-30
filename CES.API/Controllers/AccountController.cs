@@ -38,12 +38,13 @@ namespace CES.API.Controllers
             return StatusCode((int)result.Code, result);
         }
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update(Guid id, [FromBody] AccountRequestModel requestModel)
+        public async Task<ActionResult> Update(Guid id, [FromBody] AccountUpdateModel updateModel)
         {
-            var result = await _accountServices.UpdateAccountAsync(id, requestModel);
+            var result = await _accountServices.UpdateAccountAsync(id, updateModel);
             return StatusCode((int)result.Code, result);
         }
 
+        [Authorize]
         [SwaggerOperation(summary: "Create account", description: "0 - System Admin, 1 - Supplier Admin, 2 - Enterprise Admin, 3 - Employee")]
         [HttpPost]
         public async Task<ActionResult> Create([FromBody] AccountRequestModel requestModel)
