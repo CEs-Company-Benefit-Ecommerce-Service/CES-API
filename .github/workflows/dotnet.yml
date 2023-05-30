@@ -13,7 +13,6 @@ env:
 
 jobs:
   build:
-    if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' }}
     name: Build
     runs-on: ubuntu-latest
     strategy:
@@ -39,11 +38,6 @@ jobs:
         run: |
 
           dotnet publish -c Release --property PublishDir='${{ github.workspace }}/site' -r win-x64 --self-contained false
-      # - name: Share artifact inside workflow
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: api-github-actions-build
-      #     path: ${{ env.ARTIFACT_NAME }}
       - name: Zip Package
         run: |
           cd ${{ github.workspace }}/site
@@ -67,5 +61,4 @@ jobs:
       - name: Deploy to IIS
         shell: powershell
         run: |
-          mkdir C:\inetpub\wwwroot\CEsAPI
           Expand-Archive site.zip C:\inetpub\wwwroot\CEsAPI
