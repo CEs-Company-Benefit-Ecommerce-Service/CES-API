@@ -61,14 +61,11 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Clone source zip
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: ces-system-backend
       - name: Deploy to IIS
         shell: powershell
         run: |
-          iisreset /stop
-          Remove-Item -Recurse -Force -Confirm:$false C:\web-folder\
-          mkdir C:\web-folder
-          Expand-Archive site.zip C:\web-folder
-          iisreset /start
+          cd C:\inetpub\wwwroot\CEsAPI
+          Expand-Archive site.zip C:\inetpub\wwwroot\CEsAPI
