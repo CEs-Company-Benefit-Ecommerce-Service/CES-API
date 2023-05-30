@@ -33,7 +33,7 @@ jobs:
         run: dotnet publish -c Release -o ${{ env.ARTIFACT_NAME }}
       - name: Publish Staging
         if: github.ref == 'refs/heads/develop'
-        run: dotnet publish -c Release -o ${{ env.ARTIFACT_NAME }} /p:EnvironmentName=Staging
+        run: dotnet publish -c Release -o ${{ env.ARTIFACT_NAME }}
       - name: Share artifact inside workflow
         uses: actions/upload-artifact@v3
         with:
