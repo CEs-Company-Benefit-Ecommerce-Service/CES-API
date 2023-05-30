@@ -6,7 +6,7 @@ name: Continuous Deployment .NET
 on:
   push:
   pull_request:
-    branches: ["main"]
+    branches: ["main", "develop"]
 
 env:
   DOTNET_VERSION: "6.0.x"
@@ -14,6 +14,7 @@ env:
 
 jobs:
   build:
+    if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' }}
     name: Build
     runs-on: ubuntu-latest
     strategy:
@@ -39,31 +40,32 @@ jobs:
           name: api-github-actions-build
           path: ${{ env.ARTIFACT_NAME }}
 
-  # deploy:
-  #   needs: [build]
-  #   name: Deploy
-  #   runs-on: windows-latest
-  #   steps:
-  #     - name: Get artifact
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: api-github-actions-build
-  #         path: ${{ env.ARTIFACT_NAME }}
-  #     - name: Deploy Production
-  #       if: github.ref == 'refs/heads/main'
-  #       uses: garygrossgarten/github-action-scp@release
-  #       with:
-  #         local: ${{ env.ARTIFACT_NAME }}
-  #         remote: C:\inetpub\wwwroot\CEsAPI
-  #         host: ${{ secrets.HOST }}
-  #         username: ${{ secrets.USERNAME }}
-  #         password: ${{ secrets.PASSWORD }}
-  #     - name: Deploy Staging
-  #       if: github.ref == 'refs/heads/develop'
-  #       uses: garygrossgarten/github-action-scp@release
-  #       with:
-  #         local: ${{ env.ARTIFACT_NAME }}
-  #         remote: C:\inetpub\wwwroot\dev\CEsAPI
-  #         host: ${{ secrets.HOST }}
-  #         username: ${{ secrets.USERNAME }}
-  #         password: ${{ secrets.PASSWORD }}
+  deploy:
+    if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' }}
+    needs: [build]
+    name: Deploy
+    runs-on: windows-latest
+    steps:
+      - name: Get artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: api-github-actions-build
+          path: ${{ env.ARTIFACT_NAME }}
+      - name: Deploy Production
+        if: github.ref == 'refs/heads/main'
+        uses: garygrossgarten/github-action-scp@release
+        with:
+          local: ${{ env.ARTIFACT_NAME }}
+          remote: C:\inetpub\wwwroot\CEsAPI
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+      - name: Deploy Staging
+        if: github.ref == 'refs/heads/develop'
+        uses: garygrossgarten/github-action-scp@release
+        with:
+          local: ${{ env.ARTIFACT_NAME }}
+          remote: C:\inetpub\wwwroot\dev\CEsAPI
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
