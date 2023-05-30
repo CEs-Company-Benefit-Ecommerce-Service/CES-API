@@ -67,5 +67,5 @@ jobs:
       - name: Deploy to IIS
         shell: powershell
         run: |
-          cd C:\inetpub\wwwroot\CEsAPI
+          mkdir C:\inetpub\wwwroot\CEsAPI
           Expand-Archive site.zip C:\inetpub\wwwroot\CEsAPI
