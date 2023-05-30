@@ -10,6 +10,7 @@ namespace CES.API.AppStarts
             MapperConfiguration mapperConfiguration = new MapperConfiguration(mc =>
             {
                 mc.ConfigAccountModule();
+                mc.ConfigProjectModule();
 
             });
             IMapper mapper = mapperConfiguration.CreateMapper();
