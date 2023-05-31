@@ -62,12 +62,17 @@ jobs:
         shell: powershell
         if: github.ref == 'refs/heads/main'
         run: |
+          Stop-WebSite "ces-api-prod"
           Remove-Item -Recurse -Force -Confirm:$false C:\inetpub\wwwroot\CEsAPI
           mkdir C:\inetpub\wwwroot\CEsAPI
           Expand-Archive site.zip C:\inetpub\wwwroot\CEsAPI
+          Start-WebSite 'ces-api-prod'
       - name: Deploy to IIS
+        shell: powershell
         if: github.ref == 'refs/heads/develop'
         run: |
+          Stop-WebSite "ces-api-dev"
           Remove-Item -Recurse -Force -Confirm:$false C:\inetpub\wwwroot\CEsAPI-dev
           mkdir C:\inetpub\wwwroot\CEsAPI-dev
           Expand-Archive site.zip C:\inetpub\wwwroot\CEsAPI-dev
+          Start-WebSite 'ces-api-dev'
