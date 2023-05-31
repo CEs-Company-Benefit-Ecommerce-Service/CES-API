@@ -68,6 +68,7 @@ jobs:
           Expand-Archive site.zip C:\inetpub\wwwroot\CEsAPI
           Start-WebSite 'ces-api-prod'
       - name: Deploy to IIS
+        shell: powershell
         if: github.ref == 'refs/heads/develop'
         run: |
           Stop-WebSite "ces-api-dev"
