@@ -91,6 +91,7 @@ namespace CES.BusinessTier.Services
             try
             {
                 var temp = _mapper.Map<AccountUpdateModel, Account>(updateModel, existedAccount.Result);
+                temp.UpdatedAt = TimeUtils.GetCurrentSEATime();
                 temp.Id = id;
                 await _unitOfWork.Repository<Account>().UpdateDetached(temp);
                 await _unitOfWork.CommitAsync();
@@ -149,7 +150,7 @@ namespace CES.BusinessTier.Services
             newAccount.Password = hashPassword;
             newAccount.Id = Guid.NewGuid();
             newAccount.Status = (int)Status.Active;
-            newAccount.CreatedAt = DateTime.Now;
+            newAccount.CreatedAt = TimeUtils.GetCurrentSEATime();
 
             await _unitOfWork.Repository<Account>().InsertAsync(newAccount);
             await _unitOfWork.CommitAsync();
