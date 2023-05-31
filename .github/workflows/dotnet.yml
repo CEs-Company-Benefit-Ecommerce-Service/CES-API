@@ -60,7 +60,13 @@ jobs:
           name: ces-system-backend
       - name: Deploy to IIS
         shell: powershell
+        if: github.ref == 'refs/heads/main'
         run: |
           Remove-Item -Recurse -Force -Confirm:$false C:\inetpub\wwwroot\CEsAPI
           mkdir C:\inetpub\wwwroot\CEsAPI
           Expand-Archive site.zip C:\inetpub\wwwroot\CEsAPI
+        if: github.ref == 'refs/heads/develop'
+        run: |
+          Remove-Item -Recurse -Force -Confirm:$false C:\inetpub\wwwroot\CEsAPI-dev
+          mkdir C:\inetpub\wwwroot\CEsAPI-dev
+          Expand-Archive site.zip C:\inetpub\wwwroot\CEsAPI-dev
