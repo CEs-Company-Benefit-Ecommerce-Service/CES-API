@@ -61,4 +61,6 @@ jobs:
       - name: Deploy to IIS
         shell: powershell
         run: |
+          Remove-Item -Recurse -Force -Confirm:$false C:\inetpub\wwwroot\CEsAPI
+          mkdir C:\inetpub\wwwroot\CEsAPI
           Expand-Archive site.zip C:\inetpub\wwwroot\CEsAPI
