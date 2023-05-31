@@ -32,12 +32,12 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: |
 
-          dotnet publish -c Release --property PublishDir='${{ github.workspace }}/site' -r win-x64 --self-contained false
+          dotnet publish -c Release --property PublishDir='${{ github.workspace }}/site' -r win-x64 --self-contained false /p:EnvironmentName=Production
       - name: Publish Staging
         if: github.ref == 'refs/heads/develop'
         run: |
 
-          dotnet publish -c Release --property PublishDir='${{ github.workspace }}/site' -r win-x64 --self-contained false
+          dotnet publish -c Release --property PublishDir='${{ github.workspace }}/site' -r win-x64 --self-contained false /p:EnvironmentName=Development
       - name: Zip Package
         run: |
           cd ${{ github.workspace }}/site
