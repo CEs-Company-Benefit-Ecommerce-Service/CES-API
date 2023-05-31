@@ -1,0 +1,73 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: Continuous Deployment .NET
+
+on:
+  push:
+    branches: ["main", "develop"]
+
+env:
+  DOTNET_VERSION: "6.0.x"
+  ARTIFACT_NAME: "api"
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dotnet-version: ["6.0.x"]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+      - name: Install dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build -c Release --no-restore
+      - name: Publish
+        if: github.ref == 'refs/heads/main'
+        run: |
+
+          dotnet publish -c Release --property PublishDir='${{ github.workspace }}/site' -r win-x64 --self-contained false /p:EnvironmentName=Production
+      - name: Publish Staging
+        if: github.ref == 'refs/heads/develop'
+        run: |
+
+          dotnet publish -c Release --property PublishDir='${{ github.workspace }}/site' -r win-x64 --self-contained false /p:EnvironmentName=Development
+      - name: Zip Package
+        run: |
+          cd ${{ github.workspace }}/site
+          zip -r ${{ github.workspace }}/site.zip *
+      - name: Upload zip sources
+        uses: actions/upload-artifact@v2
+        with:
+          name: ces-system-backend
+          path: site.zip
+
+  deploy:
+    if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' }}
+    needs: [build]
+    name: Deploy CES Api
+    runs-on: self-hosted
+    steps:
+      - name: Clone source zip
+        uses: actions/download-artifact@v3
+        with:
+          name: ces-system-backend
+      - name: Deploy to IIS
+        shell: powershell
+        if: github.ref == 'refs/heads/main'
+        run: |
+          Remove-Item -Recurse -Force -Confirm:$false C:\inetpub\wwwroot\CEsAPI
+          mkdir C:\inetpub\wwwroot\CEsAPI
+          Expand-Archive site.zip C:\inetpub\wwwroot\CEsAPI
+      - name: Deploy to IIS
+        if: github.ref == 'refs/heads/develop'
+        run: |
+          Remove-Item -Recurse -Force -Confirm:$false C:\inetpub\wwwroot\CEsAPI-dev
+          mkdir C:\inetpub\wwwroot\CEsAPI-dev
+          Expand-Archive site.zip C:\inetpub\wwwroot\CEsAPI-dev
