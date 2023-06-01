@@ -40,7 +40,13 @@ namespace CES.BusinessTier.Utilities
 
     public enum LoginEnums
     {
-        [Display(Name = "Login Success!")] Success = (int) StatusCodes.Status200OK,
-        [Display(Name = "Login Failed!")] Failed = (int) StatusCodes.Status400BadRequest,
+        [Display(Name = "Login Success!")] Success = (int)StatusCodes.Status200OK,
+        [Display(Name = "Login Failed!")] Failed = (int)StatusCodes.Status400BadRequest,
+    }
+    public enum WalletTypeEnums
+    {
+        a,
+        [Display(Name = "Food Wallet")] FoodWallet,
+        [Display(Name = "Stationery Wallet")] StationeryWallet
     }
 }

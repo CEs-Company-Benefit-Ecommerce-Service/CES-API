@@ -22,7 +22,7 @@ namespace CES.BusinessTier.Services
 {
     public interface IAccountServices
     {
-        DynamicResponse<AccountResponseModel> Gets(PagingModel paging);
+        DynamicResponse<AccountAllResponseModel> Gets(PagingModel paging);
         BaseResponseViewModel<AccountResponseModel> Get(Guid id);
         Task<BaseResponseViewModel<AccountResponseModel>> UpdateAccountAsync(Guid id, AccountUpdateModel updateModel);
         Task<BaseResponseViewModel<AccountResponseModel>> DeleteAccountAsync(Guid id);
@@ -46,7 +46,8 @@ namespace CES.BusinessTier.Services
 
         public BaseResponseViewModel<AccountResponseModel> Get(Guid id)
         {
-            var account = _unitOfWork.Repository<Account>().GetByIdGuid(id);
+            //var account = _unitOfWork.Repository<Account>().GetByIdGuid(id);
+            var account = _unitOfWork.Repository<Account>().GetAll().Include(x => x.Wallet).Where(x => x.Id == id).FirstOrDefaultAsync();
             if (account.Result == null)
             {
                 return new BaseResponseViewModel<AccountResponseModel>
@@ -64,24 +65,50 @@ namespace CES.BusinessTier.Services
             };
         }
 
-        public DynamicResponse<AccountResponseModel> Gets(PagingModel paging)
+        public DynamicResponse<AccountAllResponseModel> Gets(PagingModel paging)
         {
-            var accounts = _unitOfWork.Repository<Account>().GetAll()
-                .ProjectTo<AccountResponseModel>(_mapper.ConfigurationProvider)
+            var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value.ToString();
+            if (role == Roles.EnterpriseAdmin.GetDisplayName())
+            {
+                Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
+                var accountLogin = _unitOfWork.Repository<Account>().FindAsync(x => x.Id == accountLoginId);
+
+                var emplAccounts = _unitOfWork.Repository<Account>().GetAll().Where(x => x.CompanyId == accountLogin.Result.CompanyId && x.RoleId == (int)Roles.Employee)
+                .ProjectTo<AccountAllResponseModel>(_mapper.ConfigurationProvider)
                 .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging)
                 ;
 
-            return new DynamicResponse<AccountResponseModel>
+                return new DynamicResponse<AccountAllResponseModel>
+                {
+                    Code = 200,
+                    Message = "OK",
+                    MetaData = new PagingMetaData()
+                    {
+                        Total = emplAccounts.Item1
+                    },
+                    Data = emplAccounts.Item2.ToList()
+                };
+            }
+            var accounts = _unitOfWork.Repository<Account>().GetAll()
+                .ProjectTo<AccountAllResponseModel>(_mapper.ConfigurationProvider)
+                .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging)
+                ;
+
+            return new DynamicResponse<AccountAllResponseModel>
             {
                 Code = 200,
                 Message = "OK",
-                MetaData = new PagingMetaData(),
+                MetaData = new PagingMetaData()
+                {
+                    Total = accounts.Item1
+                },
                 Data = accounts.Item2.ToList()
             };
         }
 
         public async Task<BaseResponseViewModel<AccountResponseModel>> UpdateAccountAsync(Guid id, AccountUpdateModel updateModel)
         {
+
             var existedAccount = _unitOfWork.Repository<Account>().GetByIdGuid(id);
             if (existedAccount == null)
             {
@@ -151,6 +178,28 @@ namespace CES.BusinessTier.Services
             newAccount.Id = Guid.NewGuid();
             newAccount.Status = (int)Status.Active;
             newAccount.CreatedAt = TimeUtils.GetCurrentSEATime();
+            var wallets = new List<Wallet>()
+            {
+                new Wallet
+                {
+                    AccountId = newAccount.Id,
+                    Balance = 0,
+                    CreatedAt = TimeUtils.GetCurrentSEATime(),
+                    Id = Guid.NewGuid(),
+                    Name = WalletTypeEnums.FoodWallet.GetDisplayName(),
+                    Type = (int)WalletTypeEnums.FoodWallet,
+                },
+                new Wallet
+                {
+                    AccountId = newAccount.Id,
+                    Balance = 0,
+                    CreatedAt = TimeUtils.GetCurrentSEATime(),
+                    Id = Guid.NewGuid(),
+                    Name = WalletTypeEnums.StationeryWallet.GetDisplayName(),
+                    Type = (int)WalletTypeEnums.StationeryWallet,
+                }
+            };
+            newAccount.Wallet = wallets;
 
             await _unitOfWork.Repository<Account>().InsertAsync(newAccount);
             await _unitOfWork.CommitAsync();
@@ -165,7 +214,7 @@ namespace CES.BusinessTier.Services
 
         public async Task<BaseResponseViewModel<AccountResponseModel>> DeleteAccountAsync(Guid id)
         {
-            var account = _unitOfWork.Repository<Account>().GetByIdGuid(id);
+            var account = _unitOfWork.Repository<Account>().GetAll().Where(x => x.Id == id).FirstOrDefault();
             if (account == null)
             {
                 return new BaseResponseViewModel<AccountResponseModel>
@@ -176,7 +225,7 @@ namespace CES.BusinessTier.Services
             }
             try
             {
-                _unitOfWork.Repository<Account>().Delete(account.Result);
+                _unitOfWork.Repository<Account>().Delete(account);
                 await _unitOfWork.CommitAsync();
                 return new BaseResponseViewModel<AccountResponseModel>
                 {

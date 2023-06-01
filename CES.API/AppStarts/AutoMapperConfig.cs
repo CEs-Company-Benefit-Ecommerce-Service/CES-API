@@ -11,6 +11,7 @@ namespace CES.API.AppStarts
             {
                 mc.ConfigAccountModule();
                 mc.ConfigProjectModule();
+                mc.ConfigWalletModule();
 
             });
             IMapper mapper = mapperConfiguration.CreateMapper();

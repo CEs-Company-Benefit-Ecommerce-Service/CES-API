@@ -22,6 +22,11 @@ namespace CES.API.Controllers
             _projectServices = projectServices;
             _contextAccessor = contextAccessor;
         }
+        /// <summary>
+        /// Only Enterprise can use
+        /// </summary>
+        /// <param name="pagingModel"></param>
+        /// <returns></returns>
         [HttpGet]
         public IActionResult Gets([FromQuery] PagingModel pagingModel)
         {
@@ -33,6 +38,11 @@ namespace CES.API.Controllers
             var result = _projectServices.Gets(pagingModel);
             return StatusCode((int)result.Code, result);
         }
+        /// <summary>
+        /// Only enterprise can use
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         public IActionResult Get(Guid id)
         {
@@ -44,6 +54,11 @@ namespace CES.API.Controllers
             var result = _projectServices.Get(id).Result;
             return StatusCode((int)result.Code, result);
         }
+        /// <summary>
+        /// Only enterprise can use
+        /// </summary>
+        /// <param name="requestModel"></param>
+        /// <returns></returns>
         [SwaggerOperation(summary: "Create project", description: "Status: 0 - InActive, 1 - Active")]
         [HttpPost]
         public IActionResult CreateProject([FromBody] ProjectRequestModel requestModel)
@@ -56,6 +71,12 @@ namespace CES.API.Controllers
             var result = _projectServices.Create(requestModel).Result;
             return StatusCode((int)result.Code, result);
         }
+        /// <summary>
+        /// Only enterprise can use
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="requestModel"></param>
+        /// <returns></returns>
         [HttpPut("{id}")]
         public IActionResult UpdateProject(Guid id, [FromBody] ProjectRequestModel requestModel)
         {
@@ -67,6 +88,11 @@ namespace CES.API.Controllers
             var result = _projectServices.Update(id, requestModel).Result;
             return StatusCode((int)result.Code, result);
         }
+        /// <summary>
+        /// Only enterprise can use
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         public IActionResult Delete(Guid id)
         {
@@ -78,6 +104,11 @@ namespace CES.API.Controllers
             var result = _projectServices.Delete(id).Result;
             return StatusCode((int)result.Code, result);
         }
+        /// <summary>
+        /// Only enterprise can use
+        /// </summary>
+        /// <param name="requestModel"></param>
+        /// <returns></returns>
         [SwaggerOperation(summary: "Add member to project")]
         [HttpPost("members")]
         public IActionResult AddProjectMember([FromBody] List<ProjectMemberRequestModel> requestModel)
@@ -90,6 +121,11 @@ namespace CES.API.Controllers
             var result = _projectServices.AddEmployee(requestModel).Result;
             return StatusCode((int)result.Code, result);
         }
+        /// <summary>
+        /// Only enterprise can use
+        /// </summary>
+        /// <param name="requestModel"></param>
+        /// <returns></returns>
         [SwaggerOperation(summary: "Remove member of project")]
         [HttpDelete("members/remove")]
         public IActionResult RemoveProjectMember([FromBody] List<ProjectMemberRequestModel> requestModel)

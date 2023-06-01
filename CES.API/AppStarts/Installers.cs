@@ -31,6 +31,8 @@ namespace CES.API.AppStarts
 
             services.AddScoped<IProjectServices, ProjectServices>();
 
+            services.AddScoped<IWalletServices, WalletServices>();
+
         }
     }
 }
