@@ -85,5 +85,11 @@ namespace CES.API.Controllers
             var result = await _accountServices.CreateAccountAsync(requestModel);
             return StatusCode((int)result.Code, result);
         }
+        [HttpPut("password")]
+        public async Task<ActionResult> ChangePassword([FromQuery] string oldPassword, [FromQuery] string newPassword)
+        {
+            var result = await _accountServices.ChangeAccountPassword(newPassword, oldPassword);
+            return StatusCode((int)result.Code, result);
+        }
     }
 }
