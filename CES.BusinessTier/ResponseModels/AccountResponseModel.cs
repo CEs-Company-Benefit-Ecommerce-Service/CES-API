@@ -20,7 +20,7 @@ namespace CES.BusinessTier.ResponseModels
         public int? RoleId { get; set; }
         public int? CompanyId { get; set; }
 
-        public ICollection<WalletResponseModel> Wallet { get; set; }
+        public ICollection<WalletResponseModel> Wallets { get; set; }
     }
     public class AccountAllResponseModel
     {
