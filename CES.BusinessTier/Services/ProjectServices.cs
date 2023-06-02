@@ -51,7 +51,7 @@ namespace CES.BusinessTier.Services
             var account = _accountServices.Get(accountLoginId);
 
             var projects = _unitOfWork.Repository<Project>().GetAll()
-                .Include(x => x.ProjectAccount).ThenInclude(y => y.Account)
+                .Include(x => x.ProjectAccounts).ThenInclude(y => y.Account)
                 .ProjectTo<ProjectResponseModel>(_mapper.ConfigurationProvider)
                 .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging);
             var result = projects.Item2.Where(x => x.CompanyId == account.Data.CompanyId);
@@ -68,7 +68,7 @@ namespace CES.BusinessTier.Services
             var account = _accountServices.Get(accountLoginId);
 
             var project = await _unitOfWork.Repository<Project>().GetAll()
-                .Include(x => x.ProjectAccount)
+                .Include(x => x.ProjectAccounts)
                 .ThenInclude(y => y.Account)
                 .Where(x => x.Id == id && x.CompanyId == account.Data.CompanyId)
                 .FirstOrDefaultAsync();
@@ -141,7 +141,7 @@ namespace CES.BusinessTier.Services
         }
         public async Task<BaseResponseViewModel<ProjectResponseModel>> Delete(Guid id)
         {
-            var project = _unitOfWork.Repository<Project>().GetAll().Include(x => x.ProjectAccount).Where(x => x.Id == id).FirstOrDefault();
+            var project = _unitOfWork.Repository<Project>().GetAll().Include(x => x.ProjectAccounts).Where(x => x.Id == id).FirstOrDefault();
             if (project == null)
             {
                 return new BaseResponseViewModel<ProjectResponseModel>
@@ -152,7 +152,7 @@ namespace CES.BusinessTier.Services
             }
             try
             {
-                foreach (var projectAccount in project.ProjectAccount)
+                foreach (var projectAccount in project.ProjectAccounts)
                 {
                     var deleteProjectAccountResult = _projectAccountServices.Deleted(projectAccount.Id);
                 }

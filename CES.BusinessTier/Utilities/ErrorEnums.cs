@@ -22,4 +22,12 @@ namespace CES.BusinessTier.Utilities
         [Display(Name = "Invalid company id!")]
         INVALID_COMPANY_ID = 4031,
     }
+
+    public enum CategoryErrorEnums
+    {
+        [Display(Name = "Invalid category!")]
+        INVALID_CATEGORY = 4001,
+        [Display(Name = "Not found this category!")]
+        NOT_FOUND_CATEGORY = 4041,
+    }
 }
