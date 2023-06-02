@@ -27,6 +27,7 @@ namespace CES.BusinessTier.Services
         Task<BaseResponseViewModel<AccountResponseModel>> UpdateAccountAsync(Guid id, AccountUpdateModel updateModel);
         Task<BaseResponseViewModel<AccountResponseModel>> DeleteAccountAsync(Guid id);
         Task<BaseResponseViewModel<AccountResponseModel>> CreateAccountAsync(AccountRequestModel requestModel);
+        Task<BaseResponseViewModel<string>> ChangeAccountPassword(string newPassword, string oldPassword);
         Account GetAccountByEmail(string email);
     }
     public class AccountServices : IAccountServices
@@ -236,6 +237,55 @@ namespace CES.BusinessTier.Services
             catch (Exception ex)
             {
                 return new BaseResponseViewModel<AccountResponseModel>
+                {
+                    Code = 400,
+                    Message = "Bad request" + "||" + ex.Message,
+                };
+            }
+        }
+
+
+        public async Task<BaseResponseViewModel<string>> ChangeAccountPassword(string newPassword, string oldPassword)
+        {
+
+            Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
+
+            var existedAccount = _unitOfWork.Repository<Account>().GetByIdGuid(accountLoginId).Result;
+            if (existedAccount == null)
+            {
+                return new BaseResponseViewModel<string>
+                {
+                    Code = 404,
+                    Message = "Not Found",
+                };
+            }
+            if (!Authen.VerifyHashedPassword(existedAccount.Password, oldPassword))
+            {
+                return new BaseResponseViewModel<string>
+                {
+                    Code = 400,
+                    Message = "Bad Request",
+                    Data = "Wrong confirm password"
+                };
+            }
+            var newHashPassword = Authen.HashPassword(newPassword);
+            existedAccount.Password = newHashPassword;
+            existedAccount.UpdatedAt = TimeUtils.GetCurrentSEATime();
+            try
+            {
+                await _unitOfWork.Repository<Account>().UpdateDetached(existedAccount);
+                await _unitOfWork.CommitAsync();
+
+                return new BaseResponseViewModel<string>
+                {
+                    Code = 200,
+                    Message = "OK",
+                    Data = "Success"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponseViewModel<string>
                 {
                     Code = 400,
                     Message = "Bad request" + "||" + ex.Message,
