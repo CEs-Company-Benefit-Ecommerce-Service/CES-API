@@ -15,7 +15,7 @@ namespace CES.API.AppStarts
                 options.LowercaseUrls = true; ;
                 options.LowercaseQueryStrings = true;
             });
-            services.AddDbContext<CEsData_v2Context>(options =>
+            services.AddDbContext<CEsData_devContext>(options =>
             {
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
             });
@@ -32,6 +32,8 @@ namespace CES.API.AppStarts
             services.AddScoped<IProjectServices, ProjectServices>();
 
             services.AddScoped<IWalletServices, WalletServices>();
+
+            services.AddScoped<ICategoryService, CategoryService>();
 
         }
     }

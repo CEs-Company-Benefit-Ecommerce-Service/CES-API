@@ -13,10 +13,10 @@ namespace CES.BusinessTier.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
-        private static CEsData_v2Context Context;
+        private static CEsData_devContext Context;
         private static DbSet<T> Table { get; set; }
 
-        public GenericRepository(CEsData_v2Context context)
+        public GenericRepository(CEsData_devContext context)
         {
             Context = context;
             Table = Context.Set<T>();

@@ -12,7 +12,7 @@ namespace CES.API.AppStarts
                 mc.ConfigAccountModule();
                 mc.ConfigProjectModule();
                 mc.ConfigWalletModule();
-
+                mc.ConfigCategoryModule();
             });
             IMapper mapper = mapperConfiguration.CreateMapper();
             services.AddSingleton(mapper);

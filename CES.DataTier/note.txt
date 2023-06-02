@@ -1,1 +1,1 @@
-Scaffold-DbContext "Server=DESKTOP-QP6C35J\SQLEXPRESS;Database=CEsData_v1;uid=sa;pwd=Lak@100601" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -force
+Scaffold-DbContext "Server=35.187.237.212;Database=CEsData_dev;uid=sa;pwd=zaQ@1234" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -force
