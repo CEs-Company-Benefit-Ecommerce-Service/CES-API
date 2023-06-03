@@ -30,4 +30,12 @@ namespace CES.BusinessTier.Utilities
         [Display(Name = "Not found this category!")]
         NOT_FOUND_CATEGORY = 4041,
     }
+
+    public enum ProductErrorEnums
+    {
+        [Display(Name = "Invalid product!")]
+        INVALID_PRODUCT = 4001,
+        [Display(Name = "Not found this product!")]
+        NOT_FOUND_PRODUCT = 4041,
+    }
 }

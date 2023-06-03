@@ -21,10 +21,11 @@ namespace CES.BusinessTier.Services
     public interface ICategoryService
     {
         Task<DynamicResponse<CategoryResponseModel>> GetAllCategoryAsync(CategoryResponseModel filter, PagingModel paging);
-        Task<BaseResponseViewModel<CategoryResponseModel>> GetCategoryAsync(int categoryId);
+        Task<BaseResponseViewModel<CategoryResponseModel>> GetCategoryAsync(int categoryId, CategoryResponseModel filter);
         Task<BaseResponseViewModel<CategoryResponseModel>> CreateCategoryAsync(CategoryRequestModel category);
         Task<BaseResponseViewModel<CategoryResponseModel>> UpdateCategoryAsync(int categoryId, CategoryUpdateModel categoryUpdate);
         Task<BaseResponseViewModel<CategoryResponseModel>> DeleteCategoryAsync(int categoryId);
+        Task<bool> ValidCategory(int id);
     }
 
     public class CategoryService : ICategoryService
@@ -72,6 +73,18 @@ namespace CES.BusinessTier.Services
             };
         }
 
+        public async Task<bool> ValidCategory(int id)
+        {
+            var category = await _unitOfWork.Repository<Category>().AsQueryable(x => x.Id == id && x.Status == (int)Status.Active)
+                .FirstOrDefaultAsync();
+            if (category == null)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public async Task<DynamicResponse<CategoryResponseModel>> GetAllCategoryAsync(CategoryResponseModel filter, PagingModel paging)
         {
             //var a = _unitOfWork
@@ -94,15 +107,18 @@ namespace CES.BusinessTier.Services
             };
         }
 
-        public async Task<BaseResponseViewModel<CategoryResponseModel>> GetCategoryAsync(int categoryId)
+        public async Task<BaseResponseViewModel<CategoryResponseModel>> GetCategoryAsync(int categoryId, CategoryResponseModel filter)
         {
-            var category = await _unitOfWork.Repository<Category>().AsQueryable(x => x.Id == categoryId && x.Status == (int)Status.Active).FirstOrDefaultAsync();
+            var category = await _unitOfWork.Repository<Category>().AsQueryable(x => x.Id == categoryId)
+                .ProjectTo<CategoryResponseModel>(_mapper.ConfigurationProvider)
+                .DynamicFilter(filter)
+                .FirstOrDefaultAsync();
             if (category == null) throw new ErrorResponse(StatusCodes.Status404NotFound, (int)CategoryErrorEnums.NOT_FOUND_CATEGORY, CategoryErrorEnums.NOT_FOUND_CATEGORY.GetDisplayName());
             return new BaseResponseViewModel<CategoryResponseModel>
             {
                 Code = StatusCodes.Status200OK,
                 Message = "OK",
-                Data = _mapper.Map<CategoryResponseModel>(category)
+                Data = category
             };
         }
 
