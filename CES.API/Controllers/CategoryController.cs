@@ -30,9 +30,9 @@ namespace CES.API.Controllers
 
         // GET api/<CategoryController>/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<BaseResponseViewModel<CategoryResponseModel>>> GetCategoryById(int id)
+        public async Task<ActionResult<BaseResponseViewModel<CategoryResponseModel>>> GetCategoryById(int id, [FromQuery] CategoryResponseModel filter)
         {
-            return Ok(await _categoryService.GetCategoryAsync(id));
+            return Ok(await _categoryService.GetCategoryAsync(id, filter));
         }
 
         // POST api/<CategoryController>
