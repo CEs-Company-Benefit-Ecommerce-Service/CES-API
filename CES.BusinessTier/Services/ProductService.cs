@@ -30,11 +30,13 @@ namespace CES.BusinessTier.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ICategoryService _categoryService;
 
-        public ProductService(IUnitOfWork unitOfWork, IMapper mapper)
+        public ProductService(IUnitOfWork unitOfWork, IMapper mapper, ICategoryService categoryService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _categoryService = categoryService;
         }
         public async Task<BaseResponseViewModel<ProductResponseModel>> CreateProductAsync(ProductRequestModel product)
         {
@@ -42,7 +44,17 @@ namespace CES.BusinessTier.Services
             {
                 throw new ErrorResponse(StatusCodes.Status400BadRequest, (int)ProductErrorEnums.INVALID_PRODUCT, ProductErrorEnums.INVALID_PRODUCT.GetDisplayName());
             }
+
+            if (product.CategoryId != null)
+            {
+                var haveCate = _categoryService.ValidCategory((int)product.CategoryId).Result;
+                if (!haveCate)
+                {
+                    throw new ErrorResponse(StatusCodes.Status400BadRequest, (int)CategoryErrorEnums.INVALID_CATEGORY, CategoryErrorEnums.INVALID_CATEGORY.GetDisplayName());
+                }
+            }
             var newProduct = _mapper.Map<Product>(product);
+            newProduct.Id = Guid.NewGuid();
             newProduct.Status = (int)Status.Active;
             newProduct.CreatedAt = TimeUtils.GetCurrentSEATime();
             await _unitOfWork.Repository<Product>().InsertAsync(newProduct);
