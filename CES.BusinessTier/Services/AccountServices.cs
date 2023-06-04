@@ -215,7 +215,7 @@ namespace CES.BusinessTier.Services
 
         public async Task<BaseResponseViewModel<AccountResponseModel>> DeleteAccountAsync(Guid id)
         {
-            var account = _unitOfWork.Repository<Account>().GetAll().Where(x => x.Id == id).FirstOrDefault();
+            var account = _unitOfWork.Repository<Account>().GetAll().Include(x => x.Wallets).Where(x => x.Id == id).FirstOrDefaultAsync().Result;
             if (account == null)
             {
                 return new BaseResponseViewModel<AccountResponseModel>
