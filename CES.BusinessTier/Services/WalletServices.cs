@@ -27,7 +27,7 @@ namespace CES.BusinessTier.Services
         BaseResponseViewModel<List<WalletResponseModel>> GetWalletsAccount(Guid accountId);
         Task<BaseResponseViewModel<WalletResponseModel>> CreateAsync(WalletRequestModel request);
         Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletInfoAsync(Guid id, WalletInfoRequestModel request);
-        Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletBalanceAsync(Guid id, double balance);
+        Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletBalanceAsync(Guid id, double balance, int type);
     }
     public class WalletServices : IWalletServices
     {
@@ -157,8 +157,10 @@ namespace CES.BusinessTier.Services
                 };
             }
         }
-        public async Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletBalanceAsync(Guid id, double balance)
+        public async Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletBalanceAsync(Guid id, double balance, int type)
         {
+            Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
+
             var existedWallet = _unitOfWork.Repository<Wallet>().GetByIdGuid(id).Result;
             if (existedWallet == null)
             {
@@ -168,10 +170,40 @@ namespace CES.BusinessTier.Services
                     Message = "Not found",
                 };
             }
+            switch (type)
+            {
+                case 1:
+                    existedWallet.Balance += balance;
+                    break;
+                case 2:
+                    if (existedWallet.Balance < balance)
+                    {
+                        existedWallet.Balance = 0;
+                    }
+                    else
+                    {
+                        existedWallet.Balance -= balance;
+                    }
+                    break;
+                default:
+                    break;
+            }
             existedWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
-            existedWallet.Balance = balance;
+            var walletTransaction = new WalletTransaction()
+            {
+                Id = Guid.NewGuid(),
+                SenderId = accountLoginId,
+                RecieverId = existedWallet.AccountId,
+                Status = 4,
+                WalletId = existedWallet.Id,
+                Type = (int)WalletTransactionTypeEnums.AddWelfare,
+                Description = "Gui tien phuc loi cho nhan vien",
+                Total = balance,
+                CreatedAt = TimeUtils.GetCurrentSEATime(),
+            };
             try
             {
+                await _unitOfWork.Repository<WalletTransaction>().InsertAsync(walletTransaction);
                 await _unitOfWork.Repository<Wallet>().UpdateDetached(existedWallet);
                 await _unitOfWork.CommitAsync();
 

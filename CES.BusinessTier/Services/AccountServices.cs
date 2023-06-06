@@ -215,7 +215,7 @@ namespace CES.BusinessTier.Services
 
         public async Task<BaseResponseViewModel<AccountResponseModel>> DeleteAccountAsync(Guid id)
         {
-            var account = _unitOfWork.Repository<Account>().GetAll().Where(x => x.Id == id).FirstOrDefault();
+            var account = _unitOfWork.Repository<Account>().GetAll().Include(x => x.Wallets).Where(x => x.Id == id).FirstOrDefaultAsync().Result;
             if (account == null)
             {
                 return new BaseResponseViewModel<AccountResponseModel>
@@ -224,9 +224,16 @@ namespace CES.BusinessTier.Services
                     Message = "Not Found",
                 };
             }
+            account.Status = (int)Status.Banned;
+            account.UpdatedAt = TimeUtils.GetCurrentSEATime();
+            //var wallets = account.Wallets;
+            //foreach (var wallet in wallets)
+            //{
+            //    wallet.
+            //}
             try
             {
-                _unitOfWork.Repository<Account>().Delete(account);
+                await _unitOfWork.Repository<Account>().UpdateDetached(account);
                 await _unitOfWork.CommitAsync();
                 return new BaseResponseViewModel<AccountResponseModel>
                 {
