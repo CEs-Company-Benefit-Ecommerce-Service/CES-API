@@ -224,9 +224,16 @@ namespace CES.BusinessTier.Services
                     Message = "Not Found",
                 };
             }
+            account.Status = (int)Status.Banned;
+            account.UpdatedAt = TimeUtils.GetCurrentSEATime();
+            //var wallets = account.Wallets;
+            //foreach (var wallet in wallets)
+            //{
+            //    wallet.
+            //}
             try
             {
-                _unitOfWork.Repository<Account>().Delete(account);
+                await _unitOfWork.Repository<Account>().UpdateDetached(account);
                 await _unitOfWork.CommitAsync();
                 return new BaseResponseViewModel<AccountResponseModel>
                 {
