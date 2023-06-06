@@ -19,4 +19,11 @@ namespace CES.BusinessTier.AutoMapperModules
             mc.CreateMap<Wallet, WalletInfoRequestModel>().ReverseMap();
         }
     }
+    public static class WalletTransactionModule
+    {
+        public static void ConfigWalletTransactionModule(this IMapperConfigurationExpression mc)
+        {
+            mc.CreateMap<WalletTransaction, WalletTransactionResponseModel>().ReverseMap();
+        }
+    }
 }
