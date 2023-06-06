@@ -31,11 +31,12 @@ namespace CES.BusinessTier.Utilities
         [Display(Name = "Enterprise Admin")] EnterpriseAdmin,
         [Display(Name = "Employee")] Employee
     }
+    //Status for account
     public enum Status
     {
-        [Display(Name = "Inactive")] Inactive,
-        [Display(Name = "Active")] Active,
-        [Display(Name = "Banned")] Banned
+        [Display(Name = "Inactive")] Inactive = 1,
+        [Display(Name = "Active")] Active = 2,
+        [Display(Name = "Banned")] Banned = 3
     }
 
     public enum LoginEnums
@@ -45,8 +46,7 @@ namespace CES.BusinessTier.Utilities
     }
     public enum WalletTypeEnums
     {
-        a,
-        [Display(Name = "Food Wallet")] FoodWallet,
-        [Display(Name = "Stationery Wallet")] StationeryWallet
+        [Display(Name = "Food Wallet")] FoodWallet = 1,
+        [Display(Name = "Stationery Wallet")] StationeryWallet = 2
     }
 }

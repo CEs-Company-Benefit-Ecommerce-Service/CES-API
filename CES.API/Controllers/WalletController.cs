@@ -5,6 +5,7 @@ using CES.BusinessTier.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
 
 namespace CES.API.Controllers
@@ -105,14 +106,15 @@ namespace CES.API.Controllers
         /// <param name="balance"></param>
         /// <returns></returns>
         [HttpPut("{id}/{balance}")]
-        public IActionResult Put(Guid id, double balance)
+        [SwaggerOperation(summary: "Type", description: "1 - Add, 2 - Minus")]
+        public IActionResult Put(Guid id, double balance, [FromQuery] int type)
         {
             var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value.ToString();
             if (role != Roles.EnterpriseAdmin.GetDisplayName())
             {
                 return StatusCode(401);
             }
-            var result = _walletServices.UpdateWalletBalanceAsync(id, balance).Result;
+            var result = _walletServices.UpdateWalletBalanceAsync(id, balance, type).Result;
             return StatusCode((int)result.Code, result);
         }
     }

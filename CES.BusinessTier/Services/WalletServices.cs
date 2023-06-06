@@ -27,7 +27,7 @@ namespace CES.BusinessTier.Services
         BaseResponseViewModel<List<WalletResponseModel>> GetWalletsAccount(Guid accountId);
         Task<BaseResponseViewModel<WalletResponseModel>> CreateAsync(WalletRequestModel request);
         Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletInfoAsync(Guid id, WalletInfoRequestModel request);
-        Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletBalanceAsync(Guid id, double balance);
+        Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletBalanceAsync(Guid id, double balance, int type);
     }
     public class WalletServices : IWalletServices
     {
@@ -157,7 +157,7 @@ namespace CES.BusinessTier.Services
                 };
             }
         }
-        public async Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletBalanceAsync(Guid id, double balance)
+        public async Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletBalanceAsync(Guid id, double balance, int type)
         {
             var existedWallet = _unitOfWork.Repository<Wallet>().GetByIdGuid(id).Result;
             if (existedWallet == null)
@@ -168,8 +168,25 @@ namespace CES.BusinessTier.Services
                     Message = "Not found",
                 };
             }
+            switch (type)
+            {
+                case 1:
+                    existedWallet.Balance += balance;
+                    break;
+                case 2:
+                    if(existedWallet.Balance < balance)
+                    {
+                        existedWallet.Balance = 0;
+                    }
+                    else
+                    {
+                        existedWallet.Balance -= balance;
+                    }
+                    break;
+                default:
+                    break;
+            }
             existedWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
-            existedWallet.Balance = balance;
             try
             {
                 await _unitOfWork.Repository<Wallet>().UpdateDetached(existedWallet);
