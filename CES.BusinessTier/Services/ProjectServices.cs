@@ -24,8 +24,8 @@ namespace CES.BusinessTier.Services
     {
         DynamicResponse<ProjectResponseModel> Gets(PagingModel paging);
         Task<BaseResponseViewModel<ProjectResponseModel>> Get(Guid id);
-        Task<BaseResponseViewModel<ProjectResponseModel>> AddEmployee(List<ProjectMemberRequestModel> requestModel);
-        Task<BaseResponseViewModel<ProjectResponseModel>> RemoveEmployee(List<ProjectMemberRequestModel> requestModel);
+        Task<BaseResponseViewModel<ProjectResponseModel>> AddEmployee(ProjectMemberRequestModel requestModel);
+        Task<BaseResponseViewModel<ProjectResponseModel>> RemoveEmployee(ProjectMemberRequestModel requestModel);
         Task<BaseResponseViewModel<ProjectResponseModel>> Update(Guid id, ProjectRequestModel request);
         Task<BaseResponseViewModel<ProjectResponseModel>> Create(ProjectRequestModel request);
         Task<BaseResponseViewModel<ProjectResponseModel>> Delete(Guid id);
@@ -173,11 +173,11 @@ namespace CES.BusinessTier.Services
                 };
             }
         }
-        public async Task<BaseResponseViewModel<ProjectResponseModel>> AddEmployee(List<ProjectMemberRequestModel> requestModel)
+        public async Task<BaseResponseViewModel<ProjectResponseModel>> AddEmployee(ProjectMemberRequestModel requestModel)
         {
-            foreach (var member in requestModel)
+            foreach (var accountId in requestModel.AccountId)
             {
-                var newProjectAccount = await _projectAccountServices.Created(member.AccountId, member.ProjectId);
+                var newProjectAccount = await _projectAccountServices.Created(accountId, requestModel.ProjectId);
                 if (newProjectAccount == null)
                 {
                     return new BaseResponseViewModel<ProjectResponseModel>()
@@ -196,14 +196,14 @@ namespace CES.BusinessTier.Services
                 Message = "OK",
             }; ;
         }
-        public async Task<BaseResponseViewModel<ProjectResponseModel>> RemoveEmployee(List<ProjectMemberRequestModel> requestModel)
+        public async Task<BaseResponseViewModel<ProjectResponseModel>> RemoveEmployee(ProjectMemberRequestModel requestModel)
         {
             try
             {
-                var project = await Get(requestModel.Select(x => x.ProjectId).FirstOrDefault());
-                foreach (var member in requestModel)
+                var project = await Get(requestModel.ProjectId);
+                foreach (var accountId in requestModel.AccountId)
                 {
-                    var projectAccount = project.Data.ProjectAccount.Where(x => x.AccountId == member.AccountId).FirstOrDefault();
+                    var projectAccount = project.Data.ProjectAccount.Where(x => x.AccountId == accountId).FirstOrDefault();
                     if (projectAccount != null)
                     {
                         var deleteProjectAccoutnResult = await _projectAccountServices.Deleted(projectAccount.Id);

@@ -17,7 +17,7 @@ namespace CES.BusinessTier.RequestModels
     }
     public class ProjectMemberRequestModel
     {
-        public Guid AccountId { get; set; }
         public Guid ProjectId { get; set; }
+        public List<Guid> AccountId { get; set; }
     }
 }

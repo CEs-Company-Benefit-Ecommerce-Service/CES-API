@@ -111,7 +111,7 @@ namespace CES.API.Controllers
         /// <returns></returns>
         [SwaggerOperation(summary: "Add member to project")]
         [HttpPost("members")]
-        public IActionResult AddProjectMember([FromBody] List<ProjectMemberRequestModel> requestModel)
+        public IActionResult AddProjectMember([FromBody] ProjectMemberRequestModel requestModel)
         {
             var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value.ToString();
             if (role != Roles.EnterpriseAdmin.GetDisplayName())
@@ -128,7 +128,7 @@ namespace CES.API.Controllers
         /// <returns></returns>
         [SwaggerOperation(summary: "Remove member of project")]
         [HttpDelete("members/remove")]
-        public IActionResult RemoveProjectMember([FromBody] List<ProjectMemberRequestModel> requestModel)
+        public IActionResult RemoveProjectMember([FromBody] ProjectMemberRequestModel requestModel)
         {
             var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value.ToString();
             if (role != Roles.EnterpriseAdmin.GetDisplayName())

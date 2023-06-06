@@ -37,7 +37,7 @@ namespace CES.API.AppStarts
 
             services.AddScoped<IProductService, ProductService>();
 
-            services.AddScoped<IWalletTransaction, WalletTransaction>();
+            services.AddScoped<IWalletTransaction, WalletTransactionServices>();
         }
     }
 }
