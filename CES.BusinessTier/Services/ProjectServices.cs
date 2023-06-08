@@ -203,7 +203,7 @@ namespace CES.BusinessTier.Services
                 var project = await Get(requestModel.ProjectId);
                 foreach (var accountId in requestModel.AccountId)
                 {
-                    var projectAccount = project.Data.ProjectAccount.Where(x => x.AccountId == accountId).FirstOrDefault();
+                    var projectAccount = project.Data.ProjectAccounts.Where(x => x.AccountId == accountId).FirstOrDefault();
                     if (projectAccount != null)
                     {
                         var deleteProjectAccoutnResult = await _projectAccountServices.Deleted(projectAccount.Id);

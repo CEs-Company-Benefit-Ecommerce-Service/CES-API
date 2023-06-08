@@ -18,7 +18,7 @@ namespace CES.BusinessTier.ResponseModels
         public string? ImageUrl { get; set; }
         public int? CompanyId { get; set; }
 
-        public ICollection<ProjectAccountResponse> ProjectAccount { get; set; }
+        public ICollection<ProjectAccountResponse> ProjectAccounts { get; set; }
     }
 
     public partial class ProjectAccountResponse
