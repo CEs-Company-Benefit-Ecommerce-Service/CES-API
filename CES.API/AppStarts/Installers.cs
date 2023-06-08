@@ -38,6 +38,14 @@ namespace CES.API.AppStarts
             services.AddScoped<IProductService, ProductService>();
 
             services.AddScoped<IWalletTransaction, WalletTransactionServices>();
+
+            services.AddScoped<ICompanyServices, CompanyServices>();
+
+            services.AddScoped<IOrderDetailServices, OrderDetailServices>();
+
+            services.AddScoped<IOrderServices, OrderServices>();
+
+
         }
     }
 }

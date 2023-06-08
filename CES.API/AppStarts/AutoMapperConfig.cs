@@ -14,6 +14,9 @@ namespace CES.API.AppStarts
                 mc.ConfigWalletModule();
                 mc.ConfigCategoryModule();
                 mc.ConfigProductModule();
+                mc.ConfigCompanyModule();
+                mc.ConfigOrderDetailModule();
+                mc.ConfigOrderModule();
             });
             IMapper mapper = mapperConfiguration.CreateMapper();
             services.AddSingleton(mapper);

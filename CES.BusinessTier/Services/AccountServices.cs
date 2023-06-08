@@ -202,9 +202,6 @@ namespace CES.BusinessTier.Services
             };
             newAccount.Wallets = wallets;
 
-            await _unitOfWork.Repository<Account>().InsertAsync(newAccount);
-            await _unitOfWork.CommitAsync();
-
             return new BaseResponseViewModel<AccountResponseModel>
             {
                 Code = StatusCodes.Status200OK,

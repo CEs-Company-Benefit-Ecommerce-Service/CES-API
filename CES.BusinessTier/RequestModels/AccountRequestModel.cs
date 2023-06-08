@@ -16,5 +16,7 @@ namespace CES.BusinessTier.RequestModels
         public string? Password { get; set; }
         public int? RoleId { get; set; }
         public int? CompanyId { get; set; }
+
+        public CompanyRequestModel? Company { get; set; }
     }
 }

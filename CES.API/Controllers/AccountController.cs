@@ -26,15 +26,15 @@ namespace CES.API.Controllers
         /// </summary>
         /// <param name="pagingModel"></param>
         /// <returns></returns>
-        //[Authorize(Roles = "EnterpriseAdmin")]
+        [Authorize(Roles = "Enterprise Admin, System Admin")]
         [HttpGet]
         public IActionResult Get([FromQuery] PagingModel pagingModel)
         {
-            var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value.ToString();
-            if (role == Roles.Employee.GetDisplayName())
-            {
-                return StatusCode(401);
-            }
+            //var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value.ToString();
+            //if (role == Roles.Employee.GetDisplayName())
+            //{
+            //    return StatusCode(401);
+            //}
             var result = _accountServices.Gets(pagingModel);
             return StatusCode((int)result.Code, result);
         }
