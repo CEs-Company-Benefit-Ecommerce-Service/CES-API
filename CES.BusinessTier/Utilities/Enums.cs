@@ -34,8 +34,8 @@ namespace CES.BusinessTier.Utilities
     //Status for account
     public enum Status
     {
-        [Display(Name = "Inactive")] Inactive = 1,
-        [Display(Name = "Active")] Active = 2,
+        [Display(Name = "Active")] Active = 1,
+        [Display(Name = "Inactive")] Inactive = 2,
         [Display(Name = "Banned")] Banned = 3
     }
 
