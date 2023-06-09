@@ -177,6 +177,14 @@ namespace CES.BusinessTier.Services
         {
             foreach (var accountId in requestModel.AccountId)
             {
+                if (_projectAccountServices.CheckAccountInProject(accountId, requestModel.ProjectId).Result)
+                {
+                    return new BaseResponseViewModel<ProjectResponseModel>()
+                    {
+                        Code = 400,
+                        Message = "This account was in group",
+                    };
+                }
                 var newProjectAccount = await _projectAccountServices.Created(accountId, requestModel.ProjectId);
                 if (newProjectAccount == null)
                 {
