@@ -18,6 +18,7 @@ namespace CES.BusinessTier.Services
         Task<bool> Deleted(Guid id);
         Task<ProjectAccount> Created(Guid accountId, Guid projectId);
         public IEnumerable<ProjectAccount> Gets(PagingModel paging);
+        Task<bool> CheckAccountInProject(Guid accountId, Guid projectId);
     }
     public class ProjectAccountServices : IProjectAccountServices
     {
@@ -66,6 +67,24 @@ namespace CES.BusinessTier.Services
             {
                 return false;
             }
+        }
+
+        public async Task<bool> CheckAccountInProject(Guid accountId, Guid projectId)
+        {
+            var projectAccounts = _unitOfWork.Repository<ProjectAccount>().GetWhere(x => x.ProjectId == projectId).Result;
+            if (projectAccounts == null)
+            {
+                return false;
+            }
+            foreach (var account in projectAccounts)
+            {
+                if (account.AccountId == accountId)
+                {
+                    return true;
+                }
+            }
+            return false;
+            
         }
         //public async Task<bool> DeleteRange(Guid projectId)
         //{
