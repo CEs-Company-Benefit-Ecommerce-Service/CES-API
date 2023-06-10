@@ -17,6 +17,8 @@ namespace CES.BusinessTier.Repositories
 
         Task InsertRangeAsync(IQueryable<TEntity> entities);
 
+        Task AddRangeAsync(IEnumerable<TEntity> entities);
+
         DbSet<TEntity> GetAll();
         IQueryable<TEntity> GetAllApart();
         Task<IEnumerable<TEntity>> GetWhere(Expression<Func<TEntity, bool>> predicate);

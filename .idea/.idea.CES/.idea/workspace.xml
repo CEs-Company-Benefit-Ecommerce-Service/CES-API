@@ -8,12 +8,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c33e2030-59db-4d3d-a633-8e65857e01e7" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/TransactionRequestModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/Person.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/TransactionResponseModels.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/ExcelService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/TransactionService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CES.API/AppStarts/Installers.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.API/AppStarts/Installers.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CES.API/CES.API.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/CES.API/CES.API.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.API/Properties/launchSettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/CES.API/Properties/launchSettings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.API/appsettings.Development.json" beforeDir="false" afterPath="$PROJECT_DIR$/CES.API/appsettings.Development.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CES.API/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/CES.API/appsettings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/ProductRequestModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/ProductRequestModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/CategoryService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/CategoryService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/ProductService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/ProductService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/CES.BusinessTier.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/CES.BusinessTier.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Repositories/GenericRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Repositories/GenericRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Repositories/IGenericRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Repositories/IGenericRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/UnitOfWork/UnitOfWork.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/UnitOfWork/UnitOfWork.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Utilities/Authen.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Utilities/Authen.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Utilities/Enums.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Utilities/Enums.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,7 +32,12 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/9c289e31f3ffc2e499326eb1fbeef9ee3795a2cec159f2ec2935555aabc4f/Lazy.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/CES.API/appsettings.Development.json" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/CES.BusinessTier/ResponseModels/ProductResponseModel.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/CES.BusinessTier/Services/ProductService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/CES.BusinessTier/Services/TransactionService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/CES.BusinessTier/Services/WalletServices.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/CES.DataTier/Models/Transaction.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -33,6 +49,7 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -69,7 +86,7 @@
         <option name="Build" />
       </method>
     </configuration>
-    <configuration name="Unnamed" type="LaunchSettings" factoryName=".NET Launch Settings Profile" nameIsGenerated="true">
+    <configuration name="CES.API" type="LaunchSettings" factoryName=".NET Launch Settings Profile">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/CES.API/CES.API.csproj" />
       <option name="LAUNCH_PROFILE_TFM" value="net6.0" />
       <option name="LAUNCH_PROFILE_NAME" value="CES.API" />
@@ -113,6 +130,10 @@
       <workItem from="1685785039749" duration="538000" />
       <workItem from="1685785609429" duration="1911000" />
       <workItem from="1685788445252" duration="3243000" />
+      <workItem from="1686106535857" duration="62000" />
+      <workItem from="1686106726196" duration="3170000" />
+      <workItem from="1686112910824" duration="302000" />
+      <workItem from="1686132352822" duration="14451000" />
     </task>
     <servers />
   </component>
