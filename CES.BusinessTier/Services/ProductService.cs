@@ -84,7 +84,7 @@ namespace CES.BusinessTier.Services
 
         public async Task<DynamicResponse<ProductResponseModel>> GetAllProductAsync(ProductResponseModel filter, PagingModel paging)
         {
-            var result = _unitOfWork.Repository<Product>().AsQueryable()
+            var result = _unitOfWork.Repository<Product>().AsQueryable(x => x.Status == (int)Status.Active)
                 .ProjectTo<ProductResponseModel>(_mapper.ConfigurationProvider)
                 .DynamicFilter(filter)
                 .DynamicSort(paging.Sort, paging.Order)
@@ -105,7 +105,7 @@ namespace CES.BusinessTier.Services
 
         public async Task<BaseResponseViewModel<ProductResponseModel>> GetProductAsync(Guid productId, ProductResponseModel filter)
         {
-            var product = await _unitOfWork.Repository<Product>().AsQueryable(x => x.Id == productId)
+            var product = await _unitOfWork.Repository<Product>().AsQueryable(x => x.Id == productId && x.Status == (int)Status.Active)
                 .ProjectTo<ProductResponseModel>(_mapper.ConfigurationProvider)
                 .DynamicFilter(filter)
                 .FirstOrDefaultAsync();
