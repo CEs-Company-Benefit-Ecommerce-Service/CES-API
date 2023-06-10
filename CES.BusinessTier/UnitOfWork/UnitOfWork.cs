@@ -2,6 +2,7 @@
 using CES.DataTier.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -57,6 +58,24 @@ namespace CES.BusinessTier.UnitOfWork
             return _context.SaveChanges();
         }
 
-        public Task<int> CommitAsync() => _context.SaveChangesAsync();
+        public Task<int> CommitAsync()
+        {
+            TrackChanges();
+            return _context.SaveChangesAsync();
+        }
+        
+        private void TrackChanges()
+        {
+            var validationErrors = _context.ChangeTracker.Entries<IValidatableObject>()
+                .SelectMany(e => e.Entity.Validate(null))
+                .Where(e => e != ValidationResult.Success)
+                .ToArray();
+            if (validationErrors.Any())
+            {
+                var exceptionMessage = string.Join(Environment.NewLine,
+                    validationErrors.Select(error => $"Properties {error.MemberNames} Error: {error.ErrorMessage}"));
+                throw new Exception(exceptionMessage);
+            }
+        }
     }
 }

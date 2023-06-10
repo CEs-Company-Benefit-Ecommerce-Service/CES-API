@@ -28,6 +28,7 @@ namespace CES.BusinessTier.Utilities
                     new Claim(ClaimTypes.Email, account.Email),
                     new Claim(ClaimTypes.Role, role.ToString()),
                     new Claim(ClaimTypes.MobilePhone, account.Phone),
+                    new Claim("CompanyId", account.CompanyId.ToString()),
                     new Claim("TokenId", Guid.NewGuid().ToString())
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),

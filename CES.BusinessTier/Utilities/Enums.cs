@@ -53,4 +53,14 @@ namespace CES.BusinessTier.Utilities
     {
         [Display(Name = "Add Welfare")] AddWelfare = 1,
     }
+
+    public enum TransactionTypeEnums
+    {
+        [Display(Name = "Default")]
+        Default = 1,
+        [Display(Name = "Rollback")]
+        RollBack = 2,
+        [Display(Name = "ActiveCard")]
+        ActiveCard = 3,
+    }
 }

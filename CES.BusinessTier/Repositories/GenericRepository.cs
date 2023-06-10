@@ -111,6 +111,11 @@ namespace CES.BusinessTier.Repositories
             await Table.AddAsync(entity);
         }
 
+        public async Task AddRangeAsync(IEnumerable<T> entities)
+        {
+            await Table.AddRangeAsync(entities);
+        }
+
         public async Task InsertRangeAsync(IQueryable<T> entities)
         {
             await Table.AddRangeAsync(entities);
