@@ -87,8 +87,7 @@ namespace CES.BusinessTier.Services
 
         public async Task<DynamicResponse<CategoryResponseModel>> GetAllCategoryAsync(CategoryResponseModel filter, PagingModel paging)
         {
-            //var a = _unitOfWork
-            var result = _unitOfWork.Repository<Category>().AsQueryable()
+            var result = _unitOfWork.Repository<Category>().AsQueryable(x => x.Status == (int)Status.Active)
                 .ProjectTo<CategoryResponseModel>(_mapper.ConfigurationProvider)
                 .DynamicFilter(filter)
                 .DynamicSort(paging.Sort, paging.Order)
@@ -109,7 +108,7 @@ namespace CES.BusinessTier.Services
 
         public async Task<BaseResponseViewModel<CategoryResponseModel>> GetCategoryAsync(int categoryId, CategoryResponseModel filter)
         {
-            var category = await _unitOfWork.Repository<Category>().AsQueryable(x => x.Id == categoryId)
+            var category = await _unitOfWork.Repository<Category>().AsQueryable(x => x.Id == categoryId && x.Status == (int)Status.Active)
                 .ProjectTo<CategoryResponseModel>(_mapper.ConfigurationProvider)
                 .DynamicFilter(filter)
                 .FirstOrDefaultAsync();

@@ -7,7 +7,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c33e2030-59db-4d3d-a633-8e65857e01e7" name="Changes" comment="" />
+    <list default="true" id="c33e2030-59db-4d3d-a633-8e65857e01e7" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/CategoryService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/CategoryService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/ProductService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/ProductService.cs" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -115,7 +118,7 @@
       <workItem from="1686106535857" duration="62000" />
       <workItem from="1686106726196" duration="3170000" />
       <workItem from="1686112910824" duration="302000" />
-      <workItem from="1686132352822" duration="15784000" />
+      <workItem from="1686132352822" duration="16992000" />
     </task>
     <servers />
   </component>
