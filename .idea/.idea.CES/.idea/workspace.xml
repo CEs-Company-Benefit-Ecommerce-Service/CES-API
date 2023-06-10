@@ -7,25 +7,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c33e2030-59db-4d3d-a633-8e65857e01e7" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/TransactionRequestModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/Person.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/TransactionResponseModels.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/ExcelService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/TransactionService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.API/AppStarts/Installers.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.API/AppStarts/Installers.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.API/CES.API.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/CES.API/CES.API.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.API/Properties/launchSettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/CES.API/Properties/launchSettings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.API/appsettings.Development.json" beforeDir="false" afterPath="$PROJECT_DIR$/CES.API/appsettings.Development.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.API/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/CES.API/appsettings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/CES.BusinessTier.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/CES.BusinessTier.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Repositories/GenericRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Repositories/GenericRepository.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Repositories/IGenericRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Repositories/IGenericRepository.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/UnitOfWork/UnitOfWork.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/UnitOfWork/UnitOfWork.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Utilities/Authen.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Utilities/Authen.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Utilities/Enums.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Utilities/Enums.cs" afterDir="false" />
-    </list>
+    <list default="true" id="c33e2030-59db-4d3d-a633-8e65857e01e7" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -133,7 +115,7 @@
       <workItem from="1686106535857" duration="62000" />
       <workItem from="1686106726196" duration="3170000" />
       <workItem from="1686112910824" duration="302000" />
-      <workItem from="1686132352822" duration="14451000" />
+      <workItem from="1686132352822" duration="15784000" />
     </task>
     <servers />
   </component>

@@ -31,9 +31,9 @@ namespace CES.API.Controllers
 
         // GET: api/Product/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<BaseResponseViewModel<ProductResponseModel>>> GetProduct(Guid productId, [FromQuery] ProductResponseModel filter)
+        public async Task<ActionResult<BaseResponseViewModel<ProductResponseModel>>> GetProduct(Guid id, [FromQuery] ProductResponseModel filter)
         {
-            return Ok(await _productService.GetProductAsync(productId, filter));
+            return Ok(await _productService.GetProductAsync(id, filter));
         }
 
         // POST: api/Product
