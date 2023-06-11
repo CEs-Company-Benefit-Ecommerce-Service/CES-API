@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using CES.BusinessTier.RequestModels;
 using CES.BusinessTier.ResponseModels;
 using CES.BusinessTier.Services;
 using CES.DataTier.Models;
@@ -27,7 +28,7 @@ namespace CES.API.Controllers
         }
 
         /// <summary>
-        /// Download Excel Template for Employee (Supplier, Employee can't use)
+        /// Download Excel Template for Employee
         /// </summary>
         /// <returns></returns>
         [HttpGet("account/template")]
@@ -38,17 +39,29 @@ namespace CES.API.Controllers
         }
 
         /// <summary>
-        /// Import Employees from template (Supplier, Employee can't use)
+        /// Import Employees from template (System, Supplier, Employee can't use)
         /// </summary>
         /// <param name="file"></param>
         /// <returns></returns>
-        [Authorize(Roles = "Enterprise Admin, System Admin")]
+        [Authorize(Roles = "Enterprise Admin")]
         [HttpPost("account/import")]
         [Consumes("multipart/form-data")]
         public async Task<ActionResult<List<Account>>> ImportEmployees(IFormFile file)
         {
             var result = await _excelService.ImportEmployeeList(file);
             return Ok(result);
+        }
+        
+        /// <summary>
+        /// Download list business's employee (System, Supplier, Employee can't use)
+        /// </summary>
+        /// <returns></returns>
+        [Authorize(Roles = "Enterprise Admin")]
+        [HttpGet("account/download")]
+        [Consumes("multipart/form-data")]
+        public IActionResult DownloadEmployeeList([FromQuery] DateRangeFilterModel dateRangeFilter)
+        {
+            return _excelService.DownloadListEmployeeForCompany(dateRangeFilter);
         }
     }
 }
