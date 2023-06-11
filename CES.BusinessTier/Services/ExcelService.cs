@@ -16,6 +16,8 @@ public interface IExcelService
     Task<DynamicResponse<Account>> ImportEmployeeList(IFormFile file);
     FileStreamResult DownloadEmployeeTemplate();
     FileStreamResult DownloadListEmployeeForCompany(DateRangeFilterModel dateRangeFilter);
+    FileStreamResult DownloadProductTemplate();
+    Task<DynamicResponse<Product>> ImportProductList(IFormFile file);
 }
 
 public class ExcelService : IExcelService
@@ -277,5 +279,141 @@ public class ExcelService : IExcelService
                 FileDownloadName = $"{company.Name}_employees.xlsx" // Specify the desired file name
             };
         }
+    }
+
+    public FileStreamResult DownloadProductTemplate()
+    {
+        var categories = _unitOfWork.Repository<Category>().AsQueryable(x => x.Status == (int)Status.Active).ToList();
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        using (ExcelPackage package = new ExcelPackage())
+        {
+            ExcelWorksheet ws = package.Workbook.Worksheets.Add("Products");
+            ws.Cells["A1"].Value = "Name*";
+            ws.Cells["A1"].Style.Font.Bold = true;
+            ws.Cells["A1"].Style.Font.Size = 16;
+            ws.Cells["A1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            ws.Cells["A1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            
+            ws.Cells["B1"].Value = "Price*";
+            ws.Cells["B1"].Style.Font.Bold = true;
+            ws.Cells["B1"].Style.Font.Size = 16;
+            ws.Cells["B1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            ws.Cells["B1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            
+            ws.Cells["C1"].Value = "Quantity*";
+            ws.Cells["C1"].Style.Font.Bold = true;
+            ws.Cells["C1"].Style.Font.Size = 16;
+            ws.Cells["C1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            ws.Cells["C1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            
+            ws.Cells["D1"].Value = "Description";
+            ws.Cells["D1"].Style.Font.Bold = true;
+            ws.Cells["D1"].Style.Font.Size = 16;
+            ws.Cells["D1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            ws.Cells["D1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            
+            ws.Cells["E1"].Value = "Service Duration";
+            ws.Cells["E1"].Style.Font.Bold = true;
+            ws.Cells["E1"].Style.Font.Size = 16;
+            ws.Cells["E1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            ws.Cells["E1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            
+            ws.Cells["F1"].Value = "Type*";
+            ws.Cells["F1"].Style.Font.Bold = true;
+            ws.Cells["F1"].Style.Font.Size = 16;
+            ws.Cells["F1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            ws.Cells["F1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            
+            ws.Cells["G1"].Value = "Category Id*";
+            ws.Cells["G1"].Style.Font.Bold = true;
+            ws.Cells["G1"].Style.Font.Size = 16;
+            ws.Cells["G1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            ws.Cells["G1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            
+            ExcelWorksheet wsCate = package.Workbook.Worksheets.Add("Categories");
+            wsCate.Cells["A1"].Value = "Id";
+            wsCate.Cells["A1"].Style.Font.Bold = true;
+            wsCate.Cells["A1"].Style.Font.Size = 16;
+            wsCate.Cells["A1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            wsCate.Cells["A1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            
+            wsCate.Cells["B1"].Value = "Name";
+            wsCate.Cells["B1"].Style.Font.Bold = true;
+            wsCate.Cells["B1"].Style.Font.Size = 16;
+            wsCate.Cells["B1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            wsCate.Cells["B1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            
+            wsCate.Cells["C1"].Value = "Description";
+            wsCate.Cells["C1"].Style.Font.Bold = true;
+            wsCate.Cells["C1"].Style.Font.Size = 16;
+            wsCate.Cells["C1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            wsCate.Cells["C1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            
+            for (int i = 0; i < categories.Count; i++)
+            {
+                wsCate.Cells[i + 2, 1].Value = categories[i].Id;
+                wsCate.Cells[i + 2, 2].Value = categories[i].Name;
+                wsCate.Cells[i + 2, 3].Value = categories[i].Description;
+            }
+            ws.Cells.AutoFitColumns();
+            wsCate.Cells.AutoFitColumns();
+            
+            var stream = new MemoryStream(package.GetAsByteArray());
+
+            return new FileStreamResult(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            {
+                FileDownloadName = "product_template.xlsx" // Specify the desired file name
+            };
+        }
+    }
+
+    public async Task<DynamicResponse<Product>> ImportProductList(IFormFile file)
+    {
+        if (file != null && file.Length > 0)
+        {
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            using (var package = new ExcelPackage(file.OpenReadStream()))
+            {
+                var worksheet = package.Workbook.Worksheets[0]; // Assuming data is on the first sheet
+                var records = new List<Product>();
+                
+                for (int row = 2; row <= worksheet.Dimension.End.Row; row++)
+                {
+
+                    var product = new Product()
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = worksheet.Cells[row, 1].Value?.ToString(),
+                        Price = Double.Parse(worksheet.Cells[row, 2].Value?.ToString()),
+                        Quantity = Int32.Parse(worksheet.Cells[row, 3].Value?.ToString()),
+                        Description = worksheet.Cells[row, 4].Value?.ToString(),
+                        ServiceDuration = worksheet.Cells[row, 5].Value?.ToString(),
+                        Type = Int32.Parse(worksheet.Cells[row, 6].Value?.ToString()),
+                        CategoryId = Int32.Parse(worksheet.Cells[row, 7].Value?.ToString()),
+                        Status = (int)Status.Active,
+                        CreatedAt = TimeUtils.GetCurrentSEATime()
+                    };
+
+                    records.Add(product);
+                }
+                
+                await _unitOfWork.Repository<Product>().AddRangeAsync(records);
+                await _unitOfWork.CommitAsync();
+
+                return new DynamicResponse<Product>()
+                {
+                    Code = StatusCodes.Status200OK,
+                    Message = "Ok",
+                    Data = records
+                };
+            }
+        }
+        
+        return new DynamicResponse<Product>()
+        {
+            Code = StatusCodes.Status200OK,
+            Message = "Ok",
+            Data = new List<Product>()
+        };
     }
 }

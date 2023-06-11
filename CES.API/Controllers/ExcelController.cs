@@ -37,6 +37,18 @@ namespace CES.API.Controllers
         {
             return _excelService.DownloadEmployeeTemplate();
         }
+        
+        /// <summary>
+        /// Download list business's employee (System, Supplier, Employee can't use)
+        /// </summary>
+        /// <returns></returns>
+        [Authorize(Roles = "Enterprise Admin")]
+        [HttpGet("account/download")]
+        [Consumes("multipart/form-data")]
+        public IActionResult DownloadEmployeeList([FromQuery] DateRangeFilterModel dateRangeFilter)
+        {
+            return _excelService.DownloadListEmployeeForCompany(dateRangeFilter);
+        }
 
         /// <summary>
         /// Import Employees from template (System, Supplier, Employee can't use)
@@ -51,17 +63,30 @@ namespace CES.API.Controllers
             var result = await _excelService.ImportEmployeeList(file);
             return Ok(result);
         }
-        
+
         /// <summary>
-        /// Download list business's employee (System, Supplier, Employee can't use)
+        /// Download Excel Template for Product
         /// </summary>
         /// <returns></returns>
-        [Authorize(Roles = "Enterprise Admin")]
-        [HttpGet("account/download")]
+        [HttpGet("product/template")]
         [Consumes("multipart/form-data")]
-        public IActionResult DownloadEmployeeList([FromQuery] DateRangeFilterModel dateRangeFilter)
+        public IActionResult DownloadProductTemplate()
         {
-            return _excelService.DownloadListEmployeeForCompany(dateRangeFilter);
+            return _excelService.DownloadProductTemplate();
+        }
+        
+        /// <summary>
+        /// Import Products from template (System, Enterprise, Employee can't use)
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        [Authorize(Roles = "Supplier Admin")]
+        [HttpPost("product/import")]
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<List<Account>>> ImportProductList(IFormFile file)
+        {
+            var result = await _excelService.ImportProductList(file);
+            return Ok(result);
         }
     }
 }
