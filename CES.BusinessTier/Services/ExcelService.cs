@@ -15,7 +15,7 @@ public interface IExcelService
 {
     Task<DynamicResponse<Account>> ImportEmployeeList(IFormFile file);
     FileStreamResult DownloadEmployeeTemplate();
-    Task<FileStreamResult> DownloadListEmplyeeForCompany();
+    FileStreamResult DownloadListEmployeeForCompany(DateRangeFilterModel dateRangeFilter);
 }
 
 public class ExcelService : IExcelService
@@ -150,8 +150,132 @@ public class ExcelService : IExcelService
         }
     }
 
-    public Task<FileStreamResult> DownloadListEmplyeeForCompany()
+    public FileStreamResult DownloadListEmployeeForCompany(DateRangeFilterModel dateRangeFilter)
     {
-        throw new NotImplementedException();
+        #region check date range
+
+        var from = dateRangeFilter?.From;
+        var to = dateRangeFilter?.To;
+        if (from == null && to == null)
+        {
+            from = TimeUtils.GetLastAndFirstDateInCurrentMonth().Item1;
+            to = TimeUtils.GetLastAndFirstDateInCurrentMonth().Item2;
+        }
+        
+        from ??= TimeUtils.GetCurrentDate();
+        to ??= TimeUtils.GetCurrentDate();
+
+        if (DateTime.Compare((DateTime)from, (DateTime)to) > 0)
+        {
+            throw new ErrorResponse(StatusCodes.Status400BadRequest, 4001, "Invalid day!");
+        }
+
+        from = ((DateTime)from).GetStartOfDate();
+        to = ((DateTime)to).GetEndOfDate();
+
+        #endregion
+        var companyId = _contextAccessor.HttpContext?.User.FindFirst("CompanyId").Value;
+        var company = _unitOfWork.Repository<Company>()
+            .AsQueryable(x => x.Id == int.Parse(companyId) && x.Status == (int)Status.Active).FirstOrDefault();
+        var employees = _unitOfWork.Repository<Account>()
+            .AsQueryable(x => x.RoleId == (int)Roles.Employee && x.CompanyId == int.Parse(companyId) && x.Status == (int)Status.Active && x.CreatedAt >= from && x.CreatedAt <= to)
+            .OrderBy(x => x.CreatedAt)
+            .ToList();
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        using (ExcelPackage package = new ExcelPackage())
+        {
+            var date = DateTime.Now;
+            ExcelWorksheet ws = package.Workbook.Worksheets.Add($"{company.Name}");
+            ws.Column(7).Style.Numberformat.Format = "DD-MM-YYYY";
+            ws.Cells["A1"].Value = "Company:";
+            ws.Cells["A1"].Style.Font.Bold = true;
+            ws.Cells["A1"].Style.Font.Size = 16;
+            ws.Cells["A1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            ws.Cells["A1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            
+            ws.Cells["B1"].Value = company.Name;
+            ws.Cells["B1"].Style.Font.Size = 16;
+            ws.Cells["B1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            ws.Cells["B1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            
+            ws.Cells["D1"].Value = "From-To:";
+            ws.Cells["D1"].Style.Font.Size = 16;
+            ws.Cells["D1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            ws.Cells["D1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            
+            ws.Cells["E1"].Value = $"{from}-{to}";
+            ws.Cells["E1"].Style.Font.Size = 16;
+            ws.Cells["E1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            ws.Cells["E1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            
+            ws.Cells["A2"].Value = "Name";
+            ws.Cells["A2"].Style.Font.Bold = true;
+            ws.Cells["A2"].Style.Font.Size = 16;
+            ws.Cells["A2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            ws.Cells["A2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            
+            ws.Cells["B2"].Value = "Email";
+            ws.Cells["B2"].Style.Font.Bold = true;
+            ws.Cells["B2"].Style.Font.Size = 16;
+            ws.Cells["B2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            ws.Cells["B2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            
+            ws.Cells["C2"].Value = "Address";
+            ws.Cells["C2"].Style.Font.Bold = true;
+            ws.Cells["C2"].Style.Font.Size = 16;
+            ws.Cells["C2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            ws.Cells["C2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            
+            ws.Cells["D2"].Value = "Phone";
+            ws.Cells["D2"].Style.Font.Bold = true;
+            ws.Cells["D2"].Style.Font.Size = 16;
+            ws.Cells["D2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            ws.Cells["D2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            
+            ws.Cells["E2"].Value = "Image Url";
+            ws.Cells["E2"].Style.Font.Bold = true;
+            ws.Cells["E2"].Style.Font.Size = 16;
+            ws.Cells["E2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            ws.Cells["E2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            
+            ws.Cells["F2"].Value = "Updated At";
+            ws.Cells["F2"].Style.Font.Bold = true;
+            ws.Cells["F2"].Style.Font.Size = 16;
+            ws.Cells["F2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            ws.Cells["F2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            
+            ws.Cells["G2"].Value = "Created At";
+            ws.Cells["G2"].Style.Font.Bold = true;
+            ws.Cells["G2"].Style.Font.Size = 16;
+            ws.Cells["G2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            ws.Cells["G2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            
+            ws.Cells["H2"].Value = "Status";
+            ws.Cells["H2"].Style.Font.Bold = true;
+            ws.Cells["H2"].Style.Font.Size = 16;
+            ws.Cells["H2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            ws.Cells["H2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+            for (int i = 0; i < employees.Count; i++)
+            {
+                ws.Cells[i + 3, 1].Value = employees[i].Name;
+                ws.Cells[i + 3, 2].Value = employees[i].Email;
+                ws.Cells[i + 3, 3].Value = employees[i].Address;
+                ws.Cells[i + 3, 4].Value = employees[i].Phone;
+                ws.Cells[i + 3, 5].Value = employees[i].ImageUrl;
+                ws.Cells[i + 3, 6].Value = employees[i].UpdatedAt.ToString();
+                ws.Cells[i + 3, 7].Value = employees[i].CreatedAt.ToString();
+                ws.Cells[i + 3, 8].Value = employees[i].Status == (int)Status.Active ? Status.Active.GetDisplayName() : Status.Inactive.GetDisplayName();
+            }
+            
+            ws.Cells.AutoFitColumns();
+            
+            var stream = new MemoryStream(package.GetAsByteArray());
+
+            return new FileStreamResult(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            {
+                FileDownloadName = $"{company.Name}_employees.xlsx" // Specify the desired file name
+            };
+        }
     }
 }
