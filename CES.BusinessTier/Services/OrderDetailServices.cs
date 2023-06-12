@@ -58,7 +58,7 @@ namespace CES.BusinessTier.Services
         }
         public async Task<BaseResponseViewModel<OrderDetailsResponseModel>> GetById(Guid id)
         {
-            var orderDetail = _unitOfWork.Repository<OrderDetail>().FindAsync(x => x.Id == id);
+            var orderDetail = await _unitOfWork.Repository<OrderDetail>().AsQueryable().Include(x => x.Product).Where(x => x.Id == id).FirstOrDefaultAsync();
 
             return new BaseResponseViewModel<OrderDetailsResponseModel>
             {

@@ -66,7 +66,11 @@ namespace CES.BusinessTier.Services
 
         public async Task<BaseResponseViewModel<OrderResponseModel>> GetById(Guid id)
         {
-            var orderDetail = await _unitOfWork.Repository<Order>().AsQueryable().Include(x => x.OrderDetails).Include(x => x.Account).Where(x => x.Id == id).FirstOrDefaultAsync();
+            var orderDetail = await _unitOfWork.Repository<Order>().AsQueryable()
+                .Include(x => x.Account)
+                .Include(x => x.OrderDetails)
+                .ThenInclude(x => x.Product)
+                .Where(x => x.Id == id).FirstOrDefaultAsync();
 
             return new BaseResponseViewModel<OrderResponseModel>
             {
