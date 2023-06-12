@@ -66,7 +66,7 @@ namespace CES.BusinessTier.Services
 
         public async Task<BaseResponseViewModel<OrderResponseModel>> GetById(Guid id)
         {
-            var orderDetail = await _unitOfWork.Repository<Order>().FindAsync(x => x.Id == id);
+            var orderDetail = await _unitOfWork.Repository<Order>().AsQueryable().Include(x => x.OrderDetails).Include(x => x.Account).Where(x => x.Id == id).FirstOrDefaultAsync();
 
             return new BaseResponseViewModel<OrderResponseModel>
             {
@@ -119,7 +119,7 @@ namespace CES.BusinessTier.Services
             #region caculate orderDetail price + total
             foreach (var orderDetail in orderDetails)
             {
-                var product = _productServices.GetProductAsync((Guid)orderDetail.ProductId, new ProductResponseModel()) ;
+                var product = _productServices.GetProductAsync((Guid)orderDetail.ProductId, new ProductResponseModel());
                 orderDetail.Price = orderDetail.Quantity * product.Result.Data.Price;
             }
 

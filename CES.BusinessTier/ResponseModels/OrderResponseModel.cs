@@ -19,5 +19,6 @@ namespace CES.BusinessTier.ResponseModels
         public string? Code { get; set; }
         public int? DebtStatus { get; set; }
         public ICollection<OrderDetailsResponseModel>? OrderDetails { get; set; }
+        public AccountResponseModel? Account { get; set; }
     }
 }
