@@ -4,6 +4,7 @@ using CES.BusinessTier.ResponseModels.BaseResponseModels;
 using CES.BusinessTier.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace CES.API.Controllers
 {
@@ -35,6 +36,14 @@ namespace CES.API.Controllers
         public async Task<ActionResult> Post([FromBody] List<OrderDetailsRequestModel>? orderDetails, [FromQuery] string? notes)
         {
             var result = _orderServices.CreateOrder(orderDetails, notes).Result;
+            return StatusCode((int)result.Code, result);
+        }
+
+        [HttpPut("{id}")]
+        [SwaggerOperation(summary: "Order status", description: "1 - New, 2 - Shipping, 3 - Complete, 4 - Cancel")]
+        public async Task<ActionResult> Put(Guid id, [FromQuery] int status)
+        {
+            var result = _orderServices.UpdateOrderStatus(id, status).Result;
             return StatusCode((int)result.Code, result);
         }
     }

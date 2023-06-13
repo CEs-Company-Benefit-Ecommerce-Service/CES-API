@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace CES.BusinessTier.Utilities
 {
@@ -62,5 +63,12 @@ namespace CES.BusinessTier.Utilities
         RollBack = 2,
         [Display(Name = "ActiveCard")]
         ActiveCard = 3,
+    }
+    public enum OrderStatusEnums
+    {
+        [Display(Name = "New")] New = 1,
+        [Display(Name = "Shipping")] Shipping = 2,
+        [Display(Name = "Complete")] Complete = 3,
+        [Display(Name = "Cancel")] Cancel = 4,
     }
 }
