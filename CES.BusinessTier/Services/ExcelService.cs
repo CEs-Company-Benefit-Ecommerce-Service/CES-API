@@ -30,7 +30,7 @@ public class ExcelService : IExcelService
         _unitOfWork = unitOfWork;
         _contextAccessor = contextAccessor;
     }
-    
+
     public async Task<DynamicResponse<Account>> ImportEmployeeList(IFormFile file)
     {
         var companyId = _contextAccessor.HttpContext?.User.FindFirst("CompanyId").Value;
@@ -89,6 +89,12 @@ public class ExcelService : IExcelService
                         }
                     };
                     account.Wallets = wallets;
+                    // check trùng email
+                    var checkEmailAccount = _unitOfWork.Repository<Account>().GetAll().Any(x => x.Email.Equals(account.Email));
+                    if (checkEmailAccount)
+                    {
+                        records.Remove(account);
+                    }
                 }
 
                 await _unitOfWork.Repository<Account>().AddRangeAsync(records);
@@ -122,27 +128,27 @@ public class ExcelService : IExcelService
             ws.Cells["A1"].Style.Font.Size = 16;
             ws.Cells["A1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["A1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            
+
             ws.Cells["B1"].Value = "Email*";
             ws.Cells["B1"].Style.Font.Bold = true;
             ws.Cells["B1"].Style.Font.Size = 16;
             ws.Cells["B1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["B1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            
+
             ws.Cells["C1"].Value = "Address";
             ws.Cells["C1"].Style.Font.Bold = true;
             ws.Cells["C1"].Style.Font.Size = 16;
             ws.Cells["C1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["C1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            
+
             ws.Cells["D1"].Value = "Phone";
             ws.Cells["D1"].Style.Font.Bold = true;
             ws.Cells["D1"].Style.Font.Size = 16;
             ws.Cells["D1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["D1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            
+
             ws.Cells.AutoFitColumns();
-            
+
             var stream = new MemoryStream(package.GetAsByteArray());
 
             return new FileStreamResult(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
@@ -163,7 +169,7 @@ public class ExcelService : IExcelService
             from = TimeUtils.GetLastAndFirstDateInCurrentMonth().Item1;
             to = TimeUtils.GetLastAndFirstDateInCurrentMonth().Item2;
         }
-        
+
         from ??= TimeUtils.GetCurrentDate();
         to ??= TimeUtils.GetCurrentDate();
 
@@ -194,64 +200,64 @@ public class ExcelService : IExcelService
             ws.Cells["A1"].Style.Font.Size = 16;
             ws.Cells["A1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["A1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            
+
             ws.Cells["B1"].Value = company.Name;
             ws.Cells["B1"].Style.Font.Size = 16;
             ws.Cells["B1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["B1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            
+
             ws.Cells["D1"].Value = "From-To:";
             ws.Cells["D1"].Style.Font.Size = 16;
             ws.Cells["D1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["D1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            
+
             ws.Cells["E1"].Value = $"{from}-{to}";
             ws.Cells["E1"].Style.Font.Size = 16;
             ws.Cells["E1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["E1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            
+
             ws.Cells["A2"].Value = "Name";
             ws.Cells["A2"].Style.Font.Bold = true;
             ws.Cells["A2"].Style.Font.Size = 16;
             ws.Cells["A2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["A2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            
+
             ws.Cells["B2"].Value = "Email";
             ws.Cells["B2"].Style.Font.Bold = true;
             ws.Cells["B2"].Style.Font.Size = 16;
             ws.Cells["B2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["B2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            
+
             ws.Cells["C2"].Value = "Address";
             ws.Cells["C2"].Style.Font.Bold = true;
             ws.Cells["C2"].Style.Font.Size = 16;
             ws.Cells["C2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["C2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            
+
             ws.Cells["D2"].Value = "Phone";
             ws.Cells["D2"].Style.Font.Bold = true;
             ws.Cells["D2"].Style.Font.Size = 16;
             ws.Cells["D2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["D2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            
+
             ws.Cells["E2"].Value = "Image Url";
             ws.Cells["E2"].Style.Font.Bold = true;
             ws.Cells["E2"].Style.Font.Size = 16;
             ws.Cells["E2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["E2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            
+
             ws.Cells["F2"].Value = "Updated At";
             ws.Cells["F2"].Style.Font.Bold = true;
             ws.Cells["F2"].Style.Font.Size = 16;
             ws.Cells["F2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["F2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            
+
             ws.Cells["G2"].Value = "Created At";
             ws.Cells["G2"].Style.Font.Bold = true;
             ws.Cells["G2"].Style.Font.Size = 16;
             ws.Cells["G2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["G2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            
+
             ws.Cells["H2"].Value = "Status";
             ws.Cells["H2"].Style.Font.Bold = true;
             ws.Cells["H2"].Style.Font.Size = 16;
@@ -269,9 +275,9 @@ public class ExcelService : IExcelService
                 ws.Cells[i + 3, 7].Value = employees[i].CreatedAt.ToString();
                 ws.Cells[i + 3, 8].Value = employees[i].Status == (int)Status.Active ? Status.Active.GetDisplayName() : Status.Inactive.GetDisplayName();
             }
-            
+
             ws.Cells.AutoFitColumns();
-            
+
             var stream = new MemoryStream(package.GetAsByteArray());
 
             return new FileStreamResult(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
@@ -293,62 +299,62 @@ public class ExcelService : IExcelService
             ws.Cells["A1"].Style.Font.Size = 16;
             ws.Cells["A1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["A1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            
+
             ws.Cells["B1"].Value = "Price*";
             ws.Cells["B1"].Style.Font.Bold = true;
             ws.Cells["B1"].Style.Font.Size = 16;
             ws.Cells["B1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["B1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            
+
             ws.Cells["C1"].Value = "Quantity*";
             ws.Cells["C1"].Style.Font.Bold = true;
             ws.Cells["C1"].Style.Font.Size = 16;
             ws.Cells["C1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["C1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            
+
             ws.Cells["D1"].Value = "Description";
             ws.Cells["D1"].Style.Font.Bold = true;
             ws.Cells["D1"].Style.Font.Size = 16;
             ws.Cells["D1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["D1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            
+
             ws.Cells["E1"].Value = "Service Duration";
             ws.Cells["E1"].Style.Font.Bold = true;
             ws.Cells["E1"].Style.Font.Size = 16;
             ws.Cells["E1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["E1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            
+
             ws.Cells["F1"].Value = "Type*";
             ws.Cells["F1"].Style.Font.Bold = true;
             ws.Cells["F1"].Style.Font.Size = 16;
             ws.Cells["F1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["F1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            
+
             ws.Cells["G1"].Value = "Category Id*";
             ws.Cells["G1"].Style.Font.Bold = true;
             ws.Cells["G1"].Style.Font.Size = 16;
             ws.Cells["G1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["G1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            
+
             ExcelWorksheet wsCate = package.Workbook.Worksheets.Add("Categories");
             wsCate.Cells["A1"].Value = "Id";
             wsCate.Cells["A1"].Style.Font.Bold = true;
             wsCate.Cells["A1"].Style.Font.Size = 16;
             wsCate.Cells["A1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             wsCate.Cells["A1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            
+
             wsCate.Cells["B1"].Value = "Name";
             wsCate.Cells["B1"].Style.Font.Bold = true;
             wsCate.Cells["B1"].Style.Font.Size = 16;
             wsCate.Cells["B1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             wsCate.Cells["B1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            
+
             wsCate.Cells["C1"].Value = "Description";
             wsCate.Cells["C1"].Style.Font.Bold = true;
             wsCate.Cells["C1"].Style.Font.Size = 16;
             wsCate.Cells["C1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             wsCate.Cells["C1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            
+
             for (int i = 0; i < categories.Count; i++)
             {
                 wsCate.Cells[i + 2, 1].Value = categories[i].Id;
@@ -357,7 +363,7 @@ public class ExcelService : IExcelService
             }
             ws.Cells.AutoFitColumns();
             wsCate.Cells.AutoFitColumns();
-            
+
             var stream = new MemoryStream(package.GetAsByteArray());
 
             return new FileStreamResult(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
@@ -376,7 +382,7 @@ public class ExcelService : IExcelService
             {
                 var worksheet = package.Workbook.Worksheets[0]; // Assuming data is on the first sheet
                 var records = new List<Product>();
-                
+
                 for (int row = 2; row <= worksheet.Dimension.End.Row; row++)
                 {
 
@@ -396,7 +402,7 @@ public class ExcelService : IExcelService
 
                     records.Add(product);
                 }
-                
+
                 await _unitOfWork.Repository<Product>().AddRangeAsync(records);
                 await _unitOfWork.CommitAsync();
 
@@ -408,7 +414,7 @@ public class ExcelService : IExcelService
                 };
             }
         }
-        
+
         return new DynamicResponse<Product>()
         {
             Code = StatusCodes.Status200OK,
