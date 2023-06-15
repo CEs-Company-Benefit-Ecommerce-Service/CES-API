@@ -179,7 +179,7 @@ namespace CES.BusinessTier.Services
             newAccount.Id = Guid.NewGuid();
             newAccount.Status = (int)Status.Active;
             newAccount.CreatedAt = TimeUtils.GetCurrentSEATime();
-            if (newAccount.Role.Id == (int)Roles.Employee)
+            if (newAccount.RoleId == (int)Roles.Employee)
             {
                 var wallets = new List<Wallet>()
                 {
