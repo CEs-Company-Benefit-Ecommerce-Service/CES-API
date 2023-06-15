@@ -179,28 +179,31 @@ namespace CES.BusinessTier.Services
             newAccount.Id = Guid.NewGuid();
             newAccount.Status = (int)Status.Active;
             newAccount.CreatedAt = TimeUtils.GetCurrentSEATime();
-            var wallets = new List<Wallet>()
+            if (newAccount.Role.Id == (int)Roles.Employee)
             {
-                new Wallet
+                var wallets = new List<Wallet>()
                 {
-                    AccountId = newAccount.Id,
-                    Balance = 0,
-                    CreatedAt = TimeUtils.GetCurrentSEATime(),
-                    Id = Guid.NewGuid(),
-                    Name = WalletTypeEnums.FoodWallet.GetDisplayName(),
-                    Type = (int)WalletTypeEnums.FoodWallet,
-                },
-                new Wallet
-                {
-                    AccountId = newAccount.Id,
-                    Balance = 0,
-                    CreatedAt = TimeUtils.GetCurrentSEATime(),
-                    Id = Guid.NewGuid(),
-                    Name = WalletTypeEnums.StationeryWallet.GetDisplayName(),
-                    Type = (int)WalletTypeEnums.StationeryWallet,
-                }
-            };
-            newAccount.Wallets = wallets;
+                    new Wallet
+                    {
+                        AccountId = newAccount.Id,
+                        Balance = 0,
+                        CreatedAt = TimeUtils.GetCurrentSEATime(),
+                        Id = Guid.NewGuid(),
+                        Name = WalletTypeEnums.FoodWallet.GetDisplayName(),
+                        Type = (int)WalletTypeEnums.FoodWallet,
+                    },
+                    new Wallet
+                    {
+                        AccountId = newAccount.Id,
+                        Balance = 0,
+                        CreatedAt = TimeUtils.GetCurrentSEATime(),
+                        Id = Guid.NewGuid(),
+                        Name = WalletTypeEnums.StationeryWallet.GetDisplayName(),
+                        Type = (int)WalletTypeEnums.StationeryWallet,
+                    }
+                };
+                newAccount.Wallets = wallets;
+            }
 
             return new BaseResponseViewModel<AccountResponseModel>
             {

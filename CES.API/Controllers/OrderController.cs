@@ -40,7 +40,7 @@ namespace CES.API.Controllers
         }
 
         [HttpPut("{id}")]
-        [SwaggerOperation(summary: "Order status", description: "1 - New, 2 - Shipping, 3 - Complete, 4 - Cancel")]
+        [SwaggerOperation(summary: "Order status", description: "1 - New, 2 - Confirm, 3 - Waiting for ship, 4 - Complete, 5 - Cancel ")]
         public async Task<ActionResult> Put(Guid id, [FromQuery] int status)
         {
             var result = _orderServices.UpdateOrderStatus(id, status).Result;
