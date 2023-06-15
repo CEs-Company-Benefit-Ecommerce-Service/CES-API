@@ -204,7 +204,19 @@ namespace CES.BusinessTier.Services
                 };
                 newAccount.Wallets = wallets;
             }
-
+            try
+            {
+                await _unitOfWork.Repository<Account>().InsertAsync(newAccount);
+                await _unitOfWork.CommitAsync();
+            }
+            catch (Exception)
+            {
+                return new BaseResponseViewModel<AccountResponseModel>
+                {
+                    Code = StatusCodes.Status400BadRequest,
+                    Message = "Bad Request",
+                };
+            }
             return new BaseResponseViewModel<AccountResponseModel>
             {
                 Code = StatusCodes.Status200OK,
