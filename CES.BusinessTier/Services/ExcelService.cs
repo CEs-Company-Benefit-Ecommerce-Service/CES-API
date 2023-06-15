@@ -89,12 +89,7 @@ public class ExcelService : IExcelService
                         }
                     };
                     account.Wallets = wallets;
-                    // check trùng email
-                    var checkEmailAccount = _unitOfWork.Repository<Account>().GetAll().Any(x => x.Email.Equals(account.Email));
-                    if (checkEmailAccount)
-                    {
-                        records.Remove(account);
-                    }
+
                 }
 
                 await _unitOfWork.Repository<Account>().AddRangeAsync(records);
