@@ -32,14 +32,16 @@ namespace CES.BusinessTier.Services
         private readonly IProductService _productServices;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _contextAccessor;
+        private readonly ITransactionService _transactionService;
 
-        public OrderServices(IUnitOfWork unitOfWork, IMapper mapper, IOrderDetailServices orderDetailServices, IProductService productServices, IHttpContextAccessor httpContextAccessor)
+        public OrderServices(IUnitOfWork unitOfWork, IMapper mapper, IOrderDetailServices orderDetailServices, IProductService productServices, IHttpContextAccessor httpContextAccessor, ITransactionService transactionService)
         {
             _mapper = mapper;
             _contextAccessor = httpContextAccessor;
             _unitOfWork = unitOfWork;
             _orderDetailServices = orderDetailServices;
             _productServices = productServices;
+            _transactionService = transactionService;
         }
 
         public async Task<DynamicResponse<OrderResponseModel>> GetsAsync(OrderResponseModel filter, PagingModel paging)
@@ -155,7 +157,23 @@ namespace CES.BusinessTier.Services
                 }
 
                 // create transaction
-                // to do .///
+                var newTransaction = new Transaction()
+                {
+                    Id = Guid.NewGuid(),
+                    OrderId = newOrder.Id,
+                    CreatedAt = TimeUtils.GetCurrentSEATime(),
+                    Total = total,
+                    Type = 1,
+                    Description = "template ....",
+                };
+                if (!await _transactionService.CreateTransaction(newTransaction))
+                {
+                    return new BaseResponseViewModel<OrderResponseModel>
+                    {
+                        Code = StatusCodes.Status400BadRequest,
+                        Message = "Create transaction failed",
+                    };
+                }
 
                 await _unitOfWork.CommitAsync();
 

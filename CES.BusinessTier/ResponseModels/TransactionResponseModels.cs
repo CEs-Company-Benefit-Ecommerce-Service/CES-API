@@ -1,3 +1,5 @@
+using CES.DataTier.Models;
+
 namespace CES.BusinessTier.ResponseModels;
 
 public class TransactionResponseModels
@@ -10,6 +12,6 @@ public class TransactionResponseModels
     public Guid? OrderId { get; set; }
     public Guid? WalletId { get; set; }
 
-    // public virtual Order? Order { get; set; }
+    public OrderResponseModel? Order { get; set; }
     // public virtual Wallet? Wallet { get; set; }
 }
