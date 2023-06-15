@@ -139,7 +139,7 @@ namespace CES.BusinessTier.Services
                     Id = Guid.NewGuid(),
                     CreatedAt = TimeUtils.GetCurrentSEATime(),
                     AccountId = accountLoginId,
-                    Status = 1,
+                    Status = 0,
                     Total = total,
                     Address = companyAddress,
                     Note = note,
