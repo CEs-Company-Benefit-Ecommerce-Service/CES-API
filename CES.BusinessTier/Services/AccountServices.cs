@@ -90,7 +90,7 @@ namespace CES.BusinessTier.Services
                     Data = emplAccounts.Item2.ToList()
                 };
             }
-            var accounts = _unitOfWork.Repository<Account>().GetAll().Where(x => x.RoleId == (int)Roles.EnterpriseAdmin)
+            var accounts = _unitOfWork.Repository<Account>().GetAll().Where(x => x.RoleId == (int)Roles.EnterpriseAdmin && x.RoleId == (int)Roles.SupplierAdmin)
                 .ProjectTo<AccountAllResponseModel>(_mapper.ConfigurationProvider)
                 .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging)
                 ;
