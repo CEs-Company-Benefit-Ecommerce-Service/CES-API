@@ -202,6 +202,15 @@ namespace CES.BusinessTier.Services
                         Name = WalletTypeEnums.StationeryWallet.GetDisplayName(),
                         Type = (int)WalletTypeEnums.StationeryWallet,
                         Limit = Constants.LimitWallet,
+                    },
+                    new Wallet
+                    {
+                        AccountId = newAccount.Id,
+                        Balance = 0,
+                        CreatedAt = TimeUtils.GetCurrentSEATime(),
+                        Id = Guid.NewGuid(),
+                        Name = WalletTypeEnums.GeneralWallet.GetDisplayName(),
+                        Type = (int)WalletTypeEnums.GeneralWallet,
                     }
                 };
                 newAccount.Wallets = wallets;

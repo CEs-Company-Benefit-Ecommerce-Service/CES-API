@@ -28,6 +28,7 @@ namespace CES.BusinessTier.Services
         Task<BaseResponseViewModel<WalletResponseModel>> CreateAsync(WalletRequestModel request);
         Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletInfoAsync(Guid id, WalletInfoRequestModel request);
         Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletBalanceAsync(Guid id, double balance, int type);
+        Task CreateWalletForAccountDontHaveEnough();
     }
     public class WalletServices : IWalletServices
     {
@@ -225,6 +226,85 @@ namespace CES.BusinessTier.Services
                     Message = "Bad request",
                 };
             }
+        }
+
+        public async Task CreateWalletForAccountDontHaveEnough()
+        {
+            var activeAccounts = _unitOfWork.Repository<Account>()
+                .AsQueryable(x =>
+                    x.Status == (int)Status.Active &&
+                    (x.RoleId != (int)Roles.SupplierAdmin || x.RoleId != (int)Roles.SystemAdmin))
+                .Include(x => x.Wallets)
+                .ToList();
+            foreach (var account in activeAccounts)
+            {
+                if (account.Wallets.Count == 0)
+                {
+                    var wallets = new List<Wallet>()
+                    {
+                        new Wallet
+                        {
+                            AccountId = account.Id,
+                            Balance = 0,
+                            CreatedAt = TimeUtils.GetCurrentSEATime(),
+                            Id = Guid.NewGuid(),
+                            Name = WalletTypeEnums.FoodWallet.GetDisplayName(),
+                            Type = (int)WalletTypeEnums.FoodWallet,
+                        },
+                        new Wallet
+                        {
+                            AccountId = account.Id,
+                            Balance = 0,
+                            CreatedAt = TimeUtils.GetCurrentSEATime(),
+                            Id = Guid.NewGuid(),
+                            Name = WalletTypeEnums.StationeryWallet.GetDisplayName(),
+                            Type = (int)WalletTypeEnums.StationeryWallet,
+                        },
+                        new Wallet
+                        {
+                            AccountId = account.Id,
+                            Balance = 0,
+                            CreatedAt = TimeUtils.GetCurrentSEATime(),
+                            Id = Guid.NewGuid(),
+                            Name = WalletTypeEnums.GeneralWallet.GetDisplayName(),
+                            Type = (int)WalletTypeEnums.GeneralWallet,
+                        }
+                    };
+                    account.Wallets = wallets;
+                } else if (account.Wallets.Count > 0)
+                {
+                    var wallets = new List<Wallet>();
+                    List<int> walletTypes = new List<int>();
+                    walletTypes.Add((int)WalletTypeEnums.GeneralWallet);
+                    walletTypes.Add((int)WalletTypeEnums.StationeryWallet);
+                    walletTypes.Add((int)WalletTypeEnums.FoodWallet);
+                    foreach (var wallet in account.Wallets)
+                    {
+                        walletTypes.Remove((int)wallet.Type);
+                    }
+
+                    if (walletTypes.Count > 0)
+                    {
+                        foreach (var walletType in walletTypes)
+                        {
+                            var wallet = new Wallet
+                            {
+                                AccountId = account.Id,
+                                Balance = 0,
+                                CreatedAt = TimeUtils.GetCurrentSEATime(),
+                                Id = Guid.NewGuid(),
+                                Name = walletType == 1 ? WalletTypeEnums.FoodWallet.GetDisplayName() :
+                                    walletType == 2 ? WalletTypeEnums.StationeryWallet.GetDisplayName() :
+                                    WalletTypeEnums.GeneralWallet.GetDisplayName(),
+                                Type = walletType,
+                            };
+                            account.Wallets.Add(wallet);
+                        }
+                    }
+                }
+                await _unitOfWork.Repository<Account>().UpdateDetached(account);
+            }
+            await _unitOfWork.CommitAsync();
         }
     }
 }

@@ -117,5 +117,14 @@ namespace CES.API.Controllers
             var result = _walletServices.UpdateWalletBalanceAsync(id, balance, type).Result;
             return StatusCode((int)result.Code, result);
         }
+
+        /// <summary>
+        /// Api này để BE pùa pùa database, sau sẽ xoá
+        /// </summary>
+        [HttpPut("updateWallet")]
+        public async Task PutWallet()
+        {
+            await _walletServices.CreateWalletForAccountDontHaveEnough();
+        }
     }
 }
