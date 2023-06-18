@@ -77,6 +77,7 @@ public class ExcelService : IExcelService
                             Id = Guid.NewGuid(),
                             Name = WalletTypeEnums.FoodWallet.GetDisplayName(),
                             Type = (int)WalletTypeEnums.FoodWallet,
+                            Limit = Constants.LimitWallet,
                         },
                         new Wallet
                         {
@@ -86,6 +87,7 @@ public class ExcelService : IExcelService
                             Id = Guid.NewGuid(),
                             Name = WalletTypeEnums.StationeryWallet.GetDisplayName(),
                             Type = (int)WalletTypeEnums.StationeryWallet,
+                            Limit = Constants.LimitWallet,
                         }
                     };
                     account.Wallets = wallets;

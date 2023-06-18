@@ -174,6 +174,10 @@ namespace CES.BusinessTier.Services
             {
                 case 1:
                     existedWallet.Balance += balance;
+                    if (existedWallet.Balance > existedWallet.Limit)
+                    {
+                        existedWallet.Balance = existedWallet.Limit;
+                    }
                     break;
                 case 2:
                     if (existedWallet.Balance < balance)

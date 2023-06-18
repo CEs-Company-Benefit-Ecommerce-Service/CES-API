@@ -21,5 +21,6 @@ namespace CES.BusinessTier.RequestModels
         public string? Name { get; set; }
         public int? Type { get; set; }
         public Guid? AccountId { get; set; }
+        public double? Limit { get; set; }
     }
 }

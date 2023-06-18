@@ -191,6 +191,7 @@ namespace CES.BusinessTier.Services
                         Id = Guid.NewGuid(),
                         Name = WalletTypeEnums.FoodWallet.GetDisplayName(),
                         Type = (int)WalletTypeEnums.FoodWallet,
+                        Limit = Constants.LimitWallet, //5k point
                     },
                     new Wallet
                     {
@@ -200,6 +201,7 @@ namespace CES.BusinessTier.Services
                         Id = Guid.NewGuid(),
                         Name = WalletTypeEnums.StationeryWallet.GetDisplayName(),
                         Type = (int)WalletTypeEnums.StationeryWallet,
+                        Limit = Constants.LimitWallet,
                     }
                 };
                 newAccount.Wallets = wallets;
