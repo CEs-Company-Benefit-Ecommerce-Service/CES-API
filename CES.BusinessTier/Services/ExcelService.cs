@@ -1,3 +1,5 @@
+using System.Drawing;
+using System.Security.Claims;
 using CES.BusinessTier.RequestModels;
 using CES.BusinessTier.ResponseModels.BaseResponseModels;
 using CES.BusinessTier.UnitOfWork;
@@ -7,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
+using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Style;
 
 namespace CES.BusinessTier.Services;
@@ -18,17 +21,22 @@ public interface IExcelService
     FileStreamResult DownloadListEmployeeForCompany(DateRangeFilterModel dateRangeFilter);
     FileStreamResult DownloadProductTemplate();
     Task<DynamicResponse<Product>> ImportProductList(IFormFile file);
+    Task<DynamicResponse<Account>> TransferBalanceForEmployee(IFormFile file);
 }
 
 public class ExcelService : IExcelService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IHttpContextAccessor _contextAccessor;
+    private readonly ILoginServices _loginServices;
+    private readonly ITransactionService _transactionService;
 
-    public ExcelService(IUnitOfWork unitOfWork, IHttpContextAccessor contextAccessor)
+    public ExcelService(IUnitOfWork unitOfWork, IHttpContextAccessor contextAccessor, ILoginServices loginServices, ITransactionService transactionService)
     {
         _unitOfWork = unitOfWork;
         _contextAccessor = contextAccessor;
+        _loginServices = loginServices;
+        _transactionService = transactionService;
     }
 
     public async Task<DynamicResponse<Account>> ImportEmployeeList(IFormFile file)
@@ -182,95 +190,146 @@ public class ExcelService : IExcelService
         var companyId = _contextAccessor.HttpContext?.User.FindFirst("CompanyId").Value;
         var company = _unitOfWork.Repository<Company>()
             .AsQueryable(x => x.Id == int.Parse(companyId) && x.Status == (int)Status.Active).FirstOrDefault();
+        Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
+        var enterprise = _unitOfWork.Repository<Account>()
+            .AsQueryable(x => x.Id == accountLoginId)
+            .Include(x => x.Wallets)
+            .FirstOrDefault();
+        double enterpriseGeneralWalletBalance = 0;
+        // Get enterprise general wallet
+        foreach (var wallet in enterprise.Wallets)
+        {
+            if (wallet.Type == (int)WalletTypeEnums.GeneralWallet)
+            {
+                enterpriseGeneralWalletBalance = (double)wallet.Balance;
+            }
+        }
         var employees = _unitOfWork.Repository<Account>()
             .AsQueryable(x => x.RoleId == (int)Roles.Employee && x.CompanyId == int.Parse(companyId) && x.Status == (int)Status.Active && x.CreatedAt >= from && x.CreatedAt <= to)
+            .Include(x => x.Wallets)
             .OrderBy(x => x.CreatedAt)
             .ToList();
+        var wallets = _unitOfWork.Repository<Wallet>().AsQueryable().Select(x => x.Type).Distinct().ToList();
         ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
         using (ExcelPackage package = new ExcelPackage())
         {
-            var date = DateTime.Now;
+            List<string> listRow1Title = new List<string>()
+            {
+                "Company:",
+                $"{company.Name}",
+                "From-To:",
+                $"{from} - {to}",
+                "Fund:",
+                $"{enterpriseGeneralWalletBalance} VND"
+            };
+            List<string> listRow2Title = new List<string>()
+            {
+                "Id",
+                "Name",
+                "Email",
+                "Address",
+                "Phone",
+                "Image Url",
+                "Updated At",
+                "Created At",
+                "Status"
+            };
+            Dictionary<int, int> walletPositions = new Dictionary<int, int>();
+            int initialRow = 1; //A
+            int initialCol = 1; //1
+            
             ExcelWorksheet ws = package.Workbook.Worksheets.Add($"{company.Name}");
-            ws.Column(7).Style.Numberformat.Format = "DD-MM-YYYY";
-            ws.Cells["A1"].Value = "Company:";
-            ws.Cells["A1"].Style.Font.Bold = true;
-            ws.Cells["A1"].Style.Font.Size = 16;
-            ws.Cells["A1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            ws.Cells["A1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
-            ws.Cells["B1"].Value = company.Name;
-            ws.Cells["B1"].Style.Font.Size = 16;
-            ws.Cells["B1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            ws.Cells["B1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            // Row 1
+            for (int i = 0; i < listRow1Title.Count; i++)
+            {
+                ws.Cells[initialRow, initialCol].Value = listRow1Title[i];
+                ws.Cells[initialRow, initialCol].Style.Font.Bold = true;
+                ws.Cells[initialRow, initialCol].Style.Font.Size = 16;
+                ws.Cells[initialRow, initialCol].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                ws.Cells[initialRow, initialCol].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                initialCol++;
+            }
+            initialRow++;
+            
+            //Row 2
+            initialCol = 1;
+            for (int i = 0; i < listRow2Title.Count; i++)
+            {
+                ws.Cells[initialRow, initialCol].Value = listRow2Title[i];
+                ws.Cells[initialRow, initialCol].Style.Font.Bold = true;
+                ws.Cells[initialRow, initialCol].Style.Font.Size = 16;
+                ws.Cells[initialRow, initialCol].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                ws.Cells[initialRow, initialCol].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                initialCol++;
+            }
+            
+            for (int i = 0; i < wallets.Count; i++)
+            {
+                ws.Cells[initialRow, initialCol].Value = wallets[i] == 1 
+                    ? WalletTypeEnums.FoodWallet.GetDisplayName() : wallets[i] == 2 
+                        ? WalletTypeEnums.StationeryWallet.GetDisplayName() : WalletTypeEnums.GeneralWallet.GetDisplayName();
+                ws.Cells[initialRow, initialCol].Style.Font.Bold = true;
+                ws.Cells[initialRow, initialCol].Style.Font.Size = 16;
+                ws.Cells[initialRow, initialCol].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                ws.Cells[initialRow, initialCol].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                
+                walletPositions.Add(wallets[i] == 1 ? (int)WalletTypeEnums.FoodWallet : wallets[i] == 2 
+                    ? (int)WalletTypeEnums.StationeryWallet : (int)WalletTypeEnums.GeneralWallet
+                    , initialCol);
+                
+                initialCol++;
+                ws.Cells[initialRow, initialCol].Value = wallets[i] == 1 
+                    ? "Add " + WalletTypeEnums.FoodWallet.GetDisplayName() + " (+)" : wallets[i] == 2 
+                        ? "Add " + WalletTypeEnums.StationeryWallet.GetDisplayName() + " (+)" : "Add " + WalletTypeEnums.GeneralWallet.GetDisplayName() + " (+)";
+                ws.Cells[initialRow, initialCol].Style.Font.Bold = true;
+                ws.Cells[initialRow, initialCol].Style.Font.Size = 16;
+                ws.Cells[initialRow, initialCol].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                ws.Cells[initialRow, initialCol].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                initialCol++;
+            }
 
-            ws.Cells["D1"].Value = "From-To:";
-            ws.Cells["D1"].Style.Font.Size = 16;
-            ws.Cells["D1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            ws.Cells["D1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-            ws.Cells["E1"].Value = $"{from}-{to}";
-            ws.Cells["E1"].Style.Font.Size = 16;
-            ws.Cells["E1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            ws.Cells["E1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-            ws.Cells["A2"].Value = "Name";
-            ws.Cells["A2"].Style.Font.Bold = true;
-            ws.Cells["A2"].Style.Font.Size = 16;
-            ws.Cells["A2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            ws.Cells["A2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-            ws.Cells["B2"].Value = "Email";
-            ws.Cells["B2"].Style.Font.Bold = true;
-            ws.Cells["B2"].Style.Font.Size = 16;
-            ws.Cells["B2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            ws.Cells["B2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-            ws.Cells["C2"].Value = "Address";
-            ws.Cells["C2"].Style.Font.Bold = true;
-            ws.Cells["C2"].Style.Font.Size = 16;
-            ws.Cells["C2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            ws.Cells["C2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-            ws.Cells["D2"].Value = "Phone";
-            ws.Cells["D2"].Style.Font.Bold = true;
-            ws.Cells["D2"].Style.Font.Size = 16;
-            ws.Cells["D2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            ws.Cells["D2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-            ws.Cells["E2"].Value = "Image Url";
-            ws.Cells["E2"].Style.Font.Bold = true;
-            ws.Cells["E2"].Style.Font.Size = 16;
-            ws.Cells["E2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            ws.Cells["E2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-            ws.Cells["F2"].Value = "Updated At";
-            ws.Cells["F2"].Style.Font.Bold = true;
-            ws.Cells["F2"].Style.Font.Size = 16;
-            ws.Cells["F2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            ws.Cells["F2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-            ws.Cells["G2"].Value = "Created At";
-            ws.Cells["G2"].Style.Font.Bold = true;
-            ws.Cells["G2"].Style.Font.Size = 16;
-            ws.Cells["G2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            ws.Cells["G2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-            ws.Cells["H2"].Value = "Status";
-            ws.Cells["H2"].Style.Font.Bold = true;
-            ws.Cells["H2"].Style.Font.Size = 16;
-            ws.Cells["H2"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            ws.Cells["H2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
+            initialRow++;
+            initialCol = 1;
             for (int i = 0; i < employees.Count; i++)
             {
-                ws.Cells[i + 3, 1].Value = employees[i].Name;
-                ws.Cells[i + 3, 2].Value = employees[i].Email;
-                ws.Cells[i + 3, 3].Value = employees[i].Address;
-                ws.Cells[i + 3, 4].Value = employees[i].Phone;
-                ws.Cells[i + 3, 5].Value = employees[i].ImageUrl;
-                ws.Cells[i + 3, 6].Value = employees[i].UpdatedAt.ToString();
-                ws.Cells[i + 3, 7].Value = employees[i].CreatedAt.ToString();
-                ws.Cells[i + 3, 8].Value = employees[i].Status == (int)Status.Active ? Status.Active.GetDisplayName() : Status.Inactive.GetDisplayName();
+                // if ((i + 2) % 2 == 0)
+                // {
+                //     ws.Cells["A2"].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                //     ws.Cells["A2"].Style.Fill.BackgroundColor.SetColor(Color.Gainsboro);
+                // }
+                
+                ws.Cells[initialRow, initialCol].Value = employees[i].Id;
+                ++initialCol;
+                ws.Cells[initialRow, initialCol].Value = employees[i].Name;
+                ++initialCol;
+                ws.Cells[initialRow, initialCol].Value = employees[i].Email;
+                ++initialCol;
+                ws.Cells[initialRow, initialCol].Value = employees[i].Address;
+                ++initialCol;
+                ws.Cells[initialRow, initialCol].Value = employees[i].Phone;
+                ++initialCol;
+                ws.Cells[initialRow, initialCol].Value = employees[i].ImageUrl;
+                ++initialCol;
+                ws.Cells[initialRow, initialCol].Value = employees[i].UpdatedAt.ToString();
+                ++initialCol;
+                ws.Cells[initialRow, initialCol].Value = employees[i].CreatedAt.ToString();
+                ++initialCol;
+                ws.Cells[initialRow, initialCol].Value = employees[i].Status == (int)Status.Active ? Status.Active.GetDisplayName() : Status.Inactive.GetDisplayName();
+            
+                if (employees[i].Wallets.Count > 0)
+                {
+                    foreach (var wallet in employees[i].Wallets)
+                    {
+                        if (walletPositions.ContainsKey((int)wallet.Type))
+                        {
+                            ws.Cells[initialRow, walletPositions[(int)wallet.Type]].Value = wallet.Balance;
+                        }
+                    }
+                }
+
+                ++initialRow;
+                initialCol = 1;
             }
 
             ws.Cells.AutoFitColumns();
@@ -417,6 +476,120 @@ public class ExcelService : IExcelService
             Code = StatusCodes.Status200OK,
             Message = "Ok",
             Data = new List<Product>()
+        };
+    }
+
+    public async Task<DynamicResponse<Account>> TransferBalanceForEmployee(IFormFile file)
+    {
+        if (file != null && file.Length > 0)
+        {
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            using (var package = new ExcelPackage(file.OpenReadStream()))
+            {
+                var ws = package.Workbook.Worksheets[0]; // Assuming data is on the first sheet
+                var wallets = _unitOfWork.Repository<Wallet>().AsQueryable().Select(x => x.Name).Distinct().ToList();
+                Dictionary<int, string> positions = new Dictionary<int, string>();
+                var records = new List<Account>();
+                
+                Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
+                
+                int initialRow = 2; //A
+                int initialCol = 1; //1
+
+                // Get excel dictionnary
+                for (initialCol = 1; initialCol < ws.Dimension.End.Column; initialCol++)
+                {
+                    positions.Add(initialCol, ws.Cells[initialRow, initialCol].Value.ToString());
+                }
+                
+                var enterprise = await _unitOfWork.Repository<Account>()
+                    .AsQueryable(x => x.Id == accountLoginId)
+                    .Include(x => x.Wallets)
+                    .FirstOrDefaultAsync();
+                double enterpriseGeneralWalletBalance = 0;
+                double totalTransfer = 0;
+                
+                // Get enterprise general wallet
+                foreach (var wallet in enterprise.Wallets)
+                {
+                    if (wallet.Type == (int)WalletTypeEnums.GeneralWallet)
+                    {
+                        enterpriseGeneralWalletBalance = (double)wallet.Balance;
+                    }
+                }
+                
+                // Get total transfer
+                for (int row = 3; row <= ws.Dimension.End.Row; row++)
+                {
+                    foreach (var wallet in wallets)
+                    {
+                        if (positions.ContainsValue(wallet))
+                        {
+                            var position = positions.FirstOrDefault(x => x.Value == wallet).Key + 1;
+                            totalTransfer += Double.Parse(ws.Cells[row, position].Value?.ToString() ?? "0");
+                        }
+                    }
+                }
+
+                if (totalTransfer > enterpriseGeneralWalletBalance)
+                {
+                    throw new ErrorResponse(StatusCodes.Status400BadRequest, 4004,
+                        "Total transfer larger than Enterprise Balance");
+                }
+
+                // Add point for employees
+                for (int row = 3; row <= ws.Dimension.End.Row; row++)
+                {
+                    var employee = await _unitOfWork.Repository<Account>()
+                        .AsQueryable(x => x.Id == Guid.Parse(ws.Cells[row, 1].Value.ToString() ?? string.Empty))
+                        .Include(x => x.Wallets)
+                        .FirstOrDefaultAsync();
+                    
+                    if (employee.Wallets.Count > 0)
+                    {
+                        foreach (var wallet in employee.Wallets)
+                        {
+                            // todo tạo transaction, + ví employee = - ví enterprise
+                            if (positions.ContainsValue(wallet.Name))
+                            {
+                                var position = positions.FirstOrDefault(x => x.Value == wallet.Name).Key + 1;
+                                // Update employee balance
+                                wallet.Balance += Double.Parse(ws.Cells[row, position].Value?.ToString() ?? "0");
+                                
+                                // todo create transaction
+                                
+                                enterpriseGeneralWalletBalance -= Double.Parse(ws.Cells[row, position].Value?.ToString() ?? "0");
+                            }
+                        }
+                    }
+                    await _unitOfWork.Repository<Account>().UpdateDetached(employee);
+                    records.Add(employee);
+                }
+                // Set enterprise general wallet balance
+                foreach (var wallet in enterprise.Wallets)
+                {
+                    if (wallet.Type == (int)WalletTypeEnums.GeneralWallet)
+                    {
+                        wallet.Balance = enterpriseGeneralWalletBalance;
+                    }
+                }
+                await _unitOfWork.Repository<Account>().UpdateDetached(enterprise);
+                await _unitOfWork.CommitAsync();
+
+                return new DynamicResponse<Account>()
+                {
+                    Code = StatusCodes.Status200OK,
+                    Message = "Ok",
+                    Data = records
+                };
+            }
+        }
+
+        return new DynamicResponse<Account>()
+        {
+            Code = StatusCodes.Status200OK,
+            Message = "Ok",
+            Data = new List<Account>()
         };
     }
 }

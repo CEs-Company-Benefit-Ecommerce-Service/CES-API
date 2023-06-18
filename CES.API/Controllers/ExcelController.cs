@@ -63,6 +63,20 @@ namespace CES.API.Controllers
             var result = await _excelService.ImportEmployeeList(file);
             return Ok(result);
         }
+        
+        /// <summary>
+        /// Transfer Employees balance from template (System, Supplier, Employee can't use)
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        [Authorize(Roles = "Enterprise Admin")]
+        [HttpPost("account/transfer")]
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<List<Account>>> TransferBalanceForEmployee(IFormFile file)
+        {
+            var result = await _excelService.TransferBalanceForEmployee(file);
+            return Ok(result);
+        }
 
         /// <summary>
         /// Download Excel Template for Product

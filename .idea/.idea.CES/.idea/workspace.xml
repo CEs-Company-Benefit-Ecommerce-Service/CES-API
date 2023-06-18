@@ -10,7 +10,11 @@
     <list default="true" id="c33e2030-59db-4d3d-a633-8e65857e01e7" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CES.API/Controllers/ExcelController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.API/Controllers/ExcelController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.API/Controllers/WalletController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.API/Controllers/WalletController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/AccountServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/AccountServices.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/ExcelService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/ExcelService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/WalletServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/WalletServices.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Utilities/Enums.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Utilities/Enums.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,7 +28,12 @@
     <setting file="file://$PROJECT_DIR$/CES.BusinessTier/Services/TransactionService.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/CES.BusinessTier/Services/WalletServices.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/CES.DataTier/Models/Transaction.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/528dd480fcfa493785cfd91f2ba7c12b1569d0/3e/cf211f8d/SqlInternalConnectionTds.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/1139bec68f639ea68cf7ec50a3d2dcb5f2ebeeb7e1ed5151656aa3f3ac56cbfe/NavigationExpandingExpressionVisitor.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/134622bcf8ad016d3faf7776eb0457b76a5798c537458aa82651ab2cee6e1/ThrowHelper.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/6f2c3a317ee06bc1b0766b94d4e6a045ea25c9a3da49cb9075bcee751250d4/ControllerActionInvoker.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/7262732eee179af215faab36a7f3c3cfac93ba12af52a3888d839fe7e53420/ActionMethodExecutor.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/a8d75b28dec5e779cd4bf572bf3e5b2e7ab41689581f58caeb251b564d3cd78d/SelectExpression.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -43,6 +52,7 @@
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.sourceCode.C#&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
@@ -121,13 +131,77 @@
       <workItem from="1686106726196" duration="3170000" />
       <workItem from="1686112910824" duration="302000" />
       <workItem from="1686132352822" duration="31404000" />
+      <workItem from="1686987307084" duration="21583000" />
+      <workItem from="1687100814979" duration="6210000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/WalletServices.cs</url>
+          <line>228</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/WalletServices.cs" initialLine="228" containingFunctionPresentation="Method 'CreateWalletForAccountDontHaveEnough'">
+            <startOffsets>
+              <option value="8772" />
+            </startOffsets>
+            <endOffsets>
+              <option value="9053" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/ExcelService.cs</url>
+          <line>538</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/ExcelService.cs" initialLine="523" containingFunctionPresentation="Method 'TransferBalanceForEmployee'">
+            <startOffsets>
+              <option value="24525" />
+            </startOffsets>
+            <endOffsets>
+              <option value="24578" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="22" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/ExcelService.cs</url>
+          <line>531</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/ExcelService.cs" initialLine="516" containingFunctionPresentation="Method 'TransferBalanceForEmployee'">
+            <startOffsets>
+              <option value="24220" />
+            </startOffsets>
+            <endOffsets>
+              <option value="24271" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="23" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <pin-to-top-manager>
+      <pinned-members>
+        <PinnedItemInfo parentTag="Type#CES.DataTier.Models.Account" memberName="Wallets" />
+        <PinnedItemInfo parentTag="Type#CES.DataTier.Models.Account" memberName="Status" />
+      </pinned-members>
+    </pin-to-top-manager>
   </component>
 </project>
