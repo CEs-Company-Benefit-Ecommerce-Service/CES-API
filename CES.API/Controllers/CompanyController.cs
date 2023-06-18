@@ -27,6 +27,12 @@ namespace CES.API.Controllers
             var result = await _companyServices.Gets(filter, paging);
             return StatusCode((int)result.Code, result);
         }
+        [HttpGet("{id}")]
+        public async Task<ActionResult> GetById(int id)
+        {
+            var result = await _companyServices.GetById(id);
+            return StatusCode((int)result.Code, result);
+        }
 
         //[HttpGet("all-info")]
         //public async Task<ActionResult> GetAllInfo([FromQuery] CompanyAllInfoResponse filter, [FromQuery] PagingModel paging)

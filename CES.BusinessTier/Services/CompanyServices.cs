@@ -22,6 +22,7 @@ namespace CES.BusinessTier.Services
     {
         Task<BaseResponseViewModel<CompanyResponseModel>> CreateNew(CompanyRequestModel request);
         Task<DynamicResponse<CompanyResponseModel>> Gets(CompanyResponseModel filter, PagingModel paging);
+        Task<BaseResponseViewModel<CompanyResponseModel>> GetById(int id);
         Task<BaseResponseViewModel<CompanyResponseModel>> Update(int id, CompanyRequestModel request);
     }
     public class CompanyServices : ICompanyServices
@@ -56,6 +57,19 @@ namespace CES.BusinessTier.Services
                 },
                 Data = await company.Item2.ToListAsync()
             };
+        }
+        public async Task<BaseResponseViewModel<CompanyResponseModel>> GetById(int id)
+        {
+            var company = await _unitOfWork.Repository<Company>().AsQueryable(x => x.Id == id)
+                .ProjectTo<CompanyResponseModel>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
+
+            return new BaseResponseViewModel<CompanyResponseModel>
+            {
+                Code = 200,
+                Message = "OK",
+                Data = company
+            };
+
         }
 
         public async Task<BaseResponseViewModel<CompanyResponseModel>> CreateNew(CompanyRequestModel request)
