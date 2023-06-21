@@ -33,7 +33,7 @@ namespace CES.BusinessTier.ResponseModels
         //public string? Phone { get; set; }
 
         //public ICollection<AccountResponseModel>? Accounts { get; set; }
-        //public ICollection<DebtNote> DebtNotes { get; set; }
+        //public ICollection<DebtNotes> DebtNotes { get; set; }
         //public ICollection<Receipt> Receipts { get; set; }
     }
 }

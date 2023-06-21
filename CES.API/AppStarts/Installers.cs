@@ -48,6 +48,10 @@ namespace CES.API.AppStarts
             services.AddScoped<ITransactionService, TransactionService>();
 
             services.AddScoped<IExcelService, ExcelService>();
+
+            services.AddScoped<IDebtServices, DebtServices>();
+
+            services.AddScoped<IReceiptServices, ReceiptServices>();
         }
     }
 }

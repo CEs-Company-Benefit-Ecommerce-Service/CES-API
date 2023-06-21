@@ -98,7 +98,7 @@ public class ExcelService : IExcelService
                             Limit = Constants.LimitWallet,
                         }
                     };
-                    account.Wallets = wallets;
+                    account.Wallet = wallets;
 
                 }
 
@@ -193,11 +193,11 @@ public class ExcelService : IExcelService
         Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
         var enterprise = _unitOfWork.Repository<Account>()
             .AsQueryable(x => x.Id == accountLoginId)
-            .Include(x => x.Wallets)
+            .Include(x => x.Wallet)
             .FirstOrDefault();
         double enterpriseGeneralWalletBalance = 0;
         // Get enterprise general wallet
-        foreach (var wallet in enterprise.Wallets)
+        foreach (var wallet in enterprise.Wallet)
         {
             if (wallet.Type == (int)WalletTypeEnums.GeneralWallet)
             {
@@ -206,7 +206,7 @@ public class ExcelService : IExcelService
         }
         var employees = _unitOfWork.Repository<Account>()
             .AsQueryable(x => x.RoleId == (int)Roles.Employee && x.CompanyId == int.Parse(companyId) && x.Status == (int)Status.Active && x.CreatedAt >= from && x.CreatedAt <= to)
-            .Include(x => x.Wallets)
+            .Include(x => x.Wallet)
             .OrderBy(x => x.CreatedAt)
             .ToList();
         var wallets = _unitOfWork.Repository<Wallet>().AsQueryable().Select(x => x.Type).Distinct().ToList();
@@ -237,7 +237,7 @@ public class ExcelService : IExcelService
             Dictionary<int, int> walletPositions = new Dictionary<int, int>();
             int initialRow = 1; //A
             int initialCol = 1; //1
-            
+
             ExcelWorksheet ws = package.Workbook.Worksheets.Add($"{company.Name}");
 
             // Row 1
@@ -251,7 +251,7 @@ public class ExcelService : IExcelService
                 initialCol++;
             }
             initialRow++;
-            
+
             //Row 2
             initialCol = 1;
             for (int i = 0; i < listRow2Title.Count; i++)
@@ -263,24 +263,24 @@ public class ExcelService : IExcelService
                 ws.Cells[initialRow, initialCol].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 initialCol++;
             }
-            
+
             for (int i = 0; i < wallets.Count; i++)
             {
-                ws.Cells[initialRow, initialCol].Value = wallets[i] == 1 
-                    ? WalletTypeEnums.FoodWallet.GetDisplayName() : wallets[i] == 2 
+                ws.Cells[initialRow, initialCol].Value = wallets[i] == 1
+                    ? WalletTypeEnums.FoodWallet.GetDisplayName() : wallets[i] == 2
                         ? WalletTypeEnums.StationeryWallet.GetDisplayName() : WalletTypeEnums.GeneralWallet.GetDisplayName();
                 ws.Cells[initialRow, initialCol].Style.Font.Bold = true;
                 ws.Cells[initialRow, initialCol].Style.Font.Size = 16;
                 ws.Cells[initialRow, initialCol].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
                 ws.Cells[initialRow, initialCol].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                
-                walletPositions.Add(wallets[i] == 1 ? (int)WalletTypeEnums.FoodWallet : wallets[i] == 2 
+
+                walletPositions.Add(wallets[i] == 1 ? (int)WalletTypeEnums.FoodWallet : wallets[i] == 2
                     ? (int)WalletTypeEnums.StationeryWallet : (int)WalletTypeEnums.GeneralWallet
                     , initialCol);
-                
+
                 initialCol++;
-                ws.Cells[initialRow, initialCol].Value = wallets[i] == 1 
-                    ? "Add " + WalletTypeEnums.FoodWallet.GetDisplayName() + " (+)" : wallets[i] == 2 
+                ws.Cells[initialRow, initialCol].Value = wallets[i] == 1
+                    ? "Add " + WalletTypeEnums.FoodWallet.GetDisplayName() + " (+)" : wallets[i] == 2
                         ? "Add " + WalletTypeEnums.StationeryWallet.GetDisplayName() + " (+)" : "Add " + WalletTypeEnums.GeneralWallet.GetDisplayName() + " (+)";
                 ws.Cells[initialRow, initialCol].Style.Font.Bold = true;
                 ws.Cells[initialRow, initialCol].Style.Font.Size = 16;
@@ -298,7 +298,7 @@ public class ExcelService : IExcelService
                 //     ws.Cells["A2"].Style.Fill.PatternType = ExcelFillStyle.Solid;
                 //     ws.Cells["A2"].Style.Fill.BackgroundColor.SetColor(Color.Gainsboro);
                 // }
-                
+
                 ws.Cells[initialRow, initialCol].Value = employees[i].Id;
                 ++initialCol;
                 ws.Cells[initialRow, initialCol].Value = employees[i].Name;
@@ -316,10 +316,10 @@ public class ExcelService : IExcelService
                 ws.Cells[initialRow, initialCol].Value = employees[i].CreatedAt.ToString();
                 ++initialCol;
                 ws.Cells[initialRow, initialCol].Value = employees[i].Status == (int)Status.Active ? Status.Active.GetDisplayName() : Status.Inactive.GetDisplayName();
-            
-                if (employees[i].Wallets.Count > 0)
+
+                if (employees[i].Wallet.Count > 0)
                 {
-                    foreach (var wallet in employees[i].Wallets)
+                    foreach (var wallet in employees[i].Wallet)
                     {
                         if (walletPositions.ContainsKey((int)wallet.Type))
                         {
@@ -490,9 +490,9 @@ public class ExcelService : IExcelService
                 var wallets = _unitOfWork.Repository<Wallet>().AsQueryable().Select(x => x.Name).Distinct().ToList();
                 Dictionary<int, string> positions = new Dictionary<int, string>();
                 var records = new List<Account>();
-                
+
                 Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
-                
+
                 int initialRow = 2; //A
                 int initialCol = 1; //1
 
@@ -501,23 +501,23 @@ public class ExcelService : IExcelService
                 {
                     positions.Add(initialCol, ws.Cells[initialRow, initialCol].Value.ToString());
                 }
-                
+
                 var enterprise = await _unitOfWork.Repository<Account>()
                     .AsQueryable(x => x.Id == accountLoginId)
-                    .Include(x => x.Wallets)
+                    .Include(x => x.Wallet)
                     .FirstOrDefaultAsync();
                 double enterpriseGeneralWalletBalance = 0;
                 double totalTransfer = 0;
-                
+
                 // Get enterprise general wallet
-                foreach (var wallet in enterprise.Wallets)
+                foreach (var wallet in enterprise.Wallet)
                 {
                     if (wallet.Type == (int)WalletTypeEnums.GeneralWallet)
                     {
                         enterpriseGeneralWalletBalance = (double)wallet.Balance;
                     }
                 }
-                
+
                 // Get total transfer
                 for (int row = 3; row <= ws.Dimension.End.Row; row++)
                 {
@@ -542,12 +542,12 @@ public class ExcelService : IExcelService
                 {
                     var employee = await _unitOfWork.Repository<Account>()
                         .AsQueryable(x => x.Id == Guid.Parse(ws.Cells[row, 1].Value.ToString() ?? string.Empty))
-                        .Include(x => x.Wallets)
+                        .Include(x => x.Wallet)
                         .FirstOrDefaultAsync();
-                    
-                    if (employee.Wallets.Count > 0)
+
+                    if (employee.Wallet.Count > 0)
                     {
-                        foreach (var wallet in employee.Wallets)
+                        foreach (var wallet in employee.Wallet)
                         {
                             // todo tạo transaction, + ví employee = - ví enterprise
                             if (positions.ContainsValue(wallet.Name))
@@ -555,9 +555,9 @@ public class ExcelService : IExcelService
                                 var position = positions.FirstOrDefault(x => x.Value == wallet.Name).Key + 1;
                                 // Update employee balance
                                 wallet.Balance += Double.Parse(ws.Cells[row, position].Value?.ToString() ?? "0");
-                                
+
                                 // todo create transaction
-                                
+
                                 enterpriseGeneralWalletBalance -= Double.Parse(ws.Cells[row, position].Value?.ToString() ?? "0");
                             }
                         }
@@ -566,7 +566,7 @@ public class ExcelService : IExcelService
                     records.Add(employee);
                 }
                 // Set enterprise general wallet balance
-                foreach (var wallet in enterprise.Wallets)
+                foreach (var wallet in enterprise.Wallet)
                 {
                     if (wallet.Type == (int)WalletTypeEnums.GeneralWallet)
                     {

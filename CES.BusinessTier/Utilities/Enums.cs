@@ -72,4 +72,16 @@ namespace CES.BusinessTier.Utilities
         [Display(Name = "Complete")] Complete = 3,
         [Display(Name = "Cancel")] Cancel = 4,
     }
+    public enum DebtStatusEnums
+    {
+        [Display(Name = "New")] New = 1,
+        [Display(Name = "Complete")] Complete = 2,
+        [Display(Name = "Cancel")] Cancel = 4,
+    }
+    public enum ReceiptStatusEnums
+    {
+        [Display(Name = "New")] New = 1,
+        [Display(Name = "Complete")] Complete = 2,
+        [Display(Name = "Cancel")] Cancel = 4,
+    }
 }

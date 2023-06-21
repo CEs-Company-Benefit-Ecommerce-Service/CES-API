@@ -234,11 +234,11 @@ namespace CES.BusinessTier.Services
                 .AsQueryable(x =>
                     x.Status == (int)Status.Active &&
                     (x.RoleId != (int)Roles.SupplierAdmin || x.RoleId != (int)Roles.SystemAdmin))
-                .Include(x => x.Wallets)
+                .Include(x => x.Wallet)
                 .ToList();
             foreach (var account in activeAccounts)
             {
-                if (account.Wallets.Count == 0)
+                if (account.Wallet.Count == 0)
                 {
                     var wallets = new List<Wallet>()
                     {
@@ -270,15 +270,16 @@ namespace CES.BusinessTier.Services
                             Type = (int)WalletTypeEnums.GeneralWallet,
                         }
                     };
-                    account.Wallets = wallets;
-                } else if (account.Wallets.Count > 0)
+                    account.Wallet = wallets;
+                }
+                else if (account.Wallet.Count > 0)
                 {
                     var wallets = new List<Wallet>();
                     List<int> walletTypes = new List<int>();
                     walletTypes.Add((int)WalletTypeEnums.GeneralWallet);
                     walletTypes.Add((int)WalletTypeEnums.StationeryWallet);
                     walletTypes.Add((int)WalletTypeEnums.FoodWallet);
-                    foreach (var wallet in account.Wallets)
+                    foreach (var wallet in account.Wallet)
                     {
                         walletTypes.Remove((int)wallet.Type);
                     }
@@ -298,7 +299,7 @@ namespace CES.BusinessTier.Services
                                     WalletTypeEnums.GeneralWallet.GetDisplayName(),
                                 Type = walletType,
                             };
-                            account.Wallets.Add(wallet);
+                            account.Wallet.Add(wallet);
                         }
                     }
                 }

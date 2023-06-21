@@ -60,11 +60,11 @@ namespace CES.BusinessTier.Services
         public async Task<DynamicResponse<WalletResponseModel>> GetsByLoginUser(PagingModel paging)
         {
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
-            var accountLogin = await _unitOfWork.Repository<Account>().GetAll().Include(x => x.Wallets).ThenInclude(x => x.WalletTransactions).Where(x => x.Id == accountLoginId).FirstOrDefaultAsync();
+            var accountLogin = await _unitOfWork.Repository<Account>().GetAll().Include(x => x.Wallet).ThenInclude(x => x.WalletTransaction).Where(x => x.Id == accountLoginId).FirstOrDefaultAsync();
             var walletTransction = new List<WalletTransaction>();
-            foreach (var wallet in accountLogin.Wallets)
+            foreach (var wallet in accountLogin.Wallet)
             {
-                foreach (var transaction in wallet.WalletTransactions)
+                foreach (var transaction in wallet.WalletTransaction)
                 {
                     walletTransction.Add(transaction);
                 }

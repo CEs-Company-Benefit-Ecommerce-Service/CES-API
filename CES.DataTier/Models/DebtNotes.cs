@@ -7,6 +7,12 @@ namespace CES.DataTier.Models
 {
     public partial class DebtNotes
     {
+        public DebtNotes()
+        {
+            Order = new HashSet<Order>();
+            Receipts = new HashSet<Receipts>();
+        }
+
         public Guid Id { get; set; }
         public string? Name { get; set; }
         public double? Total { get; set; }
@@ -14,10 +20,11 @@ namespace CES.DataTier.Models
         public DateTime? UpdatedAt { get; set; }
         public int? Status { get; set; }
         public string? InfoPayment { get; set; }
-        public Guid? OrderId { get; set; }
+        public string? OrderId { get; set; }
         public int? CompanyId { get; set; }
 
         public virtual Company? Company { get; set; }
-        public virtual Order? Order { get; set; }
+        public virtual ICollection<Order>? Order { get; set; }
+        public virtual ICollection<Receipts>? Receipts { get; set; }
     }
 }

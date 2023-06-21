@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace CES.DataTier.Models
+namespace CES.BusinessTier.ResponseModels
 {
-    public partial class DebtNote
+    public class ReceiptResponseModel
     {
         public Guid Id { get; set; }
         public string? Name { get; set; }
@@ -11,11 +14,8 @@ namespace CES.DataTier.Models
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public int? Status { get; set; }
-        public string? InfoPayment { get; set; }
-        public Guid? OrderId { get; set; }
+        public string? ImageUrl { get; set; }
+        public string? PaymentCode { get; set; }
         public int? CompanyId { get; set; }
-
-        public virtual Company? Company { get; set; }
-        public virtual Order? Order { get; set; }
     }
 }

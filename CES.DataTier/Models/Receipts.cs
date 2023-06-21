@@ -16,7 +16,9 @@ namespace CES.DataTier.Models
         public string? ImageUrl { get; set; }
         public string? PaymentCode { get; set; }
         public int? CompanyId { get; set; }
+        public Guid? DebtId { get; set; }
 
         public virtual Company? Company { get; set; }
+        public virtual DebtNotes? Debt { get; set; }
     }
 }

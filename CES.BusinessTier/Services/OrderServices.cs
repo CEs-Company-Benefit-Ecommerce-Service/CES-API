@@ -24,6 +24,7 @@ namespace CES.BusinessTier.Services
         Task<BaseResponseViewModel<OrderResponseModel>> UpdateOrderStatus(Guid orderId, int status);
         Task<BaseResponseViewModel<OrderResponseModel>> CreateOrder(List<OrderDetailsRequestModel> orderDetails, string? note);
         Task<BaseResponseViewModel<OrderResponseModel>> GetById(Guid id);
+        Task<TotalOrderResponse> GetTotal(int companyId);
     }
     public class OrderServices : IOrderServices
     {
@@ -70,7 +71,7 @@ namespace CES.BusinessTier.Services
         {
             var orderDetail = await _unitOfWork.Repository<Order>().AsQueryable()
                 .Include(x => x.Account)
-                .Include(x => x.OrderDetails)
+                .Include(x => x.OrderDetail)
                 .ThenInclude(x => x.Product)
                 .Where(x => x.Id == id).FirstOrDefaultAsync();
 
@@ -143,6 +144,7 @@ namespace CES.BusinessTier.Services
                     Total = total,
                     Address = companyAddress,
                     Note = note,
+                    DebtStatus = (int)DebtStatusEnums.New
                 };
                 await _unitOfWork.Repository<Order>().InsertAsync(newOrder);
 
@@ -193,5 +195,22 @@ namespace CES.BusinessTier.Services
 
             }
         }
+        public async Task<TotalOrderResponse> GetTotal(int companyId)
+        {
+            var ordersOfCompany = _unitOfWork.Repository<Order>()
+                .AsQueryable().Include(x => x.Account)
+                .Where(x => x.Account.CompanyId == companyId
+                         && x.Status == (int)OrderStatusEnums.Complete
+                         && x.DebtStatus == (int)DebtStatusEnums.New
+                      );
+            var sum = await ordersOfCompany.Select(x => x.Total).SumAsync() ?? 0;
+            var listOrderId = await ordersOfCompany.Select(x => x.Id).ToListAsync();
+            return new TotalOrderResponse()
+            {
+                Total = sum,
+                OrderIds = listOrderId
+            };
+        }
+
     }
 }

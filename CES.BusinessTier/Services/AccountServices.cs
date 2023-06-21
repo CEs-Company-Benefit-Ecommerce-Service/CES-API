@@ -48,7 +48,7 @@ namespace CES.BusinessTier.Services
         public BaseResponseViewModel<AccountResponseModel> Get(Guid id)
         {
             //var account = _unitOfWork.Repository<Account>().GetByIdGuid(id);
-            var account = _unitOfWork.Repository<Account>().GetAll().Include(x => x.Wallets).Where(x => x.Id == id).FirstOrDefaultAsync();
+            var account = _unitOfWork.Repository<Account>().GetAll().Include(x => x.Wallet).Where(x => x.Id == id).FirstOrDefaultAsync();
             if (account.Result == null)
             {
                 return new BaseResponseViewModel<AccountResponseModel>
@@ -213,7 +213,7 @@ namespace CES.BusinessTier.Services
                         Type = (int)WalletTypeEnums.GeneralWallet,
                     }
                 };
-                newAccount.Wallets = wallets;
+                newAccount.Wallet = wallets;
             }
             try
             {
@@ -238,7 +238,7 @@ namespace CES.BusinessTier.Services
 
         public async Task<BaseResponseViewModel<AccountResponseModel>> DeleteAccountAsync(Guid id)
         {
-            var account = _unitOfWork.Repository<Account>().GetAll().Include(x => x.Wallets).Where(x => x.Id == id).FirstOrDefaultAsync().Result;
+            var account = _unitOfWork.Repository<Account>().GetAll().Include(x => x.Wallet).Where(x => x.Id == id).FirstOrDefaultAsync().Result;
             if (account == null)
             {
                 return new BaseResponseViewModel<AccountResponseModel>
