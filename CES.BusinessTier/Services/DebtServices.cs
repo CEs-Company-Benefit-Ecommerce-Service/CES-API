@@ -52,18 +52,18 @@ namespace CES.BusinessTier.Services
                 {
                     Code = StatusCodes.Status200OK,
                     Message = "Ok",
-                    MetaData =
-                {
-                    Page = paging.Page,
-                    Size = paging.Size,
-                    Total = debts.Item1
-                },
+                    MetaData = new PagingMetaData
+                    {
+                        Page = paging.Page,
+                        Size = paging.Size,
+                        Total = debts.Item1
+                    },
                     Data = await debts.Item2.ToListAsync()
                 };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                throw new Exception(ex.Message);
             }
 
         }
