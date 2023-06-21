@@ -23,6 +23,7 @@ namespace CES.BusinessTier.Services
         Task<DynamicResponse<ReceiptResponseModel>> GetsAsync(ReceiptResponseModel filter, PagingModel paging);
         Task<DynamicResponse<ReceiptResponseModel>> GetsWithCompanyAsync(ReceiptResponseModel filter, PagingModel paging, int companyId);
         Task<BaseResponseViewModel<ReceiptResponseModel>> Create(ReceiptRequestModel request);
+        Task<BaseResponseViewModel<ReceiptResponseModel>> UpdateStatus(Guid receiptId, int status);
 
     }
     public class ReceiptServices : IReceiptServices
@@ -38,7 +39,7 @@ namespace CES.BusinessTier.Services
 
         public async Task<DynamicResponse<ReceiptResponseModel>> GetsAsync(ReceiptResponseModel filter, PagingModel paging)
         {
-            var receipts = _unitOfWork.Repository<Receipt>().AsQueryable()
+            var receipts = _unitOfWork.Repository<Receipts>().AsQueryable()
                 .ProjectTo<ReceiptResponseModel>(_mapper.ConfigurationProvider)
                 .DynamicFilter(filter)
                 .DynamicSort(paging.Sort, paging.Order)
@@ -48,7 +49,7 @@ namespace CES.BusinessTier.Services
             {
                 Code = StatusCodes.Status200OK,
                 Message = "Ok",
-                MetaData =
+                MetaData = new PagingMetaData
                 {
                     Page = paging.Page,
                     Size = paging.Size,
@@ -59,7 +60,7 @@ namespace CES.BusinessTier.Services
         }
         public async Task<DynamicResponse<ReceiptResponseModel>> GetsWithCompanyAsync(ReceiptResponseModel filter, PagingModel paging, int companyId)
         {
-            var receipts = _unitOfWork.Repository<Receipt>().AsQueryable(x => x.CompanyId == companyId)
+            var receipts = _unitOfWork.Repository<Receipts>().AsQueryable(x => x.CompanyId == companyId)
                            .ProjectTo<ReceiptResponseModel>(_mapper.ConfigurationProvider)
                            .DynamicFilter(filter)
                            .DynamicSort(paging.Sort, paging.Order)
@@ -69,7 +70,7 @@ namespace CES.BusinessTier.Services
             {
                 Code = StatusCodes.Status200OK,
                 Message = "Ok",
-                MetaData =
+                MetaData = new PagingMetaData
                 {
                     Page = paging.Page,
                     Size = paging.Size,
@@ -82,7 +83,7 @@ namespace CES.BusinessTier.Services
         {
             var debt = _unitOfWork.Repository<DebtNotes>().GetByIdGuid((Guid)request.DebtId);
 
-            var receipt = new Receipt()
+            var receipt = new Receipts()
             {
                 Id = Guid.NewGuid(),
                 CreatedAt = TimeUtils.GetCurrentSEATime(),
@@ -95,15 +96,29 @@ namespace CES.BusinessTier.Services
                 Status = (int)ReceiptStatusEnums.New,
                 CompanyId = debt.Result.CompanyId
             };
-            return new BaseResponseViewModel<ReceiptResponseModel>()
+            try
             {
-                Code = StatusCodes.Status204NoContent,
-                Message = "Not Content",
-            };
+                await _unitOfWork.Repository<Receipts>().InsertAsync(receipt);
+                await _unitOfWork.CommitAsync();
+                return new BaseResponseViewModel<ReceiptResponseModel>()
+                {
+                    Code = StatusCodes.Status204NoContent,
+                    Message = "Not Content",
+                };
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponseViewModel<ReceiptResponseModel>()
+                {
+                    Code = StatusCodes.Status400BadRequest,
+                    Message = "Bad request",
+                };
+            }
+            
         }
         public async Task<BaseResponseViewModel<ReceiptResponseModel>> UpdateStatus(Guid receiptId, int status)
         {
-            var receipt = _unitOfWork.Repository<Receipt>().GetByIdGuid(receiptId).Result;
+            var receipt = _unitOfWork.Repository<Receipts>().GetByIdGuid(receiptId).Result;
             if (receipt == null)
             {
                 return new BaseResponseViewModel<ReceiptResponseModel>()
@@ -129,7 +144,7 @@ namespace CES.BusinessTier.Services
                     try
                     {
                         await _unitOfWork.Repository<DebtNotes>().UpdateDetached(debt);
-                        await _unitOfWork.Repository<Receipt>().UpdateDetached(receipt);
+                        await _unitOfWork.Repository<Receipts>().UpdateDetached(receipt);
                         _unitOfWork.Repository<Order>().UpdateRange(order);
                         await _unitOfWork.CommitAsync();
                     }
@@ -147,7 +162,7 @@ namespace CES.BusinessTier.Services
                     receipt.Status = (int)ReceiptStatusEnums.Cancel;
                     try
                     {
-                        await _unitOfWork.Repository<Receipt>().UpdateDetached(receipt);
+                        await _unitOfWork.Repository<Receipts>().UpdateDetached(receipt);
                         await _unitOfWork.CommitAsync();
                     }
                     catch (Exception ex)

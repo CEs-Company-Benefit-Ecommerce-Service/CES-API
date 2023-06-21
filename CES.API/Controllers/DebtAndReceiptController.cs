@@ -1,4 +1,5 @@
-﻿using CES.BusinessTier.ResponseModels;
+﻿using CES.BusinessTier.RequestModels;
+using CES.BusinessTier.ResponseModels;
 using CES.BusinessTier.ResponseModels.BaseResponseModels;
 using CES.BusinessTier.Services;
 using Microsoft.AspNetCore.Http;
@@ -37,23 +38,35 @@ namespace CES.API.Controllers
             var result = _debtServices.GetById(debtId);
             return Ok(result);
         }
-        [HttpPost]
+        [HttpPost("debt")]
         public async Task<ActionResult> Post(int companyId)
         {
             var result = await _debtServices.CreateAsync(companyId);
             return StatusCode((int)result.Code, result);
         }
-        //[HttpGet("receipt")]
-        //public async Task<ActionResult> GetReceipts([FromQuery] ReceiptResponseModel filter, [FromQuery] PagingModel paging)
-        //{
-        //    var result = await _receiptServices.GetsAsync(filter, paging);
-        //    return Ok(result);
-        //}
-        //[HttpGet("receipt/{companyId}")]
-        //public async Task<ActionResult> GetReceipts([FromQuery] ReceiptResponseModel filter, [FromQuery] PagingModel paging, int companyId)
-        //{
-        //    var result = await _receiptServices.GetsWithCompanyAsync(filter, paging, companyId);
-        //    return Ok(result);
-        //}
+        [HttpGet("receipt")]
+        public async Task<ActionResult> GetReceipts([FromQuery] ReceiptResponseModel filter, [FromQuery] PagingModel paging)
+        {
+            var result = await _receiptServices.GetsAsync(filter, paging);
+            return Ok(result);
+        }
+        [HttpGet("receipt/{companyId}")]
+        public async Task<ActionResult> GetReceipts([FromQuery] ReceiptResponseModel filter, [FromQuery] PagingModel paging, int companyId)
+        {
+            var result = await _receiptServices.GetsWithCompanyAsync(filter, paging, companyId);
+            return Ok(result);
+        }
+        [HttpPost("receipt")]
+        public async Task<ActionResult> PostReceipt([FromBody] ReceiptRequestModel request)
+        {
+            var result = _receiptServices.Create(request).Result;
+            return StatusCode((int)result.Code, result);
+        }
+        [HttpPut("receipt/{id}")]
+        public async Task<ActionResult> PutReceipt(Guid id, int status)
+        {
+            var result = _receiptServices.UpdateStatus(id, status).Result;
+            return StatusCode((int)result.Code, result);
+        }
     }
 }

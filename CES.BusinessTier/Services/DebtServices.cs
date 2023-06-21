@@ -94,7 +94,7 @@ namespace CES.BusinessTier.Services
             {
                 Code = StatusCodes.Status200OK,
                 Message = "Ok",
-                MetaData =
+                MetaData = new PagingMetaData
                 {
                     Page = paging.Page,
                     Size = paging.Size,
@@ -105,7 +105,7 @@ namespace CES.BusinessTier.Services
         }
         public BaseResponseViewModel<DebtNotesResponseModel> GetById(Guid id)
         {
-            var debt = _unitOfWork.Repository<DebtNotes>().GetByIdGuid(id);
+            var debt = _unitOfWork.Repository<DebtNotes>().GetByIdGuid(id).Result;
             if (debt == null)
             {
                 return new BaseResponseViewModel<DebtNotesResponseModel>()
