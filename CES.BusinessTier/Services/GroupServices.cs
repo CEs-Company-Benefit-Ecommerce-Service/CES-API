@@ -20,24 +20,24 @@ using System.Threading.Tasks;
 
 namespace CES.BusinessTier.Services
 {
-    public interface IProjectServices
+    public interface IGroupServices
     {
-        DynamicResponse<ProjectResponseModel> Gets(PagingModel paging);
-        Task<BaseResponseViewModel<ProjectResponseModel>> Get(Guid id);
-        Task<BaseResponseViewModel<ProjectResponseModel>> AddEmployee(ProjectMemberRequestModel requestModel);
-        Task<BaseResponseViewModel<ProjectResponseModel>> RemoveEmployee(ProjectMemberRequestModel requestModel);
-        Task<BaseResponseViewModel<ProjectResponseModel>> Update(Guid id, ProjectRequestModel request);
-        Task<BaseResponseViewModel<ProjectResponseModel>> Create(ProjectRequestModel request);
-        Task<BaseResponseViewModel<ProjectResponseModel>> Delete(Guid id);
+        DynamicResponse<GroupResponseModel> Gets(PagingModel paging);
+        Task<BaseResponseViewModel<GroupResponseModel>> Get(Guid id);
+        Task<BaseResponseViewModel<GroupResponseModel>> AddEmployee(GroupMemberRequestModel requestModel);
+        Task<BaseResponseViewModel<GroupResponseModel>> RemoveEmployee(GroupMemberRequestModel requestModel);
+        Task<BaseResponseViewModel<GroupResponseModel>> Update(Guid id, GroupRequestModel request);
+        Task<BaseResponseViewModel<GroupResponseModel>> Create(GroupRequestModel request);
+        Task<BaseResponseViewModel<GroupResponseModel>> Delete(Guid id);
     }
-    public class ProjectServices : IProjectServices
+    public class GroupServices : IGroupServices
     {
-        private readonly IProjectAccountServices _projectAccountServices;
+        private readonly IGroupAccountServices _projectAccountServices;
         private readonly IAccountServices _accountServices;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly IMapper _mapper;
-        public ProjectServices(IUnitOfWork unitOfWork, IMapper mapper, IProjectAccountServices projectAccountServices, IHttpContextAccessor contextAccessor, IAccountServices accountServices)
+        public GroupServices(IUnitOfWork unitOfWork, IMapper mapper, IGroupAccountServices projectAccountServices, IHttpContextAccessor contextAccessor, IAccountServices accountServices)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
@@ -45,46 +45,46 @@ namespace CES.BusinessTier.Services
             _contextAccessor = contextAccessor;
             _accountServices = accountServices;
         }
-        public DynamicResponse<ProjectResponseModel> Gets(PagingModel paging)
+        public DynamicResponse<GroupResponseModel> Gets(PagingModel paging)
         {
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
             var account = _accountServices.Get(accountLoginId);
 
-            var projects = _unitOfWork.Repository<Project>().GetAll()
-                .Include(x => x.ProjectAccount).ThenInclude(y => y.Account)
-                .ProjectTo<ProjectResponseModel>(_mapper.ConfigurationProvider)
+            var projects = _unitOfWork.Repository<Group>().GetAll()
+                .Include(x => x.GroupAccount).ThenInclude(y => y.Account)
+                .ProjectTo<GroupResponseModel>(_mapper.ConfigurationProvider)
                 .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging);
             var result = projects.Item2.Where(x => x.CompanyId == account.Data.CompanyId);
-            return new DynamicResponse<ProjectResponseModel>
+            return new DynamicResponse<GroupResponseModel>
             {
                 Code = 200,
                 Message = "OK",
                 Data = result.ToList()
             };
         }
-        public async Task<BaseResponseViewModel<ProjectResponseModel>> Get(Guid id)
+        public async Task<BaseResponseViewModel<GroupResponseModel>> Get(Guid id)
         {
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
             var account = _accountServices.Get(accountLoginId);
 
-            var project = await _unitOfWork.Repository<Project>().GetAll()
-                .Include(x => x.ProjectAccount)
+            var project = await _unitOfWork.Repository<Group>().GetAll()
+                .Include(x => x.GroupAccount)
                 .ThenInclude(y => y.Account)
                 .Where(x => x.Id == id && x.CompanyId == account.Data.CompanyId)
                 .FirstOrDefaultAsync();
-            return new BaseResponseViewModel<ProjectResponseModel>
+            return new BaseResponseViewModel<GroupResponseModel>
             {
                 Code = 200,
                 Message = "OK",
-                Data = _mapper.Map<ProjectResponseModel>(project)
+                Data = _mapper.Map<GroupResponseModel>(project)
             };
         }
-        public async Task<BaseResponseViewModel<ProjectResponseModel>> Update(Guid id, ProjectRequestModel request)
+        public async Task<BaseResponseViewModel<GroupResponseModel>> Update(Guid id, GroupRequestModel request)
         {
-            var existedProject = _unitOfWork.Repository<Project>().GetByIdGuid(id).Result;
-            if (existedProject == null)
+            var existedGroup = _unitOfWork.Repository<Group>().GetByIdGuid(id).Result;
+            if (existedGroup == null)
             {
-                return new BaseResponseViewModel<ProjectResponseModel>
+                return new BaseResponseViewModel<GroupResponseModel>
                 {
                     Code = 404,
                     Message = "Not found",
@@ -92,11 +92,11 @@ namespace CES.BusinessTier.Services
             }
             try
             {
-                var updateProject = _mapper.Map<ProjectRequestModel, Project>(request, existedProject);
-                await _unitOfWork.Repository<Project>().UpdateDetached(updateProject);
+                var updateGroup = _mapper.Map<GroupRequestModel, Group>(request, existedGroup);
+                await _unitOfWork.Repository<Group>().UpdateDetached(updateGroup);
                 await _unitOfWork.CommitAsync();
 
-                return new BaseResponseViewModel<ProjectResponseModel>
+                return new BaseResponseViewModel<GroupResponseModel>
                 {
                     Code = 204,
                     Message = "No content",
@@ -104,27 +104,27 @@ namespace CES.BusinessTier.Services
             }
             catch (Exception)
             {
-                return new BaseResponseViewModel<ProjectResponseModel>
+                return new BaseResponseViewModel<GroupResponseModel>
                 {
                     Code = 400,
                     Message = "Bad request",
                 };
             }
         }
-        public async Task<BaseResponseViewModel<ProjectResponseModel>> Create(ProjectRequestModel request)
+        public async Task<BaseResponseViewModel<GroupResponseModel>> Create(GroupRequestModel request)
         {
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
             var account = _accountServices.Get(accountLoginId);
 
-            var newProject = _mapper.Map<Project>(request);
-            newProject.Id = Guid.NewGuid();
-            newProject.CompanyId = account.Data.CompanyId;
+            var newGroup = _mapper.Map<Group>(request);
+            newGroup.Id = Guid.NewGuid();
+            newGroup.CompanyId = account.Data.CompanyId;
             try
             {
-                await _unitOfWork.Repository<Project>().InsertAsync(newProject);
+                await _unitOfWork.Repository<Group>().InsertAsync(newGroup);
                 await _unitOfWork.CommitAsync();
 
-                return new BaseResponseViewModel<ProjectResponseModel>
+                return new BaseResponseViewModel<GroupResponseModel>
                 {
                     Code = 204,
                     Message = "No content",
@@ -132,19 +132,19 @@ namespace CES.BusinessTier.Services
             }
             catch (Exception)
             {
-                return new BaseResponseViewModel<ProjectResponseModel>
+                return new BaseResponseViewModel<GroupResponseModel>
                 {
                     Code = 400,
                     Message = "Bad request",
                 };
             }
         }
-        public async Task<BaseResponseViewModel<ProjectResponseModel>> Delete(Guid id)
+        public async Task<BaseResponseViewModel<GroupResponseModel>> Delete(Guid id)
         {
-            var project = _unitOfWork.Repository<Project>().GetAll().Include(x => x.ProjectAccount).Where(x => x.Id == id).FirstOrDefault();
+            var project = _unitOfWork.Repository<Group>().GetAll().Include(x => x.GroupAccount).Where(x => x.Id == id).FirstOrDefault();
             if (project == null)
             {
-                return new BaseResponseViewModel<ProjectResponseModel>
+                return new BaseResponseViewModel<GroupResponseModel>
                 {
                     Code = 404,
                     Message = "Not found",
@@ -152,13 +152,13 @@ namespace CES.BusinessTier.Services
             }
             try
             {
-                foreach (var projectAccount in project.ProjectAccount)
+                foreach (var projectAccount in project.GroupAccount)
                 {
-                    var deleteProjectAccountResult = _projectAccountServices.Deleted(projectAccount.Id);
+                    var deleteGroupAccountResult = _projectAccountServices.Deleted(projectAccount.Id);
                 }
-                _unitOfWork.Repository<Project>().Delete(project);
+                _unitOfWork.Repository<Group>().Delete(project);
                 await _unitOfWork.CommitAsync();
-                return new BaseResponseViewModel<ProjectResponseModel>
+                return new BaseResponseViewModel<GroupResponseModel>
                 {
                     Code = 204,
                     Message = "No content",
@@ -166,29 +166,29 @@ namespace CES.BusinessTier.Services
             }
             catch (Exception)
             {
-                return new BaseResponseViewModel<ProjectResponseModel>()
+                return new BaseResponseViewModel<GroupResponseModel>()
                 {
                     Code = 400,
                     Message = "Bad request",
                 };
             }
         }
-        public async Task<BaseResponseViewModel<ProjectResponseModel>> AddEmployee(ProjectMemberRequestModel requestModel)
+        public async Task<BaseResponseViewModel<GroupResponseModel>> AddEmployee(GroupMemberRequestModel requestModel)
         {
             foreach (var accountId in requestModel.AccountId)
             {
-                if (_projectAccountServices.CheckAccountInProject(accountId, requestModel.ProjectId).Result)
+                if (_projectAccountServices.CheckAccountInGroup(accountId, requestModel.GroupId).Result)
                 {
-                    return new BaseResponseViewModel<ProjectResponseModel>()
+                    return new BaseResponseViewModel<GroupResponseModel>()
                     {
                         Code = 400,
                         Message = "This account was in group",
                     };
                 }
-                var newProjectAccount = await _projectAccountServices.Created(accountId, requestModel.ProjectId);
-                if (newProjectAccount == null)
+                var newGroupAccount = await _projectAccountServices.Created(accountId, requestModel.GroupId);
+                if (newGroupAccount == null)
                 {
-                    return new BaseResponseViewModel<ProjectResponseModel>()
+                    return new BaseResponseViewModel<GroupResponseModel>()
                     {
                         Code = 400,
                         Message = "Bad request",
@@ -196,28 +196,28 @@ namespace CES.BusinessTier.Services
                 }
             }
 
-            //var project = await Get(requestModel.Select(x => x.ProjectId).FirstOrDefault());
+            //var project = await Get(requestModel.Select(x => x.GroupId).FirstOrDefault());
 
-            return new BaseResponseViewModel<ProjectResponseModel>()
+            return new BaseResponseViewModel<GroupResponseModel>()
             {
                 Code = 200,
                 Message = "OK",
             }; ;
         }
-        public async Task<BaseResponseViewModel<ProjectResponseModel>> RemoveEmployee(ProjectMemberRequestModel requestModel)
+        public async Task<BaseResponseViewModel<GroupResponseModel>> RemoveEmployee(GroupMemberRequestModel requestModel)
         {
             try
             {
-                var project = await Get(requestModel.ProjectId);
+                var project = await Get(requestModel.GroupId);
                 foreach (var accountId in requestModel.AccountId)
                 {
-                    var projectAccount = project.Data.ProjectAccounts.Where(x => x.AccountId == accountId).FirstOrDefault();
+                    var projectAccount = project.Data.GroupAccounts.Where(x => x.AccountId == accountId).FirstOrDefault();
                     if (projectAccount != null)
                     {
-                        var deleteProjectAccoutnResult = await _projectAccountServices.Deleted(projectAccount.Id);
+                        var deleteGroupAccoutnResult = await _projectAccountServices.Deleted(projectAccount.Id);
                     }
                 }
-                return new BaseResponseViewModel<ProjectResponseModel>()
+                return new BaseResponseViewModel<GroupResponseModel>()
                 {
                     Code = 204,
                     Message = "No content"
@@ -225,7 +225,7 @@ namespace CES.BusinessTier.Services
             }
             catch (Exception)
             {
-                return new BaseResponseViewModel<ProjectResponseModel>()
+                return new BaseResponseViewModel<GroupResponseModel>()
                 {
                     Code = 400,
                     Message = "Bad request",

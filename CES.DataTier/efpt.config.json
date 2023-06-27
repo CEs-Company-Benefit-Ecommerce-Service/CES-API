@@ -19,6 +19,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[Benefit]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[Category]",
          "ObjectType": 0
       },
@@ -27,11 +31,23 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[DebtNotes]",
+         "Name": "[dbo].[DebtTicket]",
          "ObjectType": 0
       },
       {
          "Name": "[dbo].[Discount]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Group]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[GroupAccount]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Invoke]",
          "ObjectType": 0
       },
       {
@@ -47,18 +63,6 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[Project]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[ProjectAccount]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[Receipts]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[dbo].[Role]",
          "ObjectType": 0
       },
@@ -67,15 +71,15 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[Wallet]",
+         "Name": "[dbo].[TransactionWalletLog]",
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[WalletTransaction]",
+         "Name": "[dbo].[Wallet]",
          "ObjectType": 0
       }
    ],
-   "UiHint": "instance-1.CEsData_dev.dbo",
+   "UiHint": "instance-1.CEsData_dev_v2.dbo",
    "UncountableWords": null,
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": true,

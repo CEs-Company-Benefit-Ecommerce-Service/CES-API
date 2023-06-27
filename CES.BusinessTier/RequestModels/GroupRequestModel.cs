@@ -6,18 +6,16 @@ using System.Threading.Tasks;
 
 namespace CES.BusinessTier.RequestModels
 {
-    public class ProjectRequestModel
+    public class GroupRequestModel
     {
         public string? Name { get; set; }
-        public string? Address { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-        public DateTime? CreatedAt { get; set; }
         public int? Status { get; set; }
         public string? ImageUrl { get; set; }
+        public string? Description { get; set; }
     }
-    public class ProjectMemberRequestModel
+    public class GroupMemberRequestModel
     {
-        public Guid ProjectId { get; set; }
+        public Guid GroupId { get; set; }
         public List<Guid> AccountId { get; set; }
     }
 }

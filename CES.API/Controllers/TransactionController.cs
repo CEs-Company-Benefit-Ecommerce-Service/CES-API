@@ -1,6 +1,7 @@
 ﻿using CES.BusinessTier.ResponseModels;
 using CES.BusinessTier.ResponseModels.BaseResponseModels;
 using CES.BusinessTier.Services;
+using CES.DataTier.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,7 +21,7 @@ namespace CES.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> Gets([FromQuery] TransactionResponseModels filter, [FromQuery] PagingModel pagingModel)
+        public async Task<ActionResult> Gets([FromQuery] Transaction filter, [FromQuery] PagingModel pagingModel)
         {
             var result = await _transactionService.GetsAsync(filter, pagingModel);
             return Ok(result);

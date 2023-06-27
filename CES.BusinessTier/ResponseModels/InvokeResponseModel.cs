@@ -7,15 +7,15 @@ using System.Threading.Tasks;
 
 namespace CES.BusinessTier.ResponseModels
 {
-    public class CategoryResponseModel
+    public class InvokeResponseModel
     {
         public int Id { get; set; }
         public string? Name { get; set; }
-        public string? Description { get; set; }
+        public double Total { get; set; }
         public int? Status { get; set; }
-        public DateTime? CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-        public string? ImageUrl { get; set; }
+        public string ImageUrl { get; set; } = null!;
+        public int DebtId { get; set; }
 
+        public DebtTicketResponseModel Debt { get; set; } = null!;
     }
 }

@@ -15,15 +15,15 @@ namespace CES.BusinessTier.AutoMapperModules
         public static void ConfigWalletModule(this IMapperConfigurationExpression mc)
         {
             mc.CreateMap<Wallet, WalletResponseModel>().ReverseMap();
-            mc.CreateMap<Wallet, WalletRequestModel>().ReverseMap();
-            mc.CreateMap<Wallet, WalletInfoRequestModel>().ReverseMap();
+            //mc.CreateMap<Wallet, WalletRequestModel>().ReverseMap();
+            //mc.CreateMap<Wallet, WalletInfoRequestModel>().ReverseMap();
         }
     }
     public static class WalletTransactionModule
     {
         public static void ConfigWalletTransactionModule(this IMapperConfigurationExpression mc)
         {
-            mc.CreateMap<WalletTransaction, WalletTransactionResponseModel>().ReverseMap();
+            //mc.CreateMap<WalletTransaction, WalletTransactionResponseModel>().ReverseMap();
         }
     }
 }

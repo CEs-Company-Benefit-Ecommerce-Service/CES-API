@@ -181,39 +181,17 @@ namespace CES.BusinessTier.Services
             newAccount.CreatedAt = TimeUtils.GetCurrentSEATime();
             if (newAccount.RoleId == (int)Roles.Employee)
             {
-                var wallets = new List<Wallet>()
+                var wallets = new Wallet()
                 {
-                    new Wallet
-                    {
-                        AccountId = newAccount.Id,
-                        Balance = 0,
-                        CreatedAt = TimeUtils.GetCurrentSEATime(),
-                        Id = Guid.NewGuid(),
-                        Name = WalletTypeEnums.FoodWallet.GetDisplayName(),
-                        Type = (int)WalletTypeEnums.FoodWallet,
-                        Limit = Constants.LimitWallet, //5k point
-                    },
-                    new Wallet
-                    {
-                        AccountId = newAccount.Id,
-                        Balance = 0,
-                        CreatedAt = TimeUtils.GetCurrentSEATime(),
-                        Id = Guid.NewGuid(),
-                        Name = WalletTypeEnums.StationeryWallet.GetDisplayName(),
-                        Type = (int)WalletTypeEnums.StationeryWallet,
-                        Limit = Constants.LimitWallet,
-                    },
-                    new Wallet
-                    {
-                        AccountId = newAccount.Id,
-                        Balance = 0,
-                        CreatedAt = TimeUtils.GetCurrentSEATime(),
-                        Id = Guid.NewGuid(),
-                        Name = WalletTypeEnums.GeneralWallet.GetDisplayName(),
-                        Type = (int)WalletTypeEnums.GeneralWallet,
-                    }
+                    Balance = 0,
+                    CreatedAt = TimeUtils.GetCurrentSEATime(),
+                    Id = Guid.NewGuid(),
+                    Name = WalletTypeEnums.GeneralWallet.GetDisplayName(),
+                    Status = (int)Status.Active,
+                    CreatedBy = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString())
                 };
                 newAccount.Wallet = wallets;
+                newAccount.WalletId = wallets.Id;
             }
             try
             {

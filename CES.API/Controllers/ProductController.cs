@@ -21,7 +21,7 @@ namespace CES.API.Controllers
         {
             _productService = productService;
         }
-        
+
         // GET: api/Product
         [HttpGet]
         public async Task<ActionResult<DynamicResponse<ProductResponseModel>>> GetAllProduct([FromQuery] ProductResponseModel filter, [FromQuery] PagingModel paging)
@@ -45,7 +45,7 @@ namespace CES.API.Controllers
 
         // PUT: api/Product/5
         [HttpPut("{id}")]
-        public async Task<ActionResult<BaseResponseViewModel<ProductResponseModel>>> UpdateProduct(Guid id, [FromBody] ProductUpdateModel productUpdate)
+        public async Task<ActionResult<BaseResponseViewModel<ProductResponseModel>>> UpdateProduct(Guid id, [FromBody] ProductRequestModel productUpdate)
         {
             return Ok(await _productService.UpdateProductAsync(id, productUpdate));
         }

@@ -12,7 +12,6 @@ namespace CES.BusinessTier.RequestModels
         public string? Name { get; set; }
         public int? Type { get; set; }
         public double? Balance { get; set; }
-        public Guid? AccountId { get; set; }
 
         //public WalletTransaction WalletTransaction { get; set; }
     }

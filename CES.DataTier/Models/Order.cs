@@ -10,24 +10,21 @@ namespace CES.DataTier.Models
         public Order()
         {
             OrderDetail = new HashSet<OrderDetail>();
-            Transaction = new HashSet<Transaction>();
         }
 
         public Guid Id { get; set; }
-        public double? Total { get; set; }
-        public string? Note { get; set; }
+        public double Total { get; set; }
+        public string? Notes { get; set; }
         public string? Address { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-        public DateTime? CreatedAt { get; set; }
         public int? Status { get; set; }
-        public string? Code { get; set; }
         public int? DebtStatus { get; set; }
-        public Guid? AccountId { get; set; }
-        public Guid? DebtId { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public Guid AccountId { get; set; }
+        public int? DebtId { get; set; }
 
-        public virtual Account? Account { get; set; }
-        public virtual DebtNotes? Debt { get; set; }
+        public virtual Account Account { get; set; } = null!;
+        public virtual DebtTicket? Debt { get; set; }
         public virtual ICollection<OrderDetail> OrderDetail { get; set; }
-        public virtual ICollection<Transaction> Transaction { get; set; }
     }
 }

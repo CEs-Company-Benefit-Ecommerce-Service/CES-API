@@ -14,10 +14,11 @@ namespace CES.BusinessTier.AutoMapperModules
     {
         public static void ConfigProductModule(this IMapperConfigurationExpression mc)
         {
-            mc.CreateMap<Product, ProductRequestModel>().ReverseMap();
-            mc.CreateMap<Product, ProductResponseModel>().ReverseMap();
-            mc.CreateMap<Product, ProductUpdateModel>().ReverseMap()
+            mc.CreateMap<Product, ProductRequestModel>().ReverseMap()
                 .ForAllMembers(opts => opts.Condition((_, _, srcMember) => srcMember != null));
+            mc.CreateMap<Product, ProductResponseModel>().ReverseMap();
+
+
         }
     }
 }

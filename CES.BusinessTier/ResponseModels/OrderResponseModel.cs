@@ -10,15 +10,14 @@ namespace CES.BusinessTier.ResponseModels
     public class OrderResponseModel
     {
         public Guid Id { get; set; }
-        public double? Total { get; set; }
-        public string? Note { get; set; }
+        public double Total { get; set; }
+        public string? Notes { get; set; }
         public string? Address { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-        public DateTime? CreatedAt { get; set; }
         public int? Status { get; set; }
-        public string? Code { get; set; }
         public int? DebtStatus { get; set; }
-        public ICollection<OrderDetailsResponseModel>? OrderDetails { get; set; }
-        public AccountResponseModel? Account { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public ICollection<OrderDetailsResponseModel> OrderDetail { get; set; }
+        public AccountResponseModel Account { get; set; } = null!;
     }
 }
