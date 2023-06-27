@@ -13,41 +13,41 @@ using System.Threading.Tasks;
 
 namespace CES.BusinessTier.Services
 {
-    public interface IProjectAccountServices
+    public interface IGroupAccountServices
     {
         Task<bool> Deleted(Guid id);
-        Task<ProjectAccount> Created(Guid accountId, Guid projectId);
-        public IEnumerable<ProjectAccount> Gets(PagingModel paging);
-        Task<bool> CheckAccountInProject(Guid accountId, Guid projectId);
+        Task<GroupAccount> Created(Guid accountId, Guid projectId);
+        public IEnumerable<GroupAccount> Gets(PagingModel paging);
+        Task<bool> CheckAccountInGroup(Guid accountId, Guid projectId);
     }
-    public class ProjectAccountServices : IProjectAccountServices
+    public class GroupAccountServices : IGroupAccountServices
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public ProjectAccountServices(IUnitOfWork unitOfWork, IMapper mapper)
+        public GroupAccountServices(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        public IEnumerable<ProjectAccount> Gets(PagingModel paging)
+        public IEnumerable<GroupAccount> Gets(PagingModel paging)
         {
-            var projectAccounts = _unitOfWork.Repository<ProjectAccount>().GetAll().Include(x => x.Account).Include(x => x.Project)
+            var projectAccounts = _unitOfWork.Repository<GroupAccount>().GetAll().Include(x => x.Account).Include(x => x.Group)
                 .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging); ;
             return projectAccounts.Item2.ToList();
         }
-        public async Task<ProjectAccount> Created(Guid accountId, Guid projectId)
+        public async Task<GroupAccount> Created(Guid accountId, Guid projectId)
         {
-            var newProjectAccount = new ProjectAccount()
+            var newGroupAccount = new GroupAccount()
             {
                 Id = Guid.NewGuid(),
                 AccountId = accountId,
-                ProjectId = projectId
+                GroupId = projectId
             };
             try
             {
-                await _unitOfWork.Repository<ProjectAccount>().InsertAsync(newProjectAccount);
+                await _unitOfWork.Repository<GroupAccount>().InsertAsync(newGroupAccount);
                 await _unitOfWork.CommitAsync();
-                return newProjectAccount;
+                return newGroupAccount;
             }
             catch (Exception ex)
             {
@@ -58,8 +58,8 @@ namespace CES.BusinessTier.Services
         {
             try
             {
-                var projectAccount = _unitOfWork.Repository<ProjectAccount>().GetByIdGuid(id).Result;
-                _unitOfWork.Repository<ProjectAccount>().Delete(projectAccount);
+                var projectAccount = _unitOfWork.Repository<GroupAccount>().GetByIdGuid(id).Result;
+                _unitOfWork.Repository<GroupAccount>().Delete(projectAccount);
                 await _unitOfWork.CommitAsync();
                 return true;
             }
@@ -69,9 +69,9 @@ namespace CES.BusinessTier.Services
             }
         }
 
-        public async Task<bool> CheckAccountInProject(Guid accountId, Guid projectId)
+        public async Task<bool> CheckAccountInGroup(Guid accountId, Guid projectId)
         {
-            var projectAccounts = _unitOfWork.Repository<ProjectAccount>().GetWhere(x => x.ProjectId == projectId).Result;
+            var projectAccounts = _unitOfWork.Repository<GroupAccount>().GetWhere(x => x.GroupId == projectId).Result;
             if (projectAccounts == null)
             {
                 return false;
@@ -84,13 +84,13 @@ namespace CES.BusinessTier.Services
                 }
             }
             return false;
-            
+
         }
         //public async Task<bool> DeleteRange(Guid projectId)
         //{
         //    try
         //    {
-        //        var projectAccounts = _unitOfWork.Repository<ProjectAccount>().GetWhere()
+        //        var projectAccounts = _unitOfWork.Repository<GroupAccount>().GetWhere()
         //    }
         //    catch (Exception)
         //    {

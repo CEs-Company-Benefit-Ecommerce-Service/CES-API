@@ -12,8 +12,7 @@ namespace CES.BusinessTier.RequestModels
         public double? Price { get; set; }
         public int? Quantity { get; set; }
         public string? Notes { get; set; }
-        public Guid? ProductId { get; set; }
-        public Guid? OrderId { get; set; }
+        public Guid ProductId { get; set; }
 
         //public virtual Order? Order { get; set; }
         //public ProductRequestModel? Product { get; set; }

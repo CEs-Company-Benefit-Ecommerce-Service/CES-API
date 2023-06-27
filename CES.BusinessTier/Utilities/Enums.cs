@@ -27,10 +27,10 @@ namespace CES.BusinessTier.Utilities
 
     public enum Roles
     {
-        [Display(Name = "System Admin")] SystemAdmin,
-        [Display(Name = "Supplier Admin")] SupplierAdmin,
-        [Display(Name = "Enterprise Admin")] EnterpriseAdmin,
-        [Display(Name = "Employee")] Employee
+        [Display(Name = "System Admin")] SystemAdmin = 1,
+        [Display(Name = "Supplier Admin")] SupplierAdmin = 2,
+        [Display(Name = "Enterprise Admin")] EnterpriseAdmin = 3,
+        [Display(Name = "Employee")] Employee = 4
     }
     //Status for account
     public enum Status

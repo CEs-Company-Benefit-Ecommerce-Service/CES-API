@@ -13,10 +13,10 @@ namespace CES.BusinessTier.Services;
 
 public interface ITransactionService
 {
-    //Task<BaseResponseViewModel<TransactionResponseModels>> CreateTransaction(TransactionRequestModel transactionRequest);
+    //Task<BaseResponseViewModel<Transaction>> CreateTransaction(TransactionRequestModel transactionRequest);
     Task<bool> CreateTransaction(Transaction request);
-    Task<DynamicResponse<TransactionResponseModels>> GetsAsync(TransactionResponseModels filter, PagingModel paging);
-    Task<BaseResponseViewModel<TransactionResponseModels>> GetById(Guid id);
+    Task<DynamicResponse<Transaction>> GetsAsync(Transaction filter, PagingModel paging);
+    Task<BaseResponseViewModel<Transaction>> GetById(Guid id);
 }
 
 public class TransactionService : ITransactionService
@@ -29,15 +29,15 @@ public class TransactionService : ITransactionService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<DynamicResponse<TransactionResponseModels>> GetsAsync(TransactionResponseModels filter, PagingModel paging)
+    public async Task<DynamicResponse<Transaction>> GetsAsync(Transaction filter, PagingModel paging)
     {
         var transactions = _unitOfWork.Repository<Transaction>().AsQueryable()
-                           .ProjectTo<TransactionResponseModels>(_mapper.ConfigurationProvider)
+                           .ProjectTo<Transaction>(_mapper.ConfigurationProvider)
                            .DynamicFilter(filter)
                            .DynamicSort(paging.Sort, paging.Order)
                            .PagingQueryable(paging.Page, paging.Size);
 
-        return new DynamicResponse<TransactionResponseModels>
+        return new DynamicResponse<Transaction>
         {
             Code = StatusCodes.Status200OK,
             Message = "OK",
@@ -51,13 +51,13 @@ public class TransactionService : ITransactionService
         };
     }
 
-    public async Task<BaseResponseViewModel<TransactionResponseModels>> GetById(Guid id)
+    public async Task<BaseResponseViewModel<Transaction>> GetById(Guid id)
     {
         var transaction = await _unitOfWork.Repository<Transaction>().AsQueryable().Where(x => x.Id == id)
-                .ProjectTo<TransactionResponseModels>(_mapper.ConfigurationProvider)
+                .ProjectTo<Transaction>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync();
 
-        return new BaseResponseViewModel<TransactionResponseModels>
+        return new BaseResponseViewModel<Transaction>
         {
             Code = StatusCodes.Status200OK,
             Message = "OK",

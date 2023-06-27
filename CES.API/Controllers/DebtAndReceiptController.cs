@@ -12,28 +12,28 @@ namespace CES.API.Controllers
     public class DebtAndReceiptController : ControllerBase
     {
         private readonly IDebtServices _debtServices;
-        private readonly IReceiptServices _receiptServices;
+        private readonly IInvokeServices _receiptServices;
 
-        public DebtAndReceiptController(IDebtServices debtServices, IReceiptServices receiptServices)
+        public DebtAndReceiptController(IDebtServices debtServices, IInvokeServices receiptServices)
         {
             _debtServices = debtServices;
             _receiptServices = receiptServices;
         }
 
         [HttpGet("debt")]
-        public async Task<ActionResult> GetDebts([FromQuery] DebtNotesResponseModel filter, [FromQuery] PagingModel paging)
+        public async Task<ActionResult> GetDebts([FromQuery] DebtTicketResponseModel filter, [FromQuery] PagingModel paging)
         {
             var result = await _debtServices.GetsAsync(filter, paging);
             return Ok(result);
         }
         [HttpGet("debt/company/{companyId}")]
-        public async Task<ActionResult> GetDebtsWithCompanyId([FromQuery] DebtNotesResponseModel filter, [FromQuery] PagingModel paging, int companyId)
+        public async Task<ActionResult> GetDebtsWithCompanyId([FromQuery] DebtTicketResponseModel filter, [FromQuery] PagingModel paging, int companyId)
         {
             var result = await _debtServices.GetsWithCompanyAsync(filter, paging, companyId);
             return Ok(result);
         }
         [HttpGet("debt/{debtId}")]
-        public async Task<ActionResult> GetDebtsWithCompanyId([FromQuery] DebtNotesResponseModel filter, [FromQuery] PagingModel paging, Guid debtId)
+        public async Task<ActionResult> GetDebtsWithCompanyId([FromQuery] DebtTicketResponseModel filter, [FromQuery] PagingModel paging, Guid debtId)
         {
             var result = _debtServices.GetById(debtId);
             return Ok(result);
@@ -45,19 +45,19 @@ namespace CES.API.Controllers
             return StatusCode((int)result.Code, result);
         }
         [HttpGet("receipt")]
-        public async Task<ActionResult> GetReceipts([FromQuery] ReceiptResponseModel filter, [FromQuery] PagingModel paging)
+        public async Task<ActionResult> GetReceipts([FromQuery] InvokeResponseModel filter, [FromQuery] PagingModel paging)
         {
             var result = await _receiptServices.GetsAsync(filter, paging);
             return Ok(result);
         }
         [HttpGet("receipt/{companyId}")]
-        public async Task<ActionResult> GetReceipts([FromQuery] ReceiptResponseModel filter, [FromQuery] PagingModel paging, int companyId)
+        public async Task<ActionResult> GetReceipts([FromQuery] InvokeResponseModel filter, [FromQuery] PagingModel paging, int companyId)
         {
             var result = await _receiptServices.GetsWithCompanyAsync(filter, paging, companyId);
             return Ok(result);
         }
         [HttpPost("receipt")]
-        public async Task<ActionResult> PostReceipt([FromBody] ReceiptRequestModel request)
+        public async Task<ActionResult> PostReceipt([FromBody] InvokeRequestModel request)
         {
             var result = _receiptServices.Create(request).Result;
             return StatusCode((int)result.Code, result);

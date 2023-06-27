@@ -19,20 +19,21 @@ namespace CES.DataTier.Models
         }
 
         public virtual DbSet<Account> Account { get; set; } = null!;
+        public virtual DbSet<Benefit> Benefit { get; set; } = null!;
         public virtual DbSet<Category> Category { get; set; } = null!;
         public virtual DbSet<Company> Company { get; set; } = null!;
-        public virtual DbSet<DebtNotes> DebtNotes { get; set; } = null!;
+        public virtual DbSet<DebtTicket> DebtTicket { get; set; } = null!;
         public virtual DbSet<Discount> Discount { get; set; } = null!;
+        public virtual DbSet<Group> Group { get; set; } = null!;
+        public virtual DbSet<GroupAccount> GroupAccount { get; set; } = null!;
+        public virtual DbSet<Invoke> Invoke { get; set; } = null!;
         public virtual DbSet<Order> Order { get; set; } = null!;
         public virtual DbSet<OrderDetail> OrderDetail { get; set; } = null!;
         public virtual DbSet<Product> Product { get; set; } = null!;
-        public virtual DbSet<Project> Project { get; set; } = null!;
-        public virtual DbSet<ProjectAccount> ProjectAccount { get; set; } = null!;
-        public virtual DbSet<Receipts> Receipts { get; set; } = null!;
         public virtual DbSet<Role> Role { get; set; } = null!;
         public virtual DbSet<Transaction> Transaction { get; set; } = null!;
+        public virtual DbSet<TransactionWalletLog> TransactionWalletLog { get; set; } = null!;
         public virtual DbSet<Wallet> Wallet { get; set; } = null!;
-        public virtual DbSet<WalletTransaction> WalletTransaction { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -42,11 +43,9 @@ namespace CES.DataTier.Models
 
                 entity.Property(e => e.CreatedAt).HasColumnType("datetime");
 
-                entity.Property(e => e.Email).HasMaxLength(200);
+                entity.Property(e => e.Email).HasMaxLength(100);
 
-                entity.Property(e => e.Name).HasMaxLength(200);
-
-                entity.Property(e => e.Password).HasMaxLength(200);
+                entity.Property(e => e.Name).HasMaxLength(100);
 
                 entity.Property(e => e.Phone).HasMaxLength(20);
 
@@ -55,93 +54,145 @@ namespace CES.DataTier.Models
                 entity.HasOne(d => d.Company)
                     .WithMany(p => p.Account)
                     .HasForeignKey(d => d.CompanyId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Account_Company");
 
                 entity.HasOne(d => d.Role)
                     .WithMany(p => p.Account)
                     .HasForeignKey(d => d.RoleId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Account_Role");
+
+                entity.HasOne(d => d.Wallet)
+                    .WithMany(p => p.Account)
+                    .HasForeignKey(d => d.WalletId)
+                    .HasConstraintName("FK_Account_Wallet");
+            });
+
+            modelBuilder.Entity<Benefit>(entity =>
+            {
+                entity.Property(e => e.Description).HasMaxLength(200);
+
+                entity.Property(e => e.Name).HasMaxLength(100);
+
+                entity.HasOne(d => d.Company)
+                    .WithMany(p => p.Benefit)
+                    .HasForeignKey(d => d.CompanyId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Benefit_Company");
             });
 
             modelBuilder.Entity<Category>(entity =>
             {
                 entity.Property(e => e.CreatedAt).HasColumnType("datetime");
 
-                entity.Property(e => e.Name).HasMaxLength(200);
+                entity.Property(e => e.Description).HasMaxLength(200);
+
+                entity.Property(e => e.Name).HasMaxLength(100);
 
                 entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<Company>(entity =>
             {
-                entity.Property(e => e.ContactPerson).HasMaxLength(100);
-
                 entity.Property(e => e.CreatedAt).HasColumnType("datetime");
 
-                entity.Property(e => e.Name).HasMaxLength(200);
+                entity.Property(e => e.ExpiredDate).HasColumnType("datetime");
 
-                entity.Property(e => e.Phone).HasMaxLength(20);
+                entity.Property(e => e.Name).HasMaxLength(100);
 
                 entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
             });
 
-            modelBuilder.Entity<DebtNotes>(entity =>
+            modelBuilder.Entity<DebtTicket>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
                 entity.Property(e => e.CreatedAt).HasColumnType("datetime");
 
                 entity.Property(e => e.InfoPayment).HasMaxLength(200);
 
-                entity.Property(e => e.Name).HasMaxLength(200);
+                entity.Property(e => e.Name).HasMaxLength(100);
 
                 entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
                 entity.HasOne(d => d.Company)
-                    .WithMany(p => p.DebtNotes)
+                    .WithMany(p => p.DebtTicket)
                     .HasForeignKey(d => d.CompanyId)
-                    .HasConstraintName("FK_DebtNotes_Company");
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_DebtTicket_Company");
             });
 
             modelBuilder.Entity<Discount>(entity =>
+            {
+                entity.Property(e => e.ExpiredDate).HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<Group>(entity =>
             {
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
                 entity.Property(e => e.CreatedAt).HasColumnType("datetime");
 
-                entity.Property(e => e.ExpirationDate).HasMaxLength(100);
+                entity.Property(e => e.Description).HasMaxLength(200);
+
+                entity.Property(e => e.Name).HasMaxLength(100);
 
                 entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
-                entity.HasOne(d => d.Product)
-                    .WithMany(p => p.Discount)
-                    .HasForeignKey(d => d.ProductId)
-                    .HasConstraintName("FK_Discount_Product");
+                entity.HasOne(d => d.Company)
+                    .WithMany(p => p.Group)
+                    .HasForeignKey(d => d.CompanyId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Group_Company");
+            });
+
+            modelBuilder.Entity<GroupAccount>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.HasOne(d => d.Account)
+                    .WithMany(p => p.GroupAccount)
+                    .HasForeignKey(d => d.AccountId)
+                    .HasConstraintName("FK_GroupAccount_Account");
+
+                entity.HasOne(d => d.Group)
+                    .WithMany(p => p.GroupAccount)
+                    .HasForeignKey(d => d.GroupId)
+                    .HasConstraintName("FK_GroupAccount_Group");
+            });
+
+            modelBuilder.Entity<Invoke>(entity =>
+            {
+                entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+
+                entity.Property(e => e.Name).HasMaxLength(100);
+
+                entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+                entity.HasOne(d => d.Debt)
+                    .WithMany(p => p.Invoke)
+                    .HasForeignKey(d => d.DebtId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Invoke_DebtTicket");
             });
 
             modelBuilder.Entity<Order>(entity =>
             {
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
-                entity.Property(e => e.Address).HasMaxLength(500);
-
-                entity.Property(e => e.Code).HasMaxLength(100);
-
                 entity.Property(e => e.CreatedAt).HasColumnType("datetime");
-
-                entity.Property(e => e.Note).HasMaxLength(200);
 
                 entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
                 entity.HasOne(d => d.Account)
                     .WithMany(p => p.Order)
                     .HasForeignKey(d => d.AccountId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Order_Account");
 
                 entity.HasOne(d => d.Debt)
                     .WithMany(p => p.Order)
                     .HasForeignKey(d => d.DebtId)
-                    .HasConstraintName("FK_DebtNotes_Order");
+                    .HasConstraintName("FK_Order_DebtTicket");
             });
 
             modelBuilder.Entity<OrderDetail>(entity =>
@@ -160,6 +211,7 @@ namespace CES.DataTier.Models
                 entity.HasOne(d => d.Product)
                     .WithMany(p => p.OrderDetail)
                     .HasForeignKey(d => d.ProductId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_OrderDetail_Product");
             });
 
@@ -169,72 +221,29 @@ namespace CES.DataTier.Models
 
                 entity.Property(e => e.CreatedAt).HasColumnType("datetime");
 
-                entity.Property(e => e.Name).HasMaxLength(200);
+                entity.Property(e => e.Description).HasMaxLength(200);
 
-                entity.Property(e => e.ServiceDuration).HasMaxLength(100);
+                entity.Property(e => e.Name).HasMaxLength(100);
 
                 entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
                 entity.HasOne(d => d.Category)
                     .WithMany(p => p.Product)
                     .HasForeignKey(d => d.CategoryId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Product_Category");
-            });
 
-            modelBuilder.Entity<Project>(entity =>
-            {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
-                entity.Property(e => e.CreatedAt).HasColumnType("datetime");
-
-                entity.Property(e => e.Name).HasMaxLength(200);
-
-                entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-            });
-
-            modelBuilder.Entity<ProjectAccount>(entity =>
-            {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
-                entity.HasOne(d => d.Account)
-                    .WithMany(p => p.ProjectAccount)
-                    .HasForeignKey(d => d.AccountId)
-                    .HasConstraintName("FK_ProjectAccount_Account");
-
-                entity.HasOne(d => d.Project)
-                    .WithMany(p => p.ProjectAccount)
-                    .HasForeignKey(d => d.ProjectId)
-                    .HasConstraintName("FK_ProjectAccount_Project");
-            });
-
-            modelBuilder.Entity<Receipts>(entity =>
-            {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
-                entity.Property(e => e.CreatedAt).HasColumnType("datetime");
-
-                entity.Property(e => e.Name).HasMaxLength(200);
-
-                entity.Property(e => e.PaymentCode).HasMaxLength(100);
-
-                entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-
-                entity.HasOne(d => d.Company)
-                    .WithMany(p => p.Receipts)
-                    .HasForeignKey(d => d.CompanyId)
-                    .HasConstraintName("FK_Receipts_Company");
-
-                entity.HasOne(d => d.Debt)
-                    .WithMany(p => p.Receipts)
-                    .HasForeignKey(d => d.DebtId)
-                    .HasConstraintName("FK_Receipts_DebtNotes");
+                entity.HasOne(d => d.Discount)
+                    .WithMany(p => p.Product)
+                    .HasForeignKey(d => d.DiscountId)
+                    .HasConstraintName("FK_Product_Discount");
             });
 
             modelBuilder.Entity<Role>(entity =>
             {
                 entity.Property(e => e.CreatedAt).HasColumnType("datetime");
 
-                entity.Property(e => e.Name).HasMaxLength(100);
+                entity.Property(e => e.Name).HasMaxLength(50);
 
                 entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
             });
@@ -246,16 +255,15 @@ namespace CES.DataTier.Models
                 entity.Property(e => e.CreatedAt).HasColumnType("datetime");
 
                 entity.Property(e => e.Description).HasMaxLength(200);
+            });
 
-                entity.HasOne(d => d.Order)
-                    .WithMany(p => p.Transaction)
-                    .HasForeignKey(d => d.OrderId)
-                    .HasConstraintName("FK_Transaction_Order");
+            modelBuilder.Entity<TransactionWalletLog>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
 
-                entity.HasOne(d => d.Wallet)
-                    .WithMany(p => p.Transaction)
-                    .HasForeignKey(d => d.WalletId)
-                    .HasConstraintName("FK_Transaction_Wallet");
+                entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+
+                entity.Property(e => e.Description).HasMaxLength(200);
             });
 
             modelBuilder.Entity<Wallet>(entity =>
@@ -264,28 +272,9 @@ namespace CES.DataTier.Models
 
                 entity.Property(e => e.CreatedAt).HasColumnType("datetime");
 
-                entity.Property(e => e.Name).HasMaxLength(50);
+                entity.Property(e => e.Name).HasMaxLength(100);
 
                 entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-
-                entity.HasOne(d => d.Account)
-                    .WithMany(p => p.Wallet)
-                    .HasForeignKey(d => d.AccountId)
-                    .HasConstraintName("FK_Wallet_Account");
-            });
-
-            modelBuilder.Entity<WalletTransaction>(entity =>
-            {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
-                entity.Property(e => e.CreatedAt).HasColumnType("datetime");
-
-                entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-
-                entity.HasOne(d => d.Wallet)
-                    .WithMany(p => p.WalletTransaction)
-                    .HasForeignKey(d => d.WalletId)
-                    .HasConstraintName("FK_WalletTransaction_Wallet");
             });
 
             OnModelCreatingPartial(modelBuilder);

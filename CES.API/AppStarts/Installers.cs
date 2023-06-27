@@ -27,9 +27,9 @@ namespace CES.API.AppStarts
             services.AddScoped<IAccountServices, AccountServices>();
             services.AddScoped<ILoginServices, LoginServices>();
 
-            services.AddScoped<IProjectAccountServices, ProjectAccountServices>();
+            services.AddScoped<IGroupAccountServices, GroupAccountServices>();
 
-            services.AddScoped<IProjectServices, ProjectServices>();
+            services.AddScoped<IGroupServices, GroupServices>();
 
             services.AddScoped<IWalletServices, WalletServices>();
 
@@ -51,7 +51,7 @@ namespace CES.API.AppStarts
 
             services.AddScoped<IDebtServices, DebtServices>();
 
-            services.AddScoped<IReceiptServices, ReceiptServices>();
+            services.AddScoped<IInvokeServices, InvokeServices>();
         }
     }
 }

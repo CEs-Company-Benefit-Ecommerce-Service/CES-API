@@ -13,11 +13,11 @@ namespace CES.API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class ProjectController : ControllerBase
+    public class GroupController : ControllerBase
     {
-        private IProjectServices _projectServices;
+        private IGroupServices _projectServices;
         private readonly IHttpContextAccessor _contextAccessor;
-        public ProjectController(IProjectServices projectServices, IHttpContextAccessor contextAccessor)
+        public GroupController(IGroupServices projectServices, IHttpContextAccessor contextAccessor)
         {
             _projectServices = projectServices;
             _contextAccessor = contextAccessor;
@@ -61,7 +61,7 @@ namespace CES.API.Controllers
         /// <returns></returns>
         [SwaggerOperation(summary: "Create project", description: "Status: 0 - InActive, 1 - Active")]
         [HttpPost]
-        public IActionResult CreateProject([FromBody] ProjectRequestModel requestModel)
+        public IActionResult CreateGroup([FromBody] GroupRequestModel requestModel)
         {
             var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value.ToString();
             if (role != Roles.EnterpriseAdmin.GetDisplayName())
@@ -78,7 +78,7 @@ namespace CES.API.Controllers
         /// <param name="requestModel"></param>
         /// <returns></returns>
         [HttpPut("{id}")]
-        public IActionResult UpdateProject(Guid id, [FromBody] ProjectRequestModel requestModel)
+        public IActionResult UpdateGroup(Guid id, [FromBody] GroupRequestModel requestModel)
         {
             var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value.ToString();
             if (role != Roles.EnterpriseAdmin.GetDisplayName())
@@ -111,7 +111,7 @@ namespace CES.API.Controllers
         /// <returns></returns>
         [SwaggerOperation(summary: "Add member to project")]
         [HttpPost("members")]
-        public IActionResult AddProjectMember([FromBody] ProjectMemberRequestModel requestModel)
+        public IActionResult AddGroupMember([FromBody] GroupMemberRequestModel requestModel)
         {
             var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value.ToString();
             if (role != Roles.EnterpriseAdmin.GetDisplayName())
@@ -128,7 +128,7 @@ namespace CES.API.Controllers
         /// <returns></returns>
         [SwaggerOperation(summary: "Remove member of project")]
         [HttpDelete("members/remove")]
-        public IActionResult RemoveProjectMember([FromBody] ProjectMemberRequestModel requestModel)
+        public IActionResult RemoveGroupMember([FromBody] GroupMemberRequestModel requestModel)
         {
             var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value.ToString();
             if (role != Roles.EnterpriseAdmin.GetDisplayName())
