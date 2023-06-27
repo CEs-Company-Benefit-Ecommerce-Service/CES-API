@@ -5,13 +5,11 @@ using System.Collections.Generic;
 
 namespace CES.DataTier.Models
 {
-    public partial class ProjectAccount
+    public partial class TransactionWalletLog
     {
         public Guid Id { get; set; }
-        public Guid? ProjectId { get; set; }
-        public Guid? AccountId { get; set; }
-
-        public virtual Account? Account { get; set; }
-        public virtual Project? Project { get; set; }
+        public int? CompanyId { get; set; }
+        public string? Description { get; set; }
+        public DateTime? CreatedAt { get; set; }
     }
 }

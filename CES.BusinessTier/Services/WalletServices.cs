@@ -61,7 +61,7 @@ namespace CES.BusinessTier.Services
         }
         public BaseResponseViewModel<List<WalletResponseModel>> GetWalletsAccount(Guid accountId)
         {
-            var wallets = _unitOfWork.Repository<Wallet>().GetAll().Where(x => x.AccountId == accountId);
+            var wallets = _unitOfWork.Repository<Wallet>().GetAll().Where(x => x.Account.Select(x => x.Id).FirstOrDefault() == accountId);
             if (wallets.Count() == 0)
             {
                 return new BaseResponseViewModel<List<WalletResponseModel>>
@@ -175,10 +175,7 @@ namespace CES.BusinessTier.Services
             {
                 case 1:
                     existedWallet.Balance += balance;
-                    if (existedWallet.Balance > existedWallet.Limit)
-                    {
-                        existedWallet.Balance = existedWallet.Limit;
-                    }
+
                     break;
                 case 2:
                     if (existedWallet.Balance < balance)
@@ -194,12 +191,11 @@ namespace CES.BusinessTier.Services
                     break;
             }
             existedWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
-            var walletTransaction = new WalletTransaction()
+            var walletTransaction = new Transaction()
             {
                 Id = Guid.NewGuid(),
                 SenderId = accountLoginId,
-                RecieverId = existedWallet.AccountId,
-                Status = 4,
+                RecieverId = existedWallet.Account.Select(x => existedWallet.Id).FirstOrDefault(),
                 WalletId = existedWallet.Id,
                 Type = (int)WalletTransactionTypeEnums.AddWelfare,
                 Description = "Gui tien phuc loi cho nhan vien",
@@ -208,7 +204,7 @@ namespace CES.BusinessTier.Services
             };
             try
             {
-                await _unitOfWork.Repository<WalletTransaction>().InsertAsync(walletTransaction);
+                await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransaction);
                 await _unitOfWork.Repository<Wallet>().UpdateDetached(existedWallet);
                 await _unitOfWork.CommitAsync();
 
@@ -230,82 +226,82 @@ namespace CES.BusinessTier.Services
 
         public async Task CreateWalletForAccountDontHaveEnough()
         {
-            var activeAccounts = _unitOfWork.Repository<Account>()
-                .AsQueryable(x =>
-                    x.Status == (int)Status.Active &&
-                    (x.RoleId != (int)Roles.SupplierAdmin || x.RoleId != (int)Roles.SystemAdmin))
-                .Include(x => x.Wallet)
-                .ToList();
-            foreach (var account in activeAccounts)
-            {
-                if (account.Wallet.Count == 0)
-                {
-                    var wallets = new List<Wallet>()
-                    {
-                        new Wallet
-                        {
-                            AccountId = account.Id,
-                            Balance = 0,
-                            CreatedAt = TimeUtils.GetCurrentSEATime(),
-                            Id = Guid.NewGuid(),
-                            Name = WalletTypeEnums.FoodWallet.GetDisplayName(),
-                            Type = (int)WalletTypeEnums.FoodWallet,
-                        },
-                        new Wallet
-                        {
-                            AccountId = account.Id,
-                            Balance = 0,
-                            CreatedAt = TimeUtils.GetCurrentSEATime(),
-                            Id = Guid.NewGuid(),
-                            Name = WalletTypeEnums.StationeryWallet.GetDisplayName(),
-                            Type = (int)WalletTypeEnums.StationeryWallet,
-                        },
-                        new Wallet
-                        {
-                            AccountId = account.Id,
-                            Balance = 0,
-                            CreatedAt = TimeUtils.GetCurrentSEATime(),
-                            Id = Guid.NewGuid(),
-                            Name = WalletTypeEnums.GeneralWallet.GetDisplayName(),
-                            Type = (int)WalletTypeEnums.GeneralWallet,
-                        }
-                    };
-                    account.Wallet = wallets;
-                }
-                else if (account.Wallet.Count > 0)
-                {
-                    var wallets = new List<Wallet>();
-                    List<int> walletTypes = new List<int>();
-                    walletTypes.Add((int)WalletTypeEnums.GeneralWallet);
-                    walletTypes.Add((int)WalletTypeEnums.StationeryWallet);
-                    walletTypes.Add((int)WalletTypeEnums.FoodWallet);
-                    foreach (var wallet in account.Wallet)
-                    {
-                        walletTypes.Remove((int)wallet.Type);
-                    }
+            //var activeAccounts = _unitOfWork.Repository<Account>()
+            //    .AsQueryable(x =>
+            //        x.Status == (int)Status.Active &&
+            //        (x.RoleId != (int)Roles.SupplierAdmin || x.RoleId != (int)Roles.SystemAdmin))
+            //    .Include(x => x.Wallet)
+            //    .ToList();
+            //foreach (var account in activeAccounts)
+            //{
+            //    if (account.Wallet.Count == 0)
+            //    {
+            //        var wallets = new List<Wallet>()
+            //        {
+            //            new Wallet
+            //            {
+            //                AccountId = account.Id,
+            //                Balance = 0,
+            //                CreatedAt = TimeUtils.GetCurrentSEATime(),
+            //                Id = Guid.NewGuid(),
+            //                Name = WalletTypeEnums.FoodWallet.GetDisplayName(),
+            //                Type = (int)WalletTypeEnums.FoodWallet,
+            //            },
+            //            new Wallet
+            //            {
+            //                AccountId = account.Id,
+            //                Balance = 0,
+            //                CreatedAt = TimeUtils.GetCurrentSEATime(),
+            //                Id = Guid.NewGuid(),
+            //                Name = WalletTypeEnums.StationeryWallet.GetDisplayName(),
+            //                Type = (int)WalletTypeEnums.StationeryWallet,
+            //            },
+            //            new Wallet
+            //            {
+            //                AccountId = account.Id,
+            //                Balance = 0,
+            //                CreatedAt = TimeUtils.GetCurrentSEATime(),
+            //                Id = Guid.NewGuid(),
+            //                Name = WalletTypeEnums.GeneralWallet.GetDisplayName(),
+            //                Type = (int)WalletTypeEnums.GeneralWallet,
+            //            }
+            //        };
+            //        account.Wallet = wallets;
+            //    }
+            //    else if (account.Wallet.Count > 0)
+            //    {
+            //        var wallets = new List<Wallet>();
+            //        List<int> walletTypes = new List<int>();
+            //        walletTypes.Add((int)WalletTypeEnums.GeneralWallet);
+            //        walletTypes.Add((int)WalletTypeEnums.StationeryWallet);
+            //        walletTypes.Add((int)WalletTypeEnums.FoodWallet);
+            //        foreach (var wallet in account.Wallet)
+            //        {
+            //            walletTypes.Remove((int)wallet.Type);
+            //        }
 
-                    if (walletTypes.Count > 0)
-                    {
-                        foreach (var walletType in walletTypes)
-                        {
-                            var wallet = new Wallet
-                            {
-                                AccountId = account.Id,
-                                Balance = 0,
-                                CreatedAt = TimeUtils.GetCurrentSEATime(),
-                                Id = Guid.NewGuid(),
-                                Name = walletType == 1 ? WalletTypeEnums.FoodWallet.GetDisplayName() :
-                                    walletType == 2 ? WalletTypeEnums.StationeryWallet.GetDisplayName() :
-                                    WalletTypeEnums.GeneralWallet.GetDisplayName(),
-                                Type = walletType,
-                            };
-                            account.Wallet.Add(wallet);
-                        }
-                    }
-                }
-                await _unitOfWork.Repository<Account>().UpdateDetached(account);
-            }
-            await _unitOfWork.CommitAsync();
+            //        if (walletTypes.Count > 0)
+            //        {
+            //            foreach (var walletType in walletTypes)
+            //            {
+            //                var wallet = new Wallet
+            //                {
+            //                    AccountId = account.Id,
+            //                    Balance = 0,
+            //                    CreatedAt = TimeUtils.GetCurrentSEATime(),
+            //                    Id = Guid.NewGuid(),
+            //                    Name = walletType == 1 ? WalletTypeEnums.FoodWallet.GetDisplayName() :
+            //                        walletType == 2 ? WalletTypeEnums.StationeryWallet.GetDisplayName() :
+            //                        WalletTypeEnums.GeneralWallet.GetDisplayName(),
+            //                    Type = walletType,
+            //                };
+            //                account.Wallet.Add(wallet);
+            //            }
+            //        }
+            //    }
+            //    await _unitOfWork.Repository<Account>().UpdateDetached(account);
+            //}
+            //await _unitOfWork.CommitAsync();
         }
     }
 }

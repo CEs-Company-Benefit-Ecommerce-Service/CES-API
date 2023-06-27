@@ -141,9 +141,9 @@ namespace CES.BusinessTier.Services
                     CreatedAt = TimeUtils.GetCurrentSEATime(),
                     AccountId = accountLoginId,
                     Status = 0,
-                    Total = total,
+                    Total = (double)total,
                     Address = companyAddress,
-                    Note = note,
+                    Notes = note,
                     DebtStatus = (int)DebtStatusEnums.New
                 };
                 await _unitOfWork.Repository<Order>().InsertAsync(newOrder);
@@ -164,9 +164,11 @@ namespace CES.BusinessTier.Services
                     Id = Guid.NewGuid(),
                     OrderId = newOrder.Id,
                     CreatedAt = TimeUtils.GetCurrentSEATime(),
-                    Total = total,
+                    Total = (double)total,
                     Type = 1,
                     Description = "template ....",
+                    WalletId = accountLogin.Result.WalletId,
+                    CompanyId = accountLogin.Result.CompanyId,
                 };
                 if (!await _transactionService.CreateTransaction(newTransaction))
                 {
@@ -176,6 +178,15 @@ namespace CES.BusinessTier.Services
                         Message = "Create transaction failed",
                     };
                 }
+                //create transaction wallet log
+                var newTransactionLog = new TransactionWalletLog()
+                {
+                    Id = Guid.NewGuid(),
+                    CreatedAt = TimeUtils.GetCurrentSEATime(),
+                    Description = "template ....",
+                    CompanyId = accountLogin.Result.CompanyId,
+                };
+                await _unitOfWork.Repository<TransactionWalletLog>().InsertAsync(newTransactionLog);
 
                 await _unitOfWork.CommitAsync();
 
@@ -203,7 +214,7 @@ namespace CES.BusinessTier.Services
                          && x.Status == (int)OrderStatusEnums.Complete
                          && x.DebtStatus == (int)DebtStatusEnums.New
                       );
-            var sum = await ordersOfCompany.Select(x => x.Total).SumAsync() ?? 0;
+            var sum = await ordersOfCompany.Select(x => x.Total).SumAsync();
             var listOrderId = await ordersOfCompany.Select(x => x.Id).ToListAsync();
             return new TotalOrderResponse()
             {

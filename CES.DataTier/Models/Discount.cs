@@ -7,17 +7,18 @@ namespace CES.DataTier.Models
 {
     public partial class Discount
     {
+        public Discount()
+        {
+            Product = new HashSet<Product>();
+        }
+
         public int Id { get; set; }
         public int? Type { get; set; }
         public double? Amount { get; set; }
+        public int? Status { get; set; }
         public string? ImageUrl { get; set; }
-        public string? ExpirationDate { get; set; }
-        public DateTime? CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-        public Guid? CreatedBy { get; set; }
-        public Guid? UpdatedBy { get; set; }
-        public Guid? ProductId { get; set; }
+        public DateTime? ExpiredDate { get; set; }
 
-        public virtual Product? Product { get; set; }
+        public virtual ICollection<Product> Product { get; set; }
     }
 }

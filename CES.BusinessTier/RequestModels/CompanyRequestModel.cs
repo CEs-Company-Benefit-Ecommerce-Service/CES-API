@@ -13,9 +13,8 @@ namespace CES.BusinessTier.RequestModels
         public string? Address { get; set; }
         public int? Status { get; set; }
         public string? ImageUrl { get; set; }
-        //public DateTime? UpdatedAt { get; set; }
-        //public DateTime? CreatedAt { get; set; }
-        public string? ContactPerson { get; set; }
-        public string? Phone { get; set; }
+        public double? Limits { get; set; }
+        public double? Used { get; set; }
+        public DateTime? ExpiredDate { get; set; }
     }
 }

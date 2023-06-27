@@ -14,10 +14,10 @@ namespace CES.BusinessTier.AutoMapperModules
     {
         public static void ConfigDebtModule(this IMapperConfigurationExpression mc)
         {
-            mc.CreateMap<DebtNotes, DebtNotesResponseModel>().ReverseMap();
+            mc.CreateMap<DebtTicket, DebtTicketResponseModel>().ReverseMap();
 
-            mc.CreateMap<Receipts, ReceiptResponseModel>().ReverseMap();
-            mc.CreateMap<Receipts, ReceiptRequestModel>().ReverseMap();
+            mc.CreateMap<Invoke, InvokeResponseModel>().ReverseMap();
+            mc.CreateMap<Invoke, InvokeRequestModel>().ReverseMap();
         }
     }
 }

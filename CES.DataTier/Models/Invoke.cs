@@ -5,22 +5,17 @@ using System.Collections.Generic;
 
 namespace CES.DataTier.Models
 {
-    public partial class Wallet
+    public partial class Invoke
     {
-        public Wallet()
-        {
-            Account = new HashSet<Account>();
-        }
-
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public string? Name { get; set; }
+        public double Total { get; set; }
         public int? Status { get; set; }
-        public double? Balance { get; set; }
+        public string ImageUrl { get; set; } = null!;
+        public int DebtId { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
-        public Guid? CreatedBy { get; set; }
-        public Guid? UpdatedBy { get; set; }
 
-        public virtual ICollection<Account> Account { get; set; }
+        public virtual DebtTicket Debt { get; set; } = null!;
     }
 }

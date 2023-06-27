@@ -14,10 +14,10 @@ namespace CES.BusinessTier.AutoMapperModules
     {
         public static void ConfigProjectModule(this IMapperConfigurationExpression mc)
         {
-            mc.CreateMap<Project, ProjectRequestModel>().ReverseMap();
-            mc.CreateMap<Project, ProjectResponseModel>().ReverseMap();
+            mc.CreateMap<Group, GroupRequestModel>().ReverseMap();
+            mc.CreateMap<Group, GroupResponseModel>().ReverseMap();
 
-            mc.CreateMap<ProjectAccount, ProjectAccountResponse>().ReverseMap();
+            mc.CreateMap<GroupAccount, GroupAccountResponse>().ReverseMap();
         }
     }
 }

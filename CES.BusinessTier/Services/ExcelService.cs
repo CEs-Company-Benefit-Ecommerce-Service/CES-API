@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Style;
+using System.Security.Principal;
 
 namespace CES.BusinessTier.Services;
 
@@ -75,30 +76,17 @@ public class ExcelService : IExcelService
 
                 foreach (var account in records)
                 {
-                    var wallets = new List<Wallet>()
+                    var wallets = new Wallet()
                     {
-                        new Wallet
-                        {
-                            AccountId = account.Id,
-                            Balance = 0,
-                            CreatedAt = TimeUtils.GetCurrentSEATime(),
-                            Id = Guid.NewGuid(),
-                            Name = WalletTypeEnums.FoodWallet.GetDisplayName(),
-                            Type = (int)WalletTypeEnums.FoodWallet,
-                            Limit = Constants.LimitWallet,
-                        },
-                        new Wallet
-                        {
-                            AccountId = account.Id,
-                            Balance = 0,
-                            CreatedAt = TimeUtils.GetCurrentSEATime(),
-                            Id = Guid.NewGuid(),
-                            Name = WalletTypeEnums.StationeryWallet.GetDisplayName(),
-                            Type = (int)WalletTypeEnums.StationeryWallet,
-                            Limit = Constants.LimitWallet,
-                        }
+                        Balance = 0,
+                        CreatedAt = TimeUtils.GetCurrentSEATime(),
+                        Id = Guid.NewGuid(),
+                        Name = WalletTypeEnums.GeneralWallet.GetDisplayName(),
+                        Status = (int)Status.Active,
+                        CreatedBy = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString())
                     };
                     account.Wallet = wallets;
+                    account.WalletId = wallets.Id;
 
                 }
 
@@ -197,19 +185,15 @@ public class ExcelService : IExcelService
             .FirstOrDefault();
         double enterpriseGeneralWalletBalance = 0;
         // Get enterprise general wallet
-        foreach (var wallet in enterprise.Wallet)
-        {
-            if (wallet.Type == (int)WalletTypeEnums.GeneralWallet)
-            {
-                enterpriseGeneralWalletBalance = (double)wallet.Balance;
-            }
-        }
+
+        enterpriseGeneralWalletBalance = (double)enterprise.Wallet.Balance;
+
         var employees = _unitOfWork.Repository<Account>()
             .AsQueryable(x => x.RoleId == (int)Roles.Employee && x.CompanyId == int.Parse(companyId) && x.Status == (int)Status.Active && x.CreatedAt >= from && x.CreatedAt <= to)
             .Include(x => x.Wallet)
             .OrderBy(x => x.CreatedAt)
             .ToList();
-        var wallets = _unitOfWork.Repository<Wallet>().AsQueryable().Select(x => x.Type).Distinct().ToList();
+        //var wallets = _unitOfWork.Repository<Wallet>().AsQueryable().Select(x => x.Type).Distinct().ToList();
         ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
         using (ExcelPackage package = new ExcelPackage())
         {
@@ -264,30 +248,30 @@ public class ExcelService : IExcelService
                 initialCol++;
             }
 
-            for (int i = 0; i < wallets.Count; i++)
-            {
-                ws.Cells[initialRow, initialCol].Value = wallets[i] == 1
-                    ? WalletTypeEnums.FoodWallet.GetDisplayName() : wallets[i] == 2
-                        ? WalletTypeEnums.StationeryWallet.GetDisplayName() : WalletTypeEnums.GeneralWallet.GetDisplayName();
-                ws.Cells[initialRow, initialCol].Style.Font.Bold = true;
-                ws.Cells[initialRow, initialCol].Style.Font.Size = 16;
-                ws.Cells[initialRow, initialCol].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-                ws.Cells[initialRow, initialCol].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            //for (int i = 0; i < wallets.Count; i++)
+            //{
+            //    ws.Cells[initialRow, initialCol].Value = wallets[i] == 1
+            //        ? WalletTypeEnums.FoodWallet.GetDisplayName() : wallets[i] == 2
+            //            ? WalletTypeEnums.StationeryWallet.GetDisplayName() : WalletTypeEnums.GeneralWallet.GetDisplayName();
+            //    ws.Cells[initialRow, initialCol].Style.Font.Bold = true;
+            //    ws.Cells[initialRow, initialCol].Style.Font.Size = 16;
+            //    ws.Cells[initialRow, initialCol].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            //    ws.Cells[initialRow, initialCol].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
-                walletPositions.Add(wallets[i] == 1 ? (int)WalletTypeEnums.FoodWallet : wallets[i] == 2
-                    ? (int)WalletTypeEnums.StationeryWallet : (int)WalletTypeEnums.GeneralWallet
-                    , initialCol);
+            //    walletPositions.Add(wallets[i] == 1 ? (int)WalletTypeEnums.FoodWallet : wallets[i] == 2
+            //        ? (int)WalletTypeEnums.StationeryWallet : (int)WalletTypeEnums.GeneralWallet
+            //        , initialCol);
 
-                initialCol++;
-                ws.Cells[initialRow, initialCol].Value = wallets[i] == 1
-                    ? "Add " + WalletTypeEnums.FoodWallet.GetDisplayName() + " (+)" : wallets[i] == 2
-                        ? "Add " + WalletTypeEnums.StationeryWallet.GetDisplayName() + " (+)" : "Add " + WalletTypeEnums.GeneralWallet.GetDisplayName() + " (+)";
-                ws.Cells[initialRow, initialCol].Style.Font.Bold = true;
-                ws.Cells[initialRow, initialCol].Style.Font.Size = 16;
-                ws.Cells[initialRow, initialCol].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-                ws.Cells[initialRow, initialCol].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                initialCol++;
-            }
+            //    initialCol++;
+            //    ws.Cells[initialRow, initialCol].Value = wallets[i] == 1
+            //        ? "Add " + WalletTypeEnums.FoodWallet.GetDisplayName() + " (+)" : wallets[i] == 2
+            //            ? "Add " + WalletTypeEnums.StationeryWallet.GetDisplayName() + " (+)" : "Add " + WalletTypeEnums.GeneralWallet.GetDisplayName() + " (+)";
+            //    ws.Cells[initialRow, initialCol].Style.Font.Bold = true;
+            //    ws.Cells[initialRow, initialCol].Style.Font.Size = 16;
+            //    ws.Cells[initialRow, initialCol].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            //    ws.Cells[initialRow, initialCol].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            //    initialCol++;
+            //}
 
             initialRow++;
             initialCol = 1;
@@ -317,16 +301,16 @@ public class ExcelService : IExcelService
                 ++initialCol;
                 ws.Cells[initialRow, initialCol].Value = employees[i].Status == (int)Status.Active ? Status.Active.GetDisplayName() : Status.Inactive.GetDisplayName();
 
-                if (employees[i].Wallet.Count > 0)
-                {
-                    foreach (var wallet in employees[i].Wallet)
-                    {
-                        if (walletPositions.ContainsKey((int)wallet.Type))
-                        {
-                            ws.Cells[initialRow, walletPositions[(int)wallet.Type]].Value = wallet.Balance;
-                        }
-                    }
-                }
+                //if (employees[i].Wallet.Count > 0)
+                //{
+                //    foreach (var wallet in employees[i].Wallet)
+                //    {
+                //        if (walletPositions.ContainsKey((int)wallet.Type))
+                //        {
+                //            ws.Cells[initialRow, walletPositions[(int)wallet.Type]].Value = wallet.Balance;
+                //        }
+                //    }
+                //}
 
                 ++initialRow;
                 initialCol = 1;
@@ -431,45 +415,45 @@ public class ExcelService : IExcelService
 
     public async Task<DynamicResponse<Product>> ImportProductList(IFormFile file)
     {
-        if (file != null && file.Length > 0)
-        {
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            using (var package = new ExcelPackage(file.OpenReadStream()))
-            {
-                var worksheet = package.Workbook.Worksheets[0]; // Assuming data is on the first sheet
-                var records = new List<Product>();
+        //if (file != null && file.Length > 0)
+        //{
+        //    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        //    using (var package = new ExcelPackage(file.OpenReadStream()))
+        //    {
+        //        var worksheet = package.Workbook.Worksheets[0]; // Assuming data is on the first sheet
+        //        var records = new List<Product>();
 
-                for (int row = 2; row <= worksheet.Dimension.End.Row; row++)
-                {
+        //        for (int row = 2; row <= worksheet.Dimension.End.Row; row++)
+        //        {
 
-                    var product = new Product()
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = worksheet.Cells[row, 1].Value?.ToString(),
-                        Price = Double.Parse(worksheet.Cells[row, 2].Value?.ToString()),
-                        Quantity = Int32.Parse(worksheet.Cells[row, 3].Value?.ToString()),
-                        Description = worksheet.Cells[row, 4].Value?.ToString(),
-                        ServiceDuration = worksheet.Cells[row, 5].Value?.ToString(),
-                        Type = Int32.Parse(worksheet.Cells[row, 6].Value?.ToString()),
-                        CategoryId = Int32.Parse(worksheet.Cells[row, 7].Value?.ToString()),
-                        Status = (int)Status.Active,
-                        CreatedAt = TimeUtils.GetCurrentSEATime()
-                    };
+        //            var product = new Product()
+        //            {
+        //                Id = Guid.NewGuid(),
+        //                Name = worksheet.Cells[row, 1].Value?.ToString(),
+        //                Price = Double.Parse(worksheet.Cells[row, 2].Value?.ToString()),
+        //                Quantity = Int32.Parse(worksheet.Cells[row, 3].Value?.ToString()),
+        //                Description = worksheet.Cells[row, 4].Value?.ToString(),
+        //                ServiceDuration = worksheet.Cells[row, 5].Value?.ToString(),
+        //                Type = Int32.Parse(worksheet.Cells[row, 6].Value?.ToString()),
+        //                CategoryId = Int32.Parse(worksheet.Cells[row, 7].Value?.ToString()),
+        //                Status = (int)Status.Active,
+        //                CreatedAt = TimeUtils.GetCurrentSEATime()
+        //            };
 
-                    records.Add(product);
-                }
+        //            records.Add(product);
+        //        }
 
-                await _unitOfWork.Repository<Product>().AddRangeAsync(records);
-                await _unitOfWork.CommitAsync();
+        //        await _unitOfWork.Repository<Product>().AddRangeAsync(records);
+        //        await _unitOfWork.CommitAsync();
 
-                return new DynamicResponse<Product>()
-                {
-                    Code = StatusCodes.Status200OK,
-                    Message = "Ok",
-                    Data = records
-                };
-            }
-        }
+        //        return new DynamicResponse<Product>()
+        //        {
+        //            Code = StatusCodes.Status200OK,
+        //            Message = "Ok",
+        //            Data = records
+        //        };
+        //    }
+        //}
 
         return new DynamicResponse<Product>()
         {
@@ -481,109 +465,109 @@ public class ExcelService : IExcelService
 
     public async Task<DynamicResponse<Account>> TransferBalanceForEmployee(IFormFile file)
     {
-        if (file != null && file.Length > 0)
-        {
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            using (var package = new ExcelPackage(file.OpenReadStream()))
-            {
-                var ws = package.Workbook.Worksheets[0]; // Assuming data is on the first sheet
-                var wallets = _unitOfWork.Repository<Wallet>().AsQueryable().Select(x => x.Name).Distinct().ToList();
-                Dictionary<int, string> positions = new Dictionary<int, string>();
-                var records = new List<Account>();
+        //if (file != null && file.Length > 0)
+        //{
+        //    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        //    using (var package = new ExcelPackage(file.OpenReadStream()))
+        //    {
+        //        var ws = package.Workbook.Worksheets[0]; // Assuming data is on the first sheet
+        //        var wallets = _unitOfWork.Repository<Wallet>().AsQueryable().Select(x => x.Name).Distinct().ToList();
+        //        Dictionary<int, string> positions = new Dictionary<int, string>();
+        //        var records = new List<Account>();
 
-                Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
+        //        Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
 
-                int initialRow = 2; //A
-                int initialCol = 1; //1
+        //        int initialRow = 2; //A
+        //        int initialCol = 1; //1
 
-                // Get excel dictionnary
-                for (initialCol = 1; initialCol < ws.Dimension.End.Column; initialCol++)
-                {
-                    positions.Add(initialCol, ws.Cells[initialRow, initialCol].Value.ToString());
-                }
+        //        // Get excel dictionnary
+        //        for (initialCol = 1; initialCol < ws.Dimension.End.Column; initialCol++)
+        //        {
+        //            positions.Add(initialCol, ws.Cells[initialRow, initialCol].Value.ToString());
+        //        }
 
-                var enterprise = await _unitOfWork.Repository<Account>()
-                    .AsQueryable(x => x.Id == accountLoginId)
-                    .Include(x => x.Wallet)
-                    .FirstOrDefaultAsync();
-                double enterpriseGeneralWalletBalance = 0;
-                double totalTransfer = 0;
+        //        var enterprise = await _unitOfWork.Repository<Account>()
+        //            .AsQueryable(x => x.Id == accountLoginId)
+        //            .Include(x => x.Wallet)
+        //            .FirstOrDefaultAsync();
+        //        double enterpriseGeneralWalletBalance = 0;
+        //        double totalTransfer = 0;
 
-                // Get enterprise general wallet
-                foreach (var wallet in enterprise.Wallet)
-                {
-                    if (wallet.Type == (int)WalletTypeEnums.GeneralWallet)
-                    {
-                        enterpriseGeneralWalletBalance = (double)wallet.Balance;
-                    }
-                }
+        //        // Get enterprise general wallet
+        //        foreach (var wallet in enterprise.Wallet)
+        //        {
+        //            if (wallet.Type == (int)WalletTypeEnums.GeneralWallet)
+        //            {
+        //                enterpriseGeneralWalletBalance = (double)wallet.Balance;
+        //            }
+        //        }
 
-                // Get total transfer
-                for (int row = 3; row <= ws.Dimension.End.Row; row++)
-                {
-                    foreach (var wallet in wallets)
-                    {
-                        if (positions.ContainsValue(wallet))
-                        {
-                            var position = positions.FirstOrDefault(x => x.Value == wallet).Key + 1;
-                            totalTransfer += Double.Parse(ws.Cells[row, position].Value?.ToString() ?? "0");
-                        }
-                    }
-                }
+        //        // Get total transfer
+        //        for (int row = 3; row <= ws.Dimension.End.Row; row++)
+        //        {
+        //            foreach (var wallet in wallets)
+        //            {
+        //                if (positions.ContainsValue(wallet))
+        //                {
+        //                    var position = positions.FirstOrDefault(x => x.Value == wallet).Key + 1;
+        //                    totalTransfer += Double.Parse(ws.Cells[row, position].Value?.ToString() ?? "0");
+        //                }
+        //            }
+        //        }
 
-                if (totalTransfer > enterpriseGeneralWalletBalance)
-                {
-                    throw new ErrorResponse(StatusCodes.Status400BadRequest, 4004,
-                        "Total transfer larger than Enterprise Balance");
-                }
+        //        if (totalTransfer > enterpriseGeneralWalletBalance)
+        //        {
+        //            throw new ErrorResponse(StatusCodes.Status400BadRequest, 4004,
+        //                "Total transfer larger than Enterprise Balance");
+        //        }
 
-                // Add point for employees
-                for (int row = 3; row <= ws.Dimension.End.Row; row++)
-                {
-                    var employee = await _unitOfWork.Repository<Account>()
-                        .AsQueryable(x => x.Id == Guid.Parse(ws.Cells[row, 1].Value.ToString() ?? string.Empty))
-                        .Include(x => x.Wallet)
-                        .FirstOrDefaultAsync();
+        //        // Add point for employees
+        //        for (int row = 3; row <= ws.Dimension.End.Row; row++)
+        //        {
+        //            var employee = await _unitOfWork.Repository<Account>()
+        //                .AsQueryable(x => x.Id == Guid.Parse(ws.Cells[row, 1].Value.ToString() ?? string.Empty))
+        //                .Include(x => x.Wallet)
+        //                .FirstOrDefaultAsync();
 
-                    if (employee.Wallet.Count > 0)
-                    {
-                        foreach (var wallet in employee.Wallet)
-                        {
-                            // todo tạo transaction, + ví employee = - ví enterprise
-                            if (positions.ContainsValue(wallet.Name))
-                            {
-                                var position = positions.FirstOrDefault(x => x.Value == wallet.Name).Key + 1;
-                                // Update employee balance
-                                wallet.Balance += Double.Parse(ws.Cells[row, position].Value?.ToString() ?? "0");
+        //            if (employee.Wallet.Count > 0)
+        //            {
+        //                foreach (var wallet in employee.Wallet)
+        //                {
+        //                    // todo tạo transaction, + ví employee = - ví enterprise
+        //                    if (positions.ContainsValue(wallet.Name))
+        //                    {
+        //                        var position = positions.FirstOrDefault(x => x.Value == wallet.Name).Key + 1;
+        //                        // Update employee balance
+        //                        wallet.Balance += Double.Parse(ws.Cells[row, position].Value?.ToString() ?? "0");
 
-                                // todo create transaction
+        //                        // todo create transaction
 
-                                enterpriseGeneralWalletBalance -= Double.Parse(ws.Cells[row, position].Value?.ToString() ?? "0");
-                            }
-                        }
-                    }
-                    await _unitOfWork.Repository<Account>().UpdateDetached(employee);
-                    records.Add(employee);
-                }
-                // Set enterprise general wallet balance
-                foreach (var wallet in enterprise.Wallet)
-                {
-                    if (wallet.Type == (int)WalletTypeEnums.GeneralWallet)
-                    {
-                        wallet.Balance = enterpriseGeneralWalletBalance;
-                    }
-                }
-                await _unitOfWork.Repository<Account>().UpdateDetached(enterprise);
-                await _unitOfWork.CommitAsync();
+        //                        enterpriseGeneralWalletBalance -= Double.Parse(ws.Cells[row, position].Value?.ToString() ?? "0");
+        //                    }
+        //                }
+        //            }
+        //            await _unitOfWork.Repository<Account>().UpdateDetached(employee);
+        //            records.Add(employee);
+        //        }
+        //        // Set enterprise general wallet balance
+        //        foreach (var wallet in enterprise.Wallet)
+        //        {
+        //            if (wallet.Type == (int)WalletTypeEnums.GeneralWallet)
+        //            {
+        //                wallet.Balance = enterpriseGeneralWalletBalance;
+        //            }
+        //        }
+        //        await _unitOfWork.Repository<Account>().UpdateDetached(enterprise);
+        //        await _unitOfWork.CommitAsync();
 
-                return new DynamicResponse<Account>()
-                {
-                    Code = StatusCodes.Status200OK,
-                    Message = "Ok",
-                    Data = records
-                };
-            }
-        }
+        //        return new DynamicResponse<Account>()
+        //        {
+        //            Code = StatusCodes.Status200OK,
+        //            Message = "Ok",
+        //            Data = records
+        //        };
+        //    }
+        //}
 
         return new DynamicResponse<Account>()
         {

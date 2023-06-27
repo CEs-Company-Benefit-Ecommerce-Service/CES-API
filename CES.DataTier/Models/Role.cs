@@ -14,9 +14,9 @@ namespace CES.DataTier.Models
 
         public int Id { get; set; }
         public string? Name { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-        public DateTime? CreatedAt { get; set; }
         public int? Status { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
 
         public virtual ICollection<Account> Account { get; set; }
     }

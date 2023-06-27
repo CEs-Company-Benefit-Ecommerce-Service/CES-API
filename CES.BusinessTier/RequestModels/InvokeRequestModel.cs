@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace CES.BusinessTier.RequestModels
 {
-    public class OrderRequestModel
+    public class InvokeRequestModel
     {
-        public double Total { get; set; }
-        public string? Notes { get; set; }
-        public string? Address { get; set; }
+        public string? ImageUrl { get; set; }
+        public int? DebtId { get; set; }
     }
 }
