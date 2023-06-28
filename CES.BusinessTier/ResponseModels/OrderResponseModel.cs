@@ -17,7 +17,7 @@ namespace CES.BusinessTier.ResponseModels
         public int? DebtStatus { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
-        public ICollection<OrderDetailsResponseModel> OrderDetail { get; set; }
-        public AccountResponseModel Account { get; set; } = null!;
+        public ICollection<OrderDetailsResponseModel>? OrderDetail { get; set; }
+        public AccountResponseModel? Account { get; set; } = null!;
     }
 }

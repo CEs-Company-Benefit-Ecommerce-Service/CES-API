@@ -14,13 +14,13 @@ namespace CES.BusinessTier.ResponseModels
         public int? Status { get; set; }
         public string? ImageUrl { get; set; }
         public string? Description { get; set; }
-        public int CompanyId { get; set; }
+        public int? CompanyId { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public Guid? CreatedBy { get; set; }
         public Guid? UpdatedBy { get; set; }
 
-        public ICollection<GroupAccountResponse> GroupAccounts { get; set; }
+        public ICollection<GroupAccountResponse>? GroupAccounts { get; set; }
     }
 
     public partial class GroupAccountResponse

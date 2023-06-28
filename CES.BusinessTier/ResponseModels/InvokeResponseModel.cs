@@ -13,9 +13,9 @@ namespace CES.BusinessTier.ResponseModels
         public string? Name { get; set; }
         public double Total { get; set; }
         public int? Status { get; set; }
-        public string ImageUrl { get; set; } = null!;
-        public int DebtId { get; set; }
+        public string? ImageUrl { get; set; } = null!;
+        public int? DebtId { get; set; }
 
-        public DebtTicketResponseModel Debt { get; set; } = null!;
+        public DebtTicketResponseModel? Debt { get; set; } = null!;
     }
 }
