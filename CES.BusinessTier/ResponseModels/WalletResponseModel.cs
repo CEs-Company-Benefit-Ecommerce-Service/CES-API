@@ -8,7 +8,7 @@ namespace CES.BusinessTier.ResponseModels
 {
     public class WalletResponseModel
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
         public string? Name { get; set; }
         public int? Status { get; set; }
         public double? Balance { get; set; }

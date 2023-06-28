@@ -54,7 +54,6 @@ namespace CES.DataTier.Models
                 entity.HasOne(d => d.Company)
                     .WithMany(p => p.Account)
                     .HasForeignKey(d => d.CompanyId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Account_Company");
 
                 entity.HasOne(d => d.Role)

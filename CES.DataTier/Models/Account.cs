@@ -24,10 +24,10 @@ namespace CES.DataTier.Models
         public DateTime? UpdatedAt { get; set; }
         public Guid? WalletId { get; set; }
         public int RoleId { get; set; }
-        public int CompanyId { get; set; }
+        public int? CompanyId { get; set; }
         public string? Password { get; set; }
 
-        public virtual Company Company { get; set; } = null!;
+        public virtual Company? Company { get; set; } = null!;
         public virtual Role Role { get; set; } = null!;
         public virtual Wallet? Wallet { get; set; }
         public virtual ICollection<GroupAccount> GroupAccount { get; set; }

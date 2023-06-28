@@ -20,7 +20,7 @@ namespace CES.BusinessTier.ResponseModels
         public DateTime? UpdatedAt { get; set; }
         public Guid? WalletId { get; set; }
         public int RoleId { get; set; }
-        public int CompanyId { get; set; }
+        public int? CompanyId { get; set; }
 
         public CompanyResponseModel Company { get; set; }
         public WalletResponseModel Wallet { get; set; }

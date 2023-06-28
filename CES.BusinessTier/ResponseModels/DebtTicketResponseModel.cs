@@ -9,7 +9,7 @@ namespace CES.BusinessTier.ResponseModels
 {
     public class DebtTicketResponseModel
     {
-        public int Id { get; set; }
+        public int? Id { get; set; }
         public string? Name { get; set; }
         public double Total { get; set; }
         public int? Status { get; set; }
