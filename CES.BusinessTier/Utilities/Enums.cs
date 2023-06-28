@@ -84,4 +84,8 @@ namespace CES.BusinessTier.Utilities
         [Display(Name = "Complete")] Complete = 2,
         [Display(Name = "Cancel")] Cancel = 4,
     }
+    public enum BenefitTypeEnums
+    {
+        [Display(Name = "Thưởng")] Welfare = 1,
+    }
 }

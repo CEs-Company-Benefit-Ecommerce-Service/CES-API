@@ -144,7 +144,8 @@ namespace CES.BusinessTier.Services
                     Total = (double)total,
                     Address = companyAddress,
                     Notes = note,
-                    DebtStatus = (int)DebtStatusEnums.New
+                    DebtStatus = (int)DebtStatusEnums.New,
+                    
                 };
                 await _unitOfWork.Repository<Order>().InsertAsync(newOrder);
 

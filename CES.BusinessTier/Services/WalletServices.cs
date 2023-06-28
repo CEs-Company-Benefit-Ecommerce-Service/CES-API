@@ -47,10 +47,10 @@ namespace CES.BusinessTier.Services
 
         public async Task<DynamicResponse<WalletResponseModel>> GetsAsync(PagingModel pagingModel)
         {
-            var wallets = _unitOfWork.Repository<Wallet>().GetAll()
+            var wallets = _unitOfWork.Repository<Wallet>().AsQueryable()
             .ProjectTo<WalletResponseModel>(_mapper.ConfigurationProvider)
                .PagingQueryable(pagingModel.Page, pagingModel.Size, Constants.LimitPaging, Constants.DefaultPaging);
-
+            var wa = _unitOfWork.Repository<Wallet>().AsQueryable();
             return new DynamicResponse<WalletResponseModel>
             {
                 Code = 200,

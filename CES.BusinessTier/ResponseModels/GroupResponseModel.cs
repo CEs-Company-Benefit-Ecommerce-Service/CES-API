@@ -20,7 +20,7 @@ namespace CES.BusinessTier.ResponseModels
         public Guid? CreatedBy { get; set; }
         public Guid? UpdatedBy { get; set; }
 
-        public ICollection<GroupAccountResponse>? GroupAccounts { get; set; }
+        public ICollection<GroupAccountResponse>? GroupAccount { get; set; }
     }
 
     public partial class GroupAccountResponse
