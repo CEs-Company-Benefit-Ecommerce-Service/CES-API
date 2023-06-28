@@ -52,6 +52,8 @@ namespace CES.API.AppStarts
             services.AddScoped<IDebtServices, DebtServices>();
 
             services.AddScoped<IInvokeServices, InvokeServices>();
+
+            services.AddScoped<IBenefitServices, BenefitServices>();
         }
     }
 }

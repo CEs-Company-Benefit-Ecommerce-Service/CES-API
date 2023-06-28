@@ -34,8 +34,9 @@ namespace CES.BusinessTier.Services
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly ITransactionService _transactionService;
+        private readonly IWalletServices _walletServices;
 
-        public OrderServices(IUnitOfWork unitOfWork, IMapper mapper, IOrderDetailServices orderDetailServices, IProductService productServices, IHttpContextAccessor httpContextAccessor, ITransactionService transactionService)
+        public OrderServices(IUnitOfWork unitOfWork, IMapper mapper, IOrderDetailServices orderDetailServices, IProductService productServices, IHttpContextAccessor httpContextAccessor, ITransactionService transactionService, IWalletServices walletServices)
         {
             _mapper = mapper;
             _contextAccessor = httpContextAccessor;
@@ -43,6 +44,7 @@ namespace CES.BusinessTier.Services
             _orderDetailServices = orderDetailServices;
             _productServices = productServices;
             _transactionService = transactionService;
+            _walletServices = walletServices;
         }
 
         public async Task<DynamicResponse<OrderResponseModel>> GetsAsync(OrderResponseModel filter, PagingModel paging)
@@ -120,8 +122,8 @@ namespace CES.BusinessTier.Services
         {
             // get logined account
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
-            var accountLogin = _unitOfWork.Repository<Account>().FindAsync(x => x.Id == accountLoginId);
-            var companyAddress = _unitOfWork.Repository<Company>().GetWhere(x => x.Id == accountLogin.Result.CompanyId).Result.Select(x => x.Address).FirstOrDefault();
+            var accountLogin = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Wallet).FirstOrDefaultAsync();
+            var companyAddress = _unitOfWork.Repository<Company>().GetWhere(x => x.Id == accountLogin.CompanyId).Result.Select(x => x.Address).FirstOrDefault();
 
             #region caculate orderDetail price + total
             foreach (var orderDetail in orderDetails)
@@ -131,9 +133,21 @@ namespace CES.BusinessTier.Services
             }
 
             var total = orderDetails.Select(x => x.Price).Sum();
+
+            // get account wallet
+            var wallet = accountLogin.Wallet;
+            if (wallet.Balance < total)
+            {
+                return new BaseResponseViewModel<OrderResponseModel>
+                {
+                    Code = StatusCodes.Status400BadRequest,
+                    Message = "Balance in wallet not enough",
+                };
+            }
             #endregion
             try
             {
+
                 // create order
                 var newOrder = new Order()
                 {
@@ -145,7 +159,6 @@ namespace CES.BusinessTier.Services
                     Address = companyAddress,
                     Notes = note,
                     DebtStatus = (int)DebtStatusEnums.New,
-                    
                 };
                 await _unitOfWork.Repository<Order>().InsertAsync(newOrder);
 
@@ -159,36 +172,39 @@ namespace CES.BusinessTier.Services
                     };
                 }
 
-                // create transaction
-                var newTransaction = new Transaction()
+                if (wallet.Balance < total)
                 {
-                    Id = Guid.NewGuid(),
-                    OrderId = newOrder.Id,
-                    CreatedAt = TimeUtils.GetCurrentSEATime(),
-                    Total = (double)total,
-                    Type = 1,
-                    Description = "template ....",
-                    WalletId = accountLogin.Result.WalletId,
-                    CompanyId = accountLogin.Result.CompanyId,
-                };
-                if (!await _transactionService.CreateTransaction(newTransaction))
-                {
-                    return new BaseResponseViewModel<OrderResponseModel>
-                    {
-                        Code = StatusCodes.Status400BadRequest,
-                        Message = "Create transaction failed",
-                    };
+                    wallet.Balance = 0;
                 }
-                //create transaction wallet log
-                var newTransactionLog = new TransactionWalletLog()
+                else
+                {
+                    wallet.Balance -= total;
+                }
+                wallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
+                //create new transaction
+                var walletTransaction = new Transaction()
                 {
                     Id = Guid.NewGuid(),
+                    WalletId = wallet.Id,
+                    Type = (int)WalletTransactionTypeEnums.Order,
+                    Description = "Mua đồ ",
+                    OrderId = newOrder.Id,
+                    Total = (double)total,
                     CreatedAt = TimeUtils.GetCurrentSEATime(),
-                    Description = "template ....",
-                    CompanyId = accountLogin.Result.CompanyId,
                 };
-                await _unitOfWork.Repository<TransactionWalletLog>().InsertAsync(newTransactionLog);
+                //Create new transaction wallet log
+                var walletTransactionLog = new TransactionWalletLog()
+                {
+                    Id = Guid.NewGuid(),
+                    CompanyId = wallet.Account.Select(x => x.CompanyId).FirstOrDefault(),
+                    TransactionId = walletTransaction.Id,
+                    Description = "Log mua đồ || " + TimeUtils.GetCurrentSEATime(),
+                    CreatedAt = TimeUtils.GetCurrentSEATime(),
+                };
 
+                await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransaction);
+                await _unitOfWork.Repository<TransactionWalletLog>().InsertAsync(walletTransactionLog);
+                await _unitOfWork.Repository<Wallet>().UpdateDetached(wallet);
                 await _unitOfWork.CommitAsync();
 
                 return new BaseResponseViewModel<OrderResponseModel>
