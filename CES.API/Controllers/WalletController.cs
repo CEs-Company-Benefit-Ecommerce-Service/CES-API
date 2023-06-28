@@ -105,16 +105,16 @@ namespace CES.API.Controllers
         /// <param name="id"></param>
         /// <param name="balance"></param>
         /// <returns></returns>
-        [HttpPut("{id}/{balance}")]
+        [HttpPut("balance")]
         [SwaggerOperation(summary: "Type", description: "1 - Add, 2 - Minus")]
-        public IActionResult Put(Guid id, double balance, [FromQuery] int type)
+        public IActionResult Put([FromBody] WalletUpdateBalanceModel request)
         {
             var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value.ToString();
             if (role != Roles.EnterpriseAdmin.GetDisplayName())
             {
                 return StatusCode(401);
             }
-            var result = _walletServices.UpdateWalletBalanceAsync(id, balance, type).Result;
+            var result = _walletServices.UpdateWalletBalanceAsync(request).Result;
             return StatusCode((int)result.Code, result);
         }
 

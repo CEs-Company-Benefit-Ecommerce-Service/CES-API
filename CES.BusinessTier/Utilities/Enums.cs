@@ -54,6 +54,7 @@ namespace CES.BusinessTier.Utilities
     public enum WalletTransactionTypeEnums
     {
         [Display(Name = "Add Welfare")] AddWelfare = 1,
+        [Display(Name = "Order")] Order = 2,
     }
 
     public enum TransactionTypeEnums

@@ -9,6 +9,7 @@ namespace CES.DataTier.Models
     {
         public Guid Id { get; set; }
         public int? CompanyId { get; set; }
+        public Guid TransactionId { get; set; }
         public string? Description { get; set; }
         public DateTime? CreatedAt { get; set; }
     }

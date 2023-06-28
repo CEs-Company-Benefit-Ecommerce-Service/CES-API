@@ -12,6 +12,9 @@ namespace CES.DataTier.Models
         public string? Description { get; set; }
         public int? Type { get; set; }
         public double UnitPrice { get; set; }
+        public int? Status { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
         public int CompanyId { get; set; }
 
         public virtual Company Company { get; set; } = null!;

@@ -27,7 +27,7 @@ namespace CES.BusinessTier.Services
         BaseResponseViewModel<List<WalletResponseModel>> GetWalletsAccount(Guid accountId);
         Task<BaseResponseViewModel<WalletResponseModel>> CreateAsync(WalletRequestModel request);
         Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletInfoAsync(Guid id, WalletInfoRequestModel request);
-        Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletBalanceAsync(Guid id, double balance, int type);
+        Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletBalanceAsync(WalletUpdateBalanceModel request);
         Task CreateWalletForAccountDontHaveEnough();
     }
     public class WalletServices : IWalletServices
@@ -158,11 +158,15 @@ namespace CES.BusinessTier.Services
                 };
             }
         }
-        public async Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletBalanceAsync(Guid id, double balance, int type)
+        public async Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletBalanceAsync(WalletUpdateBalanceModel request)
         {
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
-
-            var existedWallet = _unitOfWork.Repository<Wallet>().GetByIdGuid(id).Result;
+            if (request.BenefitId == null)
+            {
+                request.BenefitId = 0;
+            }
+            var benefit = _unitOfWork.Repository<Benefit>().GetById((int)request.BenefitId).Result;
+            var existedWallet = await _unitOfWork.Repository<Wallet>().AsQueryable(x => x.Id == request.Id).Include(x => x.Account).FirstOrDefaultAsync();
             if (existedWallet == null)
             {
                 return new BaseResponseViewModel<WalletResponseModel>
@@ -171,20 +175,37 @@ namespace CES.BusinessTier.Services
                     Message = "Not found",
                 };
             }
-            switch (type)
+            switch (request.Type)
             {
                 case 1:
-                    existedWallet.Balance += balance;
 
+                    if (benefit == null)
+                    {
+                        return new BaseResponseViewModel<WalletResponseModel>
+                        {
+                            Code = (int)StatusCodes.Status404NotFound,
+                            Message = "No found",
+                        };
+                    }
+                    if (request.Balance > benefit.UnitPrice)
+                    {
+                        return new BaseResponseViewModel<WalletResponseModel>
+                        {
+                            Code = (int)StatusCodes.Status400BadRequest,
+                            Message = "Balance was higher than unit price of benefit",
+                        };
+                    }
+                    existedWallet.Balance += request.Balance;
                     break;
                 case 2:
-                    if (existedWallet.Balance < balance)
+
+                    if (existedWallet.Balance < request.Balance)
                     {
                         existedWallet.Balance = 0;
                     }
                     else
                     {
-                        existedWallet.Balance -= balance;
+                        existedWallet.Balance -= request.Balance;
                     }
                     break;
                 default:
@@ -198,13 +219,22 @@ namespace CES.BusinessTier.Services
                 RecieverId = existedWallet.Account.Select(x => existedWallet.Id).FirstOrDefault(),
                 WalletId = existedWallet.Id,
                 Type = (int)WalletTransactionTypeEnums.AddWelfare,
-                Description = "Gui tien phuc loi cho nhan vien",
-                Total = balance,
+                Description = "Nhận tiền từ " + benefit.Description,
+                Total = request.Balance,
+                CreatedAt = TimeUtils.GetCurrentSEATime(),
+            };
+            var walletTransactionLog = new TransactionWalletLog()
+            {
+                Id = Guid.NewGuid(),
+                CompanyId = benefit.CompanyId,
+                TransactionId = walletTransaction.Id,
+                Description = "Log Chuyển tiền || " + TimeUtils.GetCurrentSEATime(),
                 CreatedAt = TimeUtils.GetCurrentSEATime(),
             };
             try
             {
                 await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransaction);
+                await _unitOfWork.Repository<TransactionWalletLog>().InsertAsync(walletTransactionLog);
                 await _unitOfWork.Repository<Wallet>().UpdateDetached(existedWallet);
                 await _unitOfWork.CommitAsync();
 
