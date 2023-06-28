@@ -10,7 +10,7 @@ namespace CES.BusinessTier.ResponseModels
     public class OrderResponseModel
     {
         public Guid? Id { get; set; }
-        public double Total { get; set; }
+        public double? Total { get; set; }
         public string? Notes { get; set; }
         public string? Address { get; set; }
         public int? Status { get; set; }

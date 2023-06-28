@@ -32,7 +32,6 @@ public class TransactionService : ITransactionService
     public async Task<DynamicResponse<Transaction>> GetsAsync(Transaction filter, PagingModel paging)
     {
         var transactions = _unitOfWork.Repository<Transaction>().AsQueryable()
-                           .ProjectTo<Transaction>(_mapper.ConfigurationProvider)
                            .DynamicFilter(filter)
                            .DynamicSort(paging.Sort, paging.Order)
                            .PagingQueryable(paging.Page, paging.Size);
