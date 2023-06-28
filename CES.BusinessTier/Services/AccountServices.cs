@@ -193,6 +193,15 @@ namespace CES.BusinessTier.Services
                 newAccount.Wallet = wallets;
                 newAccount.WalletId = wallets.Id;
             }
+            if (newAccount.RoleId == (int)Roles.EnterpriseAdmin)
+            {
+                if (newAccount.Company != null)
+                {
+                    newAccount.Company.CreatedAt = TimeUtils.GetCurrentSEATime();
+                    newAccount.Company.CreatedBy = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
+                    newAccount.Company.ContactPersonId = newAccount.Id;
+                }
+            }
             try
             {
                 await _unitOfWork.Repository<Account>().InsertAsync(newAccount);
