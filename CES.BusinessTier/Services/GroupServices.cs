@@ -118,7 +118,7 @@ namespace CES.BusinessTier.Services
 
             var newGroup = _mapper.Map<Group>(request);
             newGroup.Id = Guid.NewGuid();
-            newGroup.CompanyId = account.Data.CompanyId;
+            newGroup.CompanyId = (int)account.Data.CompanyId;
             try
             {
                 await _unitOfWork.Repository<Group>().InsertAsync(newGroup);

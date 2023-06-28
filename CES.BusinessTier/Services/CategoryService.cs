@@ -92,6 +92,7 @@ namespace CES.BusinessTier.Services
                 .DynamicFilter(filter)
                 .DynamicSort(paging.Sort, paging.Order)
                 .PagingQueryable(paging.Page, paging.Size);
+            var test = _unitOfWork.Repository<Category>().AsQueryable(x => x.Status == (int)Status.Active);
             return new DynamicResponse<CategoryResponseModel>
             {
                 Code = StatusCodes.Status200OK,
