@@ -16,8 +16,8 @@ namespace CES.BusinessTier.AutoMapperModules
         {
             mc.CreateMap<DebtTicket, DebtTicketResponseModel>().ReverseMap();
 
-            mc.CreateMap<Invoke, InvokeResponseModel>().ReverseMap();
-            mc.CreateMap<Invoke, InvokeRequestModel>().ReverseMap();
+            // mc.CreateMap<Invoke, InvokeResponseModel>().ReverseMap();
+            // mc.CreateMap<Invoke, InvokeRequestModel>().ReverseMap();
         }
     }
 }

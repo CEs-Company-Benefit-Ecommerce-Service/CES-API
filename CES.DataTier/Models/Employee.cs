@@ -3,25 +3,24 @@ using System.Collections.Generic;
 
 namespace CES.DataTier.Models
 {
-    public partial class Group
+    public partial class Employee
     {
-        public Group()
+        public Employee()
         {
             EmployeeGroupMappings = new HashSet<EmployeeGroupMapping>();
+            Orders = new HashSet<Order>();
         }
 
         public Guid Id { get; set; }
-        public string? Name { get; set; }
-        public int? Status { get; set; }
-        public string? ImageUrl { get; set; }
-        public string? Description { get; set; }
+        public int CompanyId { get; set; }
+        public Guid AccountId { get; set; }
+        public int Status { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
-        public Guid? CreatedBy { get; set; }
-        public Guid? UpdatedBy { get; set; }
-        public int CompanyId { get; set; }
 
+        public virtual Account Account { get; set; } = null!;
         public virtual Company Company { get; set; } = null!;
         public virtual ICollection<EmployeeGroupMapping> EmployeeGroupMappings { get; set; }
+        public virtual ICollection<Order> Orders { get; set; }
     }
 }

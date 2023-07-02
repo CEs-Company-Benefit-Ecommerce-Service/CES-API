@@ -20,9 +20,9 @@ namespace CES.BusinessTier.Services
 {
     public interface IBenefitServices
     {
-        Task<BaseResponseViewModel<BenefitResponseModel>> GetById(int id);
+        Task<BaseResponseViewModel<BenefitResponseModel>> GetById(Guid id);
         Task<DynamicResponse<BenefitResponseModel>> GetAllAsync(BenefitResponseModel filter, PagingModel paging);
-        Task<BaseResponseViewModel<BenefitResponseModel>> UpdateAsync(BenefitUpdateModel request, int benefitId);
+        Task<BaseResponseViewModel<BenefitResponseModel>> UpdateAsync(BenefitUpdateModel request, Guid benefitId);
         Task<BaseResponseViewModel<BenefitResponseModel>> CreateAsync(BenefitRequestModel request);
     }
     public class BenefitServices : IBenefitServices
@@ -60,7 +60,7 @@ namespace CES.BusinessTier.Services
             };
         }
 
-        public async Task<BaseResponseViewModel<BenefitResponseModel>> GetById(int id)
+        public async Task<BaseResponseViewModel<BenefitResponseModel>> GetById(Guid id)
         {
             var benefit = await _unitOfWork.Repository<Benefit>().AsQueryable(x => x.Id == id)
                 .ProjectTo<BenefitResponseModel>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
@@ -76,12 +76,13 @@ namespace CES.BusinessTier.Services
         public async Task<BaseResponseViewModel<BenefitResponseModel>> CreateAsync(BenefitRequestModel request)
         {
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
-            var accountLogin = _unitOfWork.Repository<Account>().FindAsync(x => x.Id == accountLoginId);
+            var user = _unitOfWork.Repository<Enterprise>().FindAsync(x => x.AccountId == accountLoginId).Result;
 
             var newBenefit = _mapper.Map<Benefit>(request);
+            newBenefit.Id = Guid.NewGuid();
             newBenefit.Status = (int)Status.Active;
             newBenefit.CreatedAt = TimeUtils.GetCurrentSEATime();
-            newBenefit.CompanyId = (int)accountLogin.Result.CompanyId;
+            newBenefit.CompanyId = (int)user.CompanyId;
             try
             {
                 await _unitOfWork.Repository<Benefit>().InsertAsync(newBenefit);
@@ -103,18 +104,15 @@ namespace CES.BusinessTier.Services
             }
         }
 
-        public async Task<BaseResponseViewModel<BenefitResponseModel>> UpdateAsync(BenefitUpdateModel request, int benefitId)
+        public async Task<BaseResponseViewModel<BenefitResponseModel>> UpdateAsync(BenefitUpdateModel request, Guid benefitId)
         {
-            var existedBenefit = _unitOfWork.Repository<Benefit>().GetById(benefitId).Result;
-            existedBenefit.UpdatedAt = TimeUtils.GetCurrentSEATime();
-            existedBenefit.Name = request.Name;
-            existedBenefit.Description = request.Description;
-            existedBenefit.Type = request.Type;
-            existedBenefit.Status = request.Status;
+            var existedBenefit = _unitOfWork.Repository<Benefit>().FindAsync(x => x.Id == benefitId).Result;
+            var temp = _mapper.Map<BenefitUpdateModel, Benefit>(request, existedBenefit);
+            temp.UpdatedAt = TimeUtils.GetCurrentSEATime();
 
             try
             {
-                await _unitOfWork.Repository<Benefit>().UpdateDetached(existedBenefit);
+                await _unitOfWork.Repository<Benefit>().UpdateDetached(temp);
                 await _unitOfWork.CommitAsync();
 
                 return new BaseResponseViewModel<BenefitResponseModel>

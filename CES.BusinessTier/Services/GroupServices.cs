@@ -51,10 +51,11 @@ namespace CES.BusinessTier.Services
             var account = _accountServices.Get(accountLoginId);
 
             var projects = _unitOfWork.Repository<Group>().GetAll()
-                .Include(x => x.GroupAccount).ThenInclude(y => y.Account)
+                // .Include(x => x.GroupAccount).ThenInclude(y => y.Account)
                 .ProjectTo<GroupResponseModel>(_mapper.ConfigurationProvider)
                 .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging);
-            var result = projects.Item2.Where(x => x.CompanyId == account.Data.CompanyId);
+            // var result = projects.Item2.Where(x => x.CompanyId == account.Data.CompanyId);
+            var result = projects.Item2;
             return new DynamicResponse<GroupResponseModel>
             {
                 Code = 200,
@@ -67,10 +68,12 @@ namespace CES.BusinessTier.Services
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
             var account = _accountServices.Get(accountLoginId);
 
+            // var project = await _unitOfWork.Repository<Group>().GetAll()
+            //     .Include(x => x.GroupAccount)
+            //     .ThenInclude(y => y.Account)
+            //     .Where(x => x.Id == id && x.CompanyId == account.Data.CompanyId)
+            //     .FirstOrDefaultAsync();
             var project = await _unitOfWork.Repository<Group>().GetAll()
-                .Include(x => x.GroupAccount)
-                .ThenInclude(y => y.Account)
-                .Where(x => x.Id == id && x.CompanyId == account.Data.CompanyId)
                 .FirstOrDefaultAsync();
             return new BaseResponseViewModel<GroupResponseModel>
             {
@@ -118,7 +121,7 @@ namespace CES.BusinessTier.Services
 
             var newGroup = _mapper.Map<Group>(request);
             newGroup.Id = Guid.NewGuid();
-            newGroup.CompanyId = (int)account.Data.CompanyId;
+            // newGroup.CompanyId = (int)account.Data.CompanyId;
             try
             {
                 await _unitOfWork.Repository<Group>().InsertAsync(newGroup);
@@ -141,7 +144,7 @@ namespace CES.BusinessTier.Services
         }
         public async Task<BaseResponseViewModel<GroupResponseModel>> Delete(Guid id)
         {
-            var project = _unitOfWork.Repository<Group>().GetAll().Include(x => x.GroupAccount).Where(x => x.Id == id).FirstOrDefault();
+            var project = _unitOfWork.Repository<Group>().GetAll().Where(x => x.Id == id).FirstOrDefault();
             if (project == null)
             {
                 return new BaseResponseViewModel<GroupResponseModel>
@@ -152,10 +155,10 @@ namespace CES.BusinessTier.Services
             }
             try
             {
-                foreach (var projectAccount in project.GroupAccount)
-                {
-                    var deleteGroupAccountResult = _projectAccountServices.Deleted(projectAccount.Id);
-                }
+                // foreach (var projectAccount in project.GroupAccount)
+                // {
+                //     var deleteGroupAccountResult = _projectAccountServices.Deleted(projectAccount.Id);
+                // }
                 _unitOfWork.Repository<Group>().Delete(project);
                 await _unitOfWork.CommitAsync();
                 return new BaseResponseViewModel<GroupResponseModel>
@@ -211,11 +214,11 @@ namespace CES.BusinessTier.Services
                 var project = await Get(requestModel.GroupId);
                 foreach (var accountId in requestModel.AccountId)
                 {
-                    var projectAccount = project.Data.GroupAccount.Where(x => x.AccountId == accountId).FirstOrDefault();
-                    if (projectAccount != null)
-                    {
-                        var deleteGroupAccoutnResult = await _projectAccountServices.Deleted(projectAccount.Id);
-                    }
+                    // var projectAccount = project.Data.GroupAccount.Where(x => x.AccountId == accountId).FirstOrDefault();
+                    // if (projectAccount != null)
+                    // {
+                    //     var deleteGroupAccoutnResult = await _projectAccountServices.Deleted(projectAccount.Id);
+                    // }
                 }
                 return new BaseResponseViewModel<GroupResponseModel>()
                 {

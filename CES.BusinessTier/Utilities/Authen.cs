@@ -15,7 +15,7 @@ namespace CES.BusinessTier.Utilities
 {
     public static class Authen
     {
-        public static TokenModel GenerateToken(Account account, string role, IConfiguration configuration)
+        public static TokenModel GenerateToken(Account account, UserResponseModel user, IConfiguration configuration)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(configuration["Jwt:Key"]);
@@ -26,9 +26,9 @@ namespace CES.BusinessTier.Utilities
                     new Claim(ClaimTypes.NameIdentifier, account.Id.ToString()),
                     new Claim(ClaimTypes.Name, account.Name),
                     new Claim(ClaimTypes.Email, account.Email),
-                    new Claim(ClaimTypes.Role, role.ToString()),
+                    new Claim(ClaimTypes.Role, account.Role),
                     new Claim(ClaimTypes.MobilePhone, account.Phone),
-                    new Claim("CompanyId", account.CompanyId.ToString()),
+                    new Claim("CompanyId", user.CompanyId.ToString()),
                     new Claim("TokenId", Guid.NewGuid().ToString())
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),

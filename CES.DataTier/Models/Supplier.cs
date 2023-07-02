@@ -3,21 +3,22 @@ using System.Collections.Generic;
 
 namespace CES.DataTier.Models
 {
-    public partial class Category
+    public partial class Supplier
     {
-        public Category()
+        public Supplier()
         {
             Products = new HashSet<Product>();
         }
 
-        public int Id { get; set; }
-        public string Name { get; set; } = null!;
-        public string? Description { get; set; }
-        public string? ImageUrl { get; set; }
+        public Guid Id { get; set; }
+        public string? SupplierName { get; set; }
+        public Guid AccountId { get; set; }
+        public string? SupplierAddress { get; set; }
         public int Status { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
 
+        public virtual Account Account { get; set; } = null!;
         public virtual ICollection<Product> Products { get; set; }
     }
 }

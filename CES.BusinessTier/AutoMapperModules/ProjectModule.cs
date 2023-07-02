@@ -17,7 +17,7 @@ namespace CES.BusinessTier.AutoMapperModules
             mc.CreateMap<Group, GroupRequestModel>().ReverseMap();
             mc.CreateMap<Group, GroupResponseModel>().ReverseMap();
 
-            mc.CreateMap<GroupAccount, GroupAccountResponse>().ReverseMap();
+            // mc.CreateMap<GroupAccount, GroupAccountResponse>().ReverseMap();
         }
     }
 }

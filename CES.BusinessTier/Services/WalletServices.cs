@@ -61,15 +61,16 @@ namespace CES.BusinessTier.Services
         }
         public BaseResponseViewModel<List<WalletResponseModel>> GetWalletsAccount(Guid accountId)
         {
-            var wallets = _unitOfWork.Repository<Wallet>().GetAll().Where(x => x.Account.Select(x => x.Id).FirstOrDefault() == accountId);
-            if (wallets.Count() == 0)
-            {
-                return new BaseResponseViewModel<List<WalletResponseModel>>
-                {
-                    Code = 404,
-                    Message = "Not found",
-                };
-            }
+            // var wallets = _unitOfWork.Repository<Wallet>().GetAll().Where(x => x.Account.Select(x => x.Id).FirstOrDefault() == accountId);
+            var wallets = _unitOfWork.Repository<Wallet>().GetAll().FirstOrDefault();
+            // if (wallets.Count() == 0)
+            // {
+            //     return new BaseResponseViewModel<List<WalletResponseModel>>
+            //     {
+            //         Code = 404,
+            //         Message = "Not found",
+            //     };
+            // }
             return new BaseResponseViewModel<List<WalletResponseModel>>
             {
                 Code = 200,
@@ -216,25 +217,25 @@ namespace CES.BusinessTier.Services
             {
                 Id = Guid.NewGuid(),
                 SenderId = accountLoginId,
-                RecieverId = existedWallet.Account.Select(x => existedWallet.Id).FirstOrDefault(),
+                // RecieverId = existedWallet.Account.Select(x => existedWallet.Id).FirstOrDefault(),
                 WalletId = existedWallet.Id,
                 Type = (int)WalletTransactionTypeEnums.AddWelfare,
                 Description = "Nhận tiền từ " + benefit.Description,
                 Total = request.Balance,
                 CreatedAt = TimeUtils.GetCurrentSEATime(),
             };
-            var walletTransactionLog = new TransactionWalletLog()
-            {
-                Id = Guid.NewGuid(),
-                CompanyId = benefit.CompanyId,
-                TransactionId = walletTransaction.Id,
-                Description = "Log Chuyển tiền || " + TimeUtils.GetCurrentSEATime(),
-                CreatedAt = TimeUtils.GetCurrentSEATime(),
-            };
+            // var walletTransactionLog = new TransactionWalletLog()
+            // {
+            //     Id = Guid.NewGuid(),
+            //     CompanyId = benefit.CompanyId,
+            //     TransactionId = walletTransaction.Id,
+            //     Description = "Log Chuyển tiền || " + TimeUtils.GetCurrentSEATime(),
+            //     CreatedAt = TimeUtils.GetCurrentSEATime(),
+            // };
             try
             {
                 await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransaction);
-                await _unitOfWork.Repository<TransactionWalletLog>().InsertAsync(walletTransactionLog);
+                // await _unitOfWork.Repository<TransactionWalletLog>().InsertAsync(walletTransactionLog);
                 await _unitOfWork.Repository<Wallet>().UpdateDetached(existedWallet);
                 await _unitOfWork.CommitAsync();
 

@@ -63,8 +63,8 @@ public class ExcelService : IExcelService
                         Phone = worksheet.Cells[row, 4].Value?.ToString(),
                         Status = (int)Status.Active,
                         CreatedAt = TimeUtils.GetCurrentSEATime(),
-                        RoleId = (int)Roles.Employee,
-                        CompanyId = int.Parse(companyId),
+                        // RoleId = (int)Roles.Employee,
+                        // CompanyId = int.Parse(companyId),
                         Password = Authen.HashPassword("DefaultPassword")
                     };
 
@@ -85,8 +85,8 @@ public class ExcelService : IExcelService
                         Status = (int)Status.Active,
                         CreatedBy = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString())
                     };
-                    account.Wallet = wallets;
-                    account.WalletId = wallets.Id;
+                    // account.Wallet = wallets;
+                    // account.WalletId = wallets.Id;
 
                 }
 
@@ -181,16 +181,22 @@ public class ExcelService : IExcelService
         Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
         var enterprise = _unitOfWork.Repository<Account>()
             .AsQueryable(x => x.Id == accountLoginId)
-            .Include(x => x.Wallet)
+            .Include(x => x.Wallets)
             .FirstOrDefault();
         double enterpriseGeneralWalletBalance = 0;
         // Get enterprise general wallet
 
-        enterpriseGeneralWalletBalance = (double)enterprise.Wallet.Balance;
+        // enterpriseGeneralWalletBalance = (double)enterprise.Wallet.Balance;
+        //
+        // var employees = _unitOfWork.Repository<Account>()
+        //     .AsQueryable(x => x.RoleId == (int)Roles.Employee && x.CompanyId == int.Parse(companyId) && x.Status == (int)Status.Active && x.CreatedAt >= from && x.CreatedAt <= to)
+        //     .Include(x => x.Wallet)
+        //     .OrderBy(x => x.CreatedAt)
+        //     .ToList();
+        enterpriseGeneralWalletBalance = 0;
 
         var employees = _unitOfWork.Repository<Account>()
-            .AsQueryable(x => x.RoleId == (int)Roles.Employee && x.CompanyId == int.Parse(companyId) && x.Status == (int)Status.Active && x.CreatedAt >= from && x.CreatedAt <= to)
-            .Include(x => x.Wallet)
+            .AsQueryable(x => x.Status == (int)Status.Active && x.CreatedAt >= from && x.CreatedAt <= to)
             .OrderBy(x => x.CreatedAt)
             .ToList();
         //var wallets = _unitOfWork.Repository<Wallet>().AsQueryable().Select(x => x.Type).Distinct().ToList();

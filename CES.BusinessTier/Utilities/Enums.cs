@@ -47,9 +47,9 @@ namespace CES.BusinessTier.Utilities
     }
     public enum WalletTypeEnums
     {
-        [Display(Name = "Food Wallet")] FoodWallet = 1,
+        [Display(Name = "General Wallet")] GeneralWallet= 1,
         [Display(Name = "Stationery Wallet")] StationeryWallet = 2,
-        [Display(Name = "General Wallet")] GeneralWallet = 3
+        [Display(Name = "Food Wallet")] FoodWallet  = 3
     }
     public enum WalletTransactionTypeEnums
     {

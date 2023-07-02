@@ -19,6 +19,13 @@ namespace CES.BusinessTier.AutoMapperModules
             mc.CreateMap<Account, AccountAllResponseModel>().ReverseMap();
             mc.CreateMap<Account, AccountUpdateModel>().ReverseMap()
                 .ForAllMembers(opts => opts.Condition((_, _, srcMember) => srcMember != null));
+            
+            mc.CreateMap<Employee, UserResponseModel>().ReverseMap()
+                .ForAllMembers(opts => opts.Condition((_, _, srcMember) => srcMember != null));;
+            mc.CreateMap<Enterprise, UserResponseModel>().ReverseMap()
+                .ForAllMembers(opts => opts.Condition((_, _, srcMember) => srcMember != null));;
+            mc.CreateMap<Supplier, UserResponseModel>().ReverseMap()
+                .ForAllMembers(opts => opts.Condition((_, _, srcMember) => srcMember != null));;
         }
     }
 }

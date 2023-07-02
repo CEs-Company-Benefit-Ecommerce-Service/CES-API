@@ -8,7 +8,8 @@ namespace CES.BusinessTier.RequestModels
 {
     public class CategoryRequestModel
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public string? Description { get; set; }
+        public string? ImageUrl { get; set; }
     }
 }

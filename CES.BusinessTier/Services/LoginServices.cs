@@ -16,6 +16,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper.QueryableExtensions;
 
 namespace CES.BusinessTier.Services
 {
@@ -64,7 +65,9 @@ namespace CES.BusinessTier.Services
             {
                 throw new ErrorResponse(StatusCodes.Status400BadRequest, StatusCodes.Status400BadRequest, "Login failed");
             }
-            var newToken = Authen.GenerateToken(account, account.Role.Name, _configuration);
+
+            var user = GetUserInfo(account);
+            var newToken = Authen.GenerateToken(account, user, _configuration);
             var result = new LoginResponseModel()
             {
                 Account = _mapper.Map<AccountResponseModel>(account),
@@ -76,6 +79,33 @@ namespace CES.BusinessTier.Services
                 Message = LoginEnums.Success.GetDisplayName(),
                 Data = result
             };
+        }
+
+        private UserResponseModel GetUserInfo(Account account)
+        {
+            UserResponseModel user = new UserResponseModel();
+            switch (account.Role)
+            {
+                case "Employee":
+                    user = _unitOfWork.Repository<Employee>().AsQueryable(x => x.AccountId == account.Id)
+                        .ProjectTo<UserResponseModel>(_mapper.ConfigurationProvider)
+                        .FirstOrDefault();
+                    break;
+                case "Enterprise Admin":
+                    user = _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.AccountId == account.Id)
+                        .ProjectTo<UserResponseModel>(_mapper.ConfigurationProvider)
+                        .FirstOrDefault();
+                    break;
+                case "Supplier Admin":
+                    user = _unitOfWork.Repository<Supplier>().AsQueryable(x => x.AccountId == account.Id)
+                        .ProjectTo<UserResponseModel>(_mapper.ConfigurationProvider)
+                        .FirstOrDefault();
+                    break;
+                default:
+                    break;
+            }
+
+            return user;
         }
     }
 }

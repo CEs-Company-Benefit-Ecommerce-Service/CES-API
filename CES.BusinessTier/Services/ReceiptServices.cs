@@ -39,11 +39,12 @@ namespace CES.BusinessTier.Services
 
         public async Task<DynamicResponse<InvokeResponseModel>> GetsAsync(InvokeResponseModel filter, PagingModel paging)
         {
-            var receipts = _unitOfWork.Repository<Invoke>().AsQueryable()
-                .ProjectTo<InvokeResponseModel>(_mapper.ConfigurationProvider)
-                .DynamicFilter(filter)
-                .DynamicSort(paging.Sort, paging.Order)
-                .PagingQueryable(paging.Page, paging.Size);
+            List<InvokeResponseModel> a = new List<InvokeResponseModel>();
+            // var receipts = _unitOfWork.Repository<Invoke>().AsQueryable()
+            //     .ProjectTo<InvokeResponseModel>(_mapper.ConfigurationProvider)
+            //     .DynamicFilter(filter)
+            //     .DynamicSort(paging.Sort, paging.Order)
+            //     .PagingQueryable(paging.Page, paging.Size);
 
             return new DynamicResponse<InvokeResponseModel>
             {
@@ -53,18 +54,19 @@ namespace CES.BusinessTier.Services
                 {
                     Page = paging.Page,
                     Size = paging.Size,
-                    Total = receipts.Item1
+                    Total = 1
                 },
-                Data = await receipts.Item2.ToListAsync()
+                Data = a
             };
         }
         public async Task<DynamicResponse<InvokeResponseModel>> GetsWithCompanyAsync(InvokeResponseModel filter, PagingModel paging, int companyId)
         {
-            var receipts = _unitOfWork.Repository<Invoke>().AsQueryable(x => x.Debt.CompanyId == companyId)
-                           .ProjectTo<InvokeResponseModel>(_mapper.ConfigurationProvider)
-                           .DynamicFilter(filter)
-                           .DynamicSort(paging.Sort, paging.Order)
-                           .PagingQueryable(paging.Page, paging.Size);
+            List<InvokeResponseModel> a = new List<InvokeResponseModel>();
+            // var receipts = _unitOfWork.Repository<Invoke>().AsQueryable(x => x.Debt.CompanyId == companyId)
+            //                .ProjectTo<InvokeResponseModel>(_mapper.ConfigurationProvider)
+            //                .DynamicFilter(filter)
+            //                .DynamicSort(paging.Sort, paging.Order)
+            //                .PagingQueryable(paging.Page, paging.Size);
 
             return new DynamicResponse<InvokeResponseModel>
             {
@@ -74,28 +76,28 @@ namespace CES.BusinessTier.Services
                 {
                     Page = paging.Page,
                     Size = paging.Size,
-                    Total = receipts.Item1
+                    Total = 1
                 },
-                Data = await receipts.Item2.ToListAsync()
+                Data = a
             };
         }
         public async Task<BaseResponseViewModel<InvokeResponseModel>> Create(InvokeRequestModel request)
         {
             var debt = _unitOfWork.Repository<DebtTicket>().GetById((int)request.DebtId);
 
-            var receipt = new Invoke()
-            {
-                CreatedAt = TimeUtils.GetCurrentSEATime(),
-                UpdatedAt = TimeUtils.GetCurrentSEATime(),
-                DebtId = (int)request.DebtId,
-                ImageUrl = request.ImageUrl,
-                Name = "Const string ....",
-                Total = debt.Result.Total,
-                Status = (int)ReceiptStatusEnums.New,
-            };
+            // var receipt = new Invoke()
+            // {
+            //     CreatedAt = TimeUtils.GetCurrentSEATime(),
+            //     UpdatedAt = TimeUtils.GetCurrentSEATime(),
+            //     DebtId = (int)request.DebtId,
+            //     ImageUrl = request.ImageUrl,
+            //     Name = "Const string ....",
+            //     Total = debt.Result.Total,
+            //     Status = (int)ReceiptStatusEnums.New,
+            // };
             try
             {
-                await _unitOfWork.Repository<Invoke>().InsertAsync(receipt);
+                // await _unitOfWork.Repository<Invoke>().InsertAsync(receipt);
                 await _unitOfWork.CommitAsync();
                 return new BaseResponseViewModel<InvokeResponseModel>()
                 {
@@ -115,34 +117,35 @@ namespace CES.BusinessTier.Services
         }
         public async Task<BaseResponseViewModel<InvokeResponseModel>> UpdateStatus(Guid receiptId, int status)
         {
-            var receipt = _unitOfWork.Repository<Invoke>().GetByIdGuid(receiptId).Result;
-            if (receipt == null)
-            {
-                return new BaseResponseViewModel<InvokeResponseModel>()
-                {
-                    Code = StatusCodes.Status404NotFound,
-                    Message = "Not Found",
-                };
-            }
+            InvokeResponseModel a = new InvokeResponseModel();
+            // var receipt = _unitOfWork.Repository<Invoke>().GetByIdGuid(receiptId).Result;
+            // if (receipt == null)
+            // {
+            //     return new BaseResponseViewModel<InvokeResponseModel>()
+            //     {
+            //         Code = StatusCodes.Status404NotFound,
+            //         Message = "Not Found",
+            //     };
+            // }
             switch (status)
             {
                 case (int)ReceiptStatusEnums.Complete:
                     //update debt stauts
-                    var debt = _unitOfWork.Repository<DebtTicket>().GetById((int)receipt.DebtId).Result;
-                    debt.Status = (int)DebtStatusEnums.Complete;
-                    // update order - debt stauts
-                    var order = _unitOfWork.Repository<Order>().AsQueryable(x => x.DebtId == debt.Id);
-                    foreach (var item in order)
-                    {
-                        item.DebtStatus = (int)DebtStatusEnums.Complete;
-                    }
-                    // update receipt stauts
-                    receipt.Status = (int)ReceiptStatusEnums.Complete;
+                    // var debt = _unitOfWork.Repository<DebtTicket>().GetById((int)receipt.DebtId).Result;
+                    // debt.Status = (int)DebtStatusEnums.Complete;
+                    // // update order - debt stauts
+                    // var order = _unitOfWork.Repository<Order>().AsQueryable(x => x.DebtId == debt.Id);
+                    // foreach (var item in order)
+                    // {
+                    //     item.DebtStatus = (int)DebtStatusEnums.Complete;
+                    // }
+                    // // update receipt stauts
+                    // receipt.Status = (int)ReceiptStatusEnums.Complete;
                     try
                     {
-                        await _unitOfWork.Repository<DebtTicket>().UpdateDetached(debt);
-                        await _unitOfWork.Repository<Invoke>().UpdateDetached(receipt);
-                        _unitOfWork.Repository<Order>().UpdateRange(order);
+                        // await _unitOfWork.Repository<DebtTicket>().UpdateDetached(debt);
+                        // await _unitOfWork.Repository<Invoke>().UpdateDetached(receipt);
+                        // _unitOfWork.Repository<Order>().UpdateRange(order);
                         await _unitOfWork.CommitAsync();
                     }
                     catch (Exception ex)
@@ -156,10 +159,10 @@ namespace CES.BusinessTier.Services
                     break;
                 case (int)ReceiptStatusEnums.Cancel:
                     // update receipt stauts
-                    receipt.Status = (int)ReceiptStatusEnums.Cancel;
+                    // receipt.Status = (int)ReceiptStatusEnums.Cancel;
                     try
                     {
-                        await _unitOfWork.Repository<Invoke>().UpdateDetached(receipt);
+                        // await _unitOfWork.Repository<Invoke>().UpdateDetached(receipt);
                         await _unitOfWork.CommitAsync();
                     }
                     catch (Exception ex)
