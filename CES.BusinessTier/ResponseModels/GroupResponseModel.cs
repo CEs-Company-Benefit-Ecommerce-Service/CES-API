@@ -18,9 +18,10 @@ namespace CES.BusinessTier.ResponseModels
         public DateTime? UpdatedAt { get; set; }
         public Guid? CreatedBy { get; set; }
         public Guid? UpdatedBy { get; set; }
-        public int CompanyId { get; set; }
+        //public int CompanyId { get; set; }
 
-        public virtual Company Company { get; set; } = null!;
+        public CompanyResponseModel Company { get; set; } = null!;
+        public List<EmployeeGroupMapping> EmployeeGroupMappings { get; set; }
     }
 
     public partial class GroupAccountResponse

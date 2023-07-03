@@ -16,9 +16,9 @@ namespace CES.BusinessTier.Services
     public interface IGroupAccountServices
     {
         Task<bool> Deleted(Guid id);
-        Task<Group> Created(Guid accountId, Guid projectId);
+        Task<EmployeeGroupMapping> Created(Guid employId, Guid projectId);
         public IEnumerable<Group> Gets(PagingModel paging);
-        Task<bool> CheckAccountInGroup(Guid accountId, Guid projectId);
+        Task<bool> CheckAccountInGroup(Guid employId, Guid projectId);
     }
     public class GroupAccountServices : IGroupAccountServices
     {
@@ -35,17 +35,18 @@ namespace CES.BusinessTier.Services
                 .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging); ;
             return projectAccounts.Item2.ToList();
         }
-        public async Task<Group> Created(Guid accountId, Guid projectId)
+        public async Task<EmployeeGroupMapping> Created(Guid employId, Guid projectId)
         {
-            var newGroupAccount = new Group()
+            var newGroupAccount = new EmployeeGroupMapping()
             {
                 Id = Guid.NewGuid(),
-                // AccountId = accountId,
-                // GroupId = projectId
+                EmployeeId = employId,
+                GroupId = projectId,
+                CreatedAt = TimeUtils.GetCurrentSEATime(),
             };
             try
             {
-                await _unitOfWork.Repository<Group>().InsertAsync(newGroupAccount);
+                await _unitOfWork.Repository<EmployeeGroupMapping>().InsertAsync(newGroupAccount);
                 await _unitOfWork.CommitAsync();
                 return newGroupAccount;
             }
@@ -58,8 +59,8 @@ namespace CES.BusinessTier.Services
         {
             try
             {
-                var projectAccount = _unitOfWork.Repository<Group>().GetByIdGuid(id).Result;
-                _unitOfWork.Repository<Group>().Delete(projectAccount);
+                var projectAccount = _unitOfWork.Repository<EmployeeGroupMapping>().GetByIdGuid(id).Result;
+                _unitOfWork.Repository<EmployeeGroupMapping>().Delete(projectAccount);
                 await _unitOfWork.CommitAsync();
                 return true;
             }
@@ -69,16 +70,16 @@ namespace CES.BusinessTier.Services
             }
         }
 
-        public async Task<bool> CheckAccountInGroup(Guid accountId, Guid projectId)
+        public async Task<bool> CheckAccountInGroup(Guid employId, Guid projectId)
         {
-            var projectAccounts = _unitOfWork.Repository<Group>().GetWhere(x => x.Id == projectId).Result;
+            var projectAccounts = _unitOfWork.Repository<EmployeeGroupMapping>().GetWhere(x => x.GroupId == projectId).Result;
             if (projectAccounts == null)
             {
                 return false;
             }
             foreach (var account in projectAccounts)
             {
-                if (account.Id == accountId)
+                if (account.EmployeeId == employId)
                 {
                     return true;
                 }
