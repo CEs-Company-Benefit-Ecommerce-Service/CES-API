@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper.QueryableExtensions;
 using LAK.Sdk.Core.Utilities;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace CES.BusinessTier.Services
 {
@@ -31,15 +33,23 @@ namespace CES.BusinessTier.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ICategoryService _categoryService;
+        private readonly IHttpContextAccessor _contextAccessor;
 
-        public ProductService(IUnitOfWork unitOfWork, IMapper mapper, ICategoryService categoryService)
+        public ProductService(IUnitOfWork unitOfWork, IMapper mapper, ICategoryService categoryService, IHttpContextAccessor contextAccessor)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _categoryService = categoryService;
+            _contextAccessor = contextAccessor;
         }
         public async Task<BaseResponseViewModel<ProductResponseModel>> CreateProductAsync(ProductRequestModel product)
         {
+            Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
+            var supplier = await _unitOfWork.Repository<Supplier>().AsQueryable(x => x.AccountId == accountLoginId).FirstOrDefaultAsync();
+            if (supplier == null)
+            {
+                throw new ErrorResponse(StatusCodes.Status400BadRequest, (int)ProductErrorEnums.INVALID_PRODUCT, AccountErrorEnums.NOT_HAVE_PERMISSION.GetDisplayName());
+            }
             if (product == null)
             {
                 throw new ErrorResponse(StatusCodes.Status400BadRequest, (int)ProductErrorEnums.INVALID_PRODUCT, ProductErrorEnums.INVALID_PRODUCT.GetDisplayName());
@@ -57,6 +67,7 @@ namespace CES.BusinessTier.Services
             newProduct.Id = Guid.NewGuid();
             newProduct.Status = (int)Status.Active;
             newProduct.CreatedAt = TimeUtils.GetCurrentSEATime();
+            newProduct.SupplierId = supplier.Id;
             await _unitOfWork.Repository<Product>().InsertAsync(newProduct);
             await _unitOfWork.CommitAsync();
             return new BaseResponseViewModel<ProductResponseModel>
@@ -84,23 +95,43 @@ namespace CES.BusinessTier.Services
 
         public async Task<DynamicResponse<ProductResponseModel>> GetAllProductAsync(ProductResponseModel filter, PagingModel paging)
         {
-            var result = _unitOfWork.Repository<Product>().AsQueryable(x => x.Status == (int)Status.Active)
-                .ProjectTo<ProductResponseModel>(_mapper.ConfigurationProvider)
-                .DynamicFilter(filter)
-                .DynamicSort(paging.Sort, paging.Order)
-                .PagingQueryable(paging.Page, paging.Size);
-            return new DynamicResponse<ProductResponseModel>
+            try
             {
-                Code = StatusCodes.Status200OK,
-                Message = "OK",
-                MetaData = new PagingMetaData
+                var result = _unitOfWork.Repository<Product>().AsQueryable(x => x.Status == (int)Status.Active)
+               .ProjectTo<ProductResponseModel>(_mapper.ConfigurationProvider)
+               .DynamicFilter(filter)
+               .DynamicSort(paging.Sort, paging.Order)
+               .PagingQueryable(paging.Page, paging.Size);
+
+                return new DynamicResponse<ProductResponseModel>
                 {
-                    Page = paging.Page,
-                    Size = paging.Size,
-                    Total = result.Item1
-                },
-                Data = await result.Item2.ToListAsync(),
-            };
+                    Code = StatusCodes.Status200OK,
+                    Message = "OK",
+                    MetaData = new PagingMetaData
+                    {
+                        Page = paging.Page,
+                        Size = paging.Size,
+                        Total = result.Item1
+                    },
+                    Data = await result.Item2.ToListAsync(),
+                };
+            }
+            catch (Exception ex)
+            {
+                return new DynamicResponse<ProductResponseModel>
+                {
+                    Code = StatusCodes.Status400BadRequest,
+                    Message = ex.Message,
+                    MetaData = new PagingMetaData
+                    {
+                        Page = paging.Page,
+                        Size = paging.Size,
+                        Total = 0
+                    }
+                };
+            }
+           
+           
         }
 
         public async Task<BaseResponseViewModel<ProductResponseModel>> GetProductAsync(Guid productId, ProductResponseModel filter)
