@@ -164,9 +164,9 @@ namespace CES.BusinessTier.Services
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
             if (request.BenefitId == null)
             {
-                request.BenefitId = 0;
+                request.BenefitId = Guid.Empty;
             }
-            var benefit = _unitOfWork.Repository<Benefit>().GetById((int)request.BenefitId).Result;
+            var benefit = _unitOfWork.Repository<Benefit>().GetByIdGuid((Guid)request.BenefitId).Result;
             var existedWallet = await _unitOfWork.Repository<Wallet>().AsQueryable(x => x.Id == request.Id).Include(x => x.Account).FirstOrDefaultAsync();
             if (existedWallet == null)
             {
@@ -217,12 +217,13 @@ namespace CES.BusinessTier.Services
             {
                 Id = Guid.NewGuid(),
                 SenderId = accountLoginId,
-                // RecieverId = existedWallet.Account.Select(x => existedWallet.Id).FirstOrDefault(),
+                RecieveId = existedWallet.Account.Id,
                 WalletId = existedWallet.Id,
                 Type = (int)WalletTransactionTypeEnums.AddWelfare,
                 Description = "Nhận tiền từ " + benefit.Description,
                 Total = request.Balance,
                 CreatedAt = TimeUtils.GetCurrentSEATime(),
+                CompanyId = benefit.CompanyId,
             };
             // var walletTransactionLog = new TransactionWalletLog()
             // {

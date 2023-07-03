@@ -40,6 +40,8 @@ namespace CES.BusinessTier.Services
 
         public async Task<DynamicResponse<BenefitResponseModel>> GetAllAsync(BenefitResponseModel filter, PagingModel paging)
         {
+            Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
+
             var benefits = _unitOfWork.Repository<Benefit>().AsQueryable(x => x.Status == (int)Status.Active)
                 .ProjectTo<BenefitResponseModel>(_mapper.ConfigurationProvider)
                 .DynamicFilter(filter)
