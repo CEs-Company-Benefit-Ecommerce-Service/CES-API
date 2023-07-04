@@ -76,7 +76,7 @@ namespace CES.BusinessTier.Services
             //     .Include(x => x.OrderDetail)
             //     .ThenInclude(x => x.Product)
             //     .Where(x => x.Id == id).FirstOrDefaultAsync();
-            var orderDetail = await _unitOfWork.Repository<Order>().AsQueryable()
+            var orderDetail = await _unitOfWork.Repository<Order>().AsQueryable(x => x.Id == id).Include(x => x.Employee).ThenInclude(x => x.Account).ThenInclude(x => x.Wallets).Include(x => x.OrderDetails).ThenInclude(x => x.Product).ThenInclude(x => x.Supplier).ThenInclude(x => x.Account)
                 .FirstOrDefaultAsync();
 
             return new BaseResponseViewModel<OrderResponseModel>
@@ -241,7 +241,7 @@ namespace CES.BusinessTier.Services
         {
             var accountLogin = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId)
                                                                         .FirstOrDefaultAsync();
-            if(accountLogin.Role == Roles.EnterpriseAdmin.GetDisplayName() )
+            if (accountLogin.Role == Roles.EnterpriseAdmin.GetDisplayName())
             {
                 var user = _unitOfWork.Repository<Enterprise>().GetWhere(x => x.AccountId == accountLoginId).Result.FirstOrDefault();
                 return user.CompanyId;
