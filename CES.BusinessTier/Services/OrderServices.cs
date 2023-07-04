@@ -49,7 +49,7 @@ namespace CES.BusinessTier.Services
 
         public async Task<DynamicResponse<OrderResponseModel>> GetsAsync(OrderResponseModel filter, PagingModel paging)
         {
-            var orderDetails = _unitOfWork.Repository<Order>().AsQueryable()
+            var order = _unitOfWork.Repository<Order>().AsQueryable()
                            .ProjectTo<OrderResponseModel>(_mapper.ConfigurationProvider)
                            .DynamicFilter(filter)
                            .DynamicSort(paging.Sort, paging.Order)
@@ -63,9 +63,9 @@ namespace CES.BusinessTier.Services
                 {
                     Page = paging.Page,
                     Size = paging.Size,
-                    Total = orderDetails.Item1
+                    Total = order.Item1
                 },
-                Data = await orderDetails.Item2.ToListAsync(),
+                Data = await order.Item2.ToListAsync(),
             };
         }
 
@@ -126,7 +126,8 @@ namespace CES.BusinessTier.Services
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
             var accountLogin = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Wallets).FirstOrDefaultAsync();
             // var companyAddress = _unitOfWork.Repository<Company>().GetWhere(x => x.Id == accountLogin.CompanyId).Result.Select(x => x.Address).FirstOrDefault();
-            var companyAddress = _unitOfWork.Repository<Company>().GetWhere(x => x.Id == 1).Result.Select(x => x.Address).FirstOrDefault();
+            var companyId = await GetCompany(accountLoginId);
+            var companyAddress = _unitOfWork.Repository<Company>().GetWhere(x => x.Id == companyId).Result.Select(x => x.Address).FirstOrDefault();
             #region caculate orderDetail price + total
             foreach (var orderDetail in orderDetails)
             {
@@ -234,6 +235,23 @@ namespace CES.BusinessTier.Services
                 Total = sum,
                 OrderIds = listOrderId
             };
+        }
+
+        private async Task<int> GetCompany(Guid accountLoginId)
+        {
+            var accountLogin = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId)
+                                                                        .FirstOrDefaultAsync();
+            if(accountLogin.Role == Roles.EnterpriseAdmin.GetDisplayName() )
+            {
+                var user = _unitOfWork.Repository<Enterprise>().GetWhere(x => x.AccountId == accountLoginId).Result.FirstOrDefault();
+                return user.CompanyId;
+            }
+            else if (accountLogin.Role == Roles.Employee.GetDisplayName())
+            {
+                var user = _unitOfWork.Repository<Employee>().GetWhere(x => x.AccountId == accountLoginId).Result.FirstOrDefault();
+                return user.CompanyId;
+            }
+            return 0;
         }
 
     }
