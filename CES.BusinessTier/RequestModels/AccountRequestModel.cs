@@ -17,5 +17,6 @@ namespace CES.BusinessTier.RequestModels
         public string? ImageUrl { get; set; }
         public string? Role { get; set; }
         public int? CompanyId { get; set; }
+        public CompanyRequestModel? Company { get; set; }
     }
 }

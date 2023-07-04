@@ -2,6 +2,7 @@
 using CES.BusinessTier.ResponseModels;
 using CES.BusinessTier.ResponseModels.BaseResponseModels;
 using CES.BusinessTier.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -33,6 +34,7 @@ namespace CES.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Employee")]
         public async Task<ActionResult> Post([FromBody] List<OrderDetailsRequestModel>? orderDetails, [FromQuery] string? notes)
         {
             var result = _orderServices.CreateOrder(orderDetails, notes).Result;

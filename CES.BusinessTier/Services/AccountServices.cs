@@ -223,10 +223,11 @@ namespace CES.BusinessTier.Services
             newAccount.Status = (int)Status.Active;
             newAccount.CreatedAt = TimeUtils.GetCurrentSEATime();
 
-            HandleAccountRole(newAccount, (int)requestModel.CompanyId);
 
             try
             {
+                HandleAccountRole(newAccount, requestModel.Company, 0);
+
                 await _unitOfWork.Repository<Account>().InsertAsync(newAccount);
                 await _unitOfWork.CommitAsync();
             }
@@ -386,7 +387,7 @@ namespace CES.BusinessTier.Services
             return account;
         }
 
-        private async Task HandleAccountRole(Account newAccount, int companyId = 0)
+        private async Task HandleAccountRole(Account newAccount, CompanyRequestModel newCompany, int companyId = 0)
         {
             if (Commons.RemoveSpaces(newAccount.Role).ToLower() == Commons.RemoveSpaces(Roles.Employee.GetDisplayName()).ToLower())
             {
@@ -423,21 +424,56 @@ namespace CES.BusinessTier.Services
             {
                 Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value);
                 newAccount.Role = Roles.EnterpriseAdmin.GetDisplayName();
-                if (companyId != null && companyId > 0)
-                {
-                    var company = _unitOfWork.Repository<Company>().Find(x => x.Id == companyId && x.Status == (int)Status.Active)
-                        .FirstOrDefault();
-                    if (company == null)
-                    {
-                        throw new ErrorResponse(StatusCodes.Status404NotFound, (int)CompanyErrorEnums.INVALID_COMPANY_ID, CompanyErrorEnums.INVALID_COMPANY_ID.GetDisplayName());
-                    }
-                    company.ContactPersonId = newAccount.Id;
-                    await _unitOfWork.Repository<Company>().UpdateDetached(company);
 
+                //if (companyId != null && companyId > 0)
+                //{
+                //    var company = _unitOfWork.Repository<Company>().Find(x => x.Id == companyId && x.Status == (int)Status.Active)
+                //        .FirstOrDefault();
+                //    if (company == null)
+                //    {
+                //        throw new ErrorResponse(StatusCodes.Status404NotFound, (int)CompanyErrorEnums.INVALID_COMPANY_ID, CompanyErrorEnums.INVALID_COMPANY_ID.GetDisplayName());
+                //    }
+                //    company.ContactPersonId = newAccount.Id;
+                //    await _unitOfWork.Repository<Company>().UpdateDetached(company);
+
+                //    var user = new Enterprise()
+                //    {
+                //        Id = Guid.NewGuid(),
+                //        CompanyId = (int)companyId,
+                //        AccountId = newAccount.Id,
+                //        Status = (int)Status.Active,
+                //        CreatedAt = TimeUtils.GetCurrentSEATime()
+                //    };
+
+                //    List<Wallet> wallets = new List<Wallet>()
+                //    {
+                //        new Wallet()
+                //        {
+                //            Id = Guid.NewGuid(),
+                //            Name = WalletTypeEnums.GeneralWallet.GetDisplayName(),
+                //            Status = (int)Status.Active,
+                //            Balance = 0,
+                //            CreatedAt = TimeUtils.GetCurrentSEATime(),
+                //            CreatedBy = accountLoginId,
+                //            AccountId = newAccount.Id
+                //        }
+                //    };
+
+                //    await _unitOfWork.Repository<Enterprise>().InsertAsync(user);
+                //    await _unitOfWork.Repository<Wallet>().AddRangeAsync(wallets);
+                //}
+                if (newCompany != null)
+                {
+                    var company = _mapper.Map<Company>(newCompany);
+                    company.CreatedAt = TimeUtils.GetCurrentSEATime();
+                    company.Status = (int) Status.Active;
+                    company.ContactPersonId = newAccount.Id;
+                    company.CreatedBy = accountLoginId;
+                    company.Used = 0;
                     var user = new Enterprise()
                     {
                         Id = Guid.NewGuid(),
-                        CompanyId = (int)companyId,
+                        Company = company,
                         AccountId = newAccount.Id,
                         Status = (int)Status.Active,
                         CreatedAt = TimeUtils.GetCurrentSEATime()
@@ -456,9 +492,16 @@ namespace CES.BusinessTier.Services
                             AccountId = newAccount.Id
                         }
                     };
+                    try
+                    {
+                        await _unitOfWork.Repository<Enterprise>().InsertAsync(user);
+                        await _unitOfWork.Repository<Wallet>().AddRangeAsync(wallets);
+                    }
+                    catch (Exception)
+                    {
+                        throw;
+                    }
 
-                    await _unitOfWork.Repository<Enterprise>().InsertAsync(user);
-                    await _unitOfWork.Repository<Wallet>().AddRangeAsync(wallets);
                 }
             }
 
