@@ -1,5 +1,6 @@
 using CES.API.AppStarts;
 using CES.BusinessTier.Middlewares;
+using Hangfire;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -54,6 +55,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseCors(MyAllowSpecificOrigins);
+
+app.UseHangfireDashboard();
+app.MapHangfireDashboard(); 
+
+BackgroundJobs.RecurringJobs();
 
 app.MapControllers();
 

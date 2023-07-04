@@ -1,7 +1,9 @@
-﻿using CES.BusinessTier.Middlewares;
+﻿using System.Configuration;
+using CES.BusinessTier.Middlewares;
 using CES.BusinessTier.Services;
 using CES.BusinessTier.UnitOfWork;
 using CES.DataTier.Models;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 
 namespace CES.API.AppStarts
@@ -19,6 +21,16 @@ namespace CES.API.AppStarts
             {
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
             });
+            
+            // Add Hangfire services.
+            services.AddHangfire(config => config
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseSqlServerStorage(configuration.GetConnectionString("HangfireConnection")));
+
+            // Add the processing server as IHostedService
+            services.AddHangfireServer();
 
             //services.AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
