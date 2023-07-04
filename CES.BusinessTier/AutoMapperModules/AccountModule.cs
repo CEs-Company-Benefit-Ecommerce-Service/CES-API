@@ -16,6 +16,9 @@ namespace CES.BusinessTier.AutoMapperModules
         public static void ConfigAccountModule(this IMapperConfigurationExpression mc)
         {
             mc.CreateMap<Account, AccountRequestModel>().ReverseMap();
+            mc.CreateMap<AccountRequestModel, Account>()
+                .ForMember(x => x.Role, opt => opt.MapFrom(src => Utilities.Commons.ConvertIntRoleToString((int)src.Role)))
+                .ReverseMap();
             mc.CreateMap<Account, AccountResponseModel>()
                 .ForMember(x => x.Role, opt => opt.MapFrom(src => Utilities.Commons.ConvertStringRoleToInt(src.Role)))
                 .ReverseMap();
@@ -24,6 +27,10 @@ namespace CES.BusinessTier.AutoMapperModules
                 .ReverseMap();
             mc.CreateMap<Account, AccountUpdateModel>().ReverseMap()
                 .ForAllMembers(opts => opts.Condition((_, _, srcMember) => srcMember != null));
+
+            mc.CreateMap<AccountUpdateModel, Account>()
+               .ForMember(x => x.Role, opt => opt.MapFrom(src => Utilities.Commons.ConvertIntRoleToString((int)src.Role)))
+               .ReverseMap();
 
             mc.CreateMap<Employee, UserResponseModel>().ReverseMap()
                 .ForAllMembers(opts => opts.Condition((_, _, srcMember) => srcMember != null)); ;
