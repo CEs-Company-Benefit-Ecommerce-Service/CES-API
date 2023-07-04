@@ -13,7 +13,7 @@ namespace CES.BusinessTier.ResponseModels
         {
             Wallets = new HashSet<WalletResponseModel>();
         }
-        
+
         public Guid Id { get; set; }
         public string? Name { get; set; }
         public string Email { get; set; } = null!;
@@ -21,11 +21,11 @@ namespace CES.BusinessTier.ResponseModels
         public string? Password { get; set; }
         public string? Address { get; set; }
         public string? ImageUrl { get; set; }
-        public string? Role { get; set; }
+        public int? Role { get; set; }
         public int? Status { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
-        
+
         public ICollection<WalletResponseModel> Wallets { get; set; }
     }
     public class AccountAllResponseModel
@@ -37,7 +37,7 @@ namespace CES.BusinessTier.ResponseModels
         public string? Phone { get; set; }
         public string? ImageUrl { get; set; }
         public int? Status { get; set; }
-        public string? Role { get; set; }
+        public int? Role { get; set; }
         public int? CompanyId { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
