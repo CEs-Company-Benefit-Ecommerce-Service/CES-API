@@ -192,6 +192,7 @@ namespace CES.BusinessTier.Services
         }
         public async Task<BaseResponseViewModel<AccountResponseModel>> CreateAccountAsync(AccountRequestModel requestModel)
         {
+            var stringRole = Commons.ConvertIntRoleToString((int)requestModel.Role);
             #region validate value
             var validatePermission = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value;
             switch (validatePermission)
@@ -199,7 +200,7 @@ namespace CES.BusinessTier.Services
                 case "Employee":
                     throw new ErrorResponse(StatusCodes.Status403Forbidden, (int)AccountErrorEnums.NOT_HAVE_PERMISSION, AccountErrorEnums.NOT_HAVE_PERMISSION.GetDisplayName());
                 case "Enterprise Admin":
-                    if (Commons.RemoveSpaces(requestModel.Role).ToLower() != Commons.RemoveSpaces(Roles.Employee.GetDisplayName()).ToLower())
+                    if (Commons.RemoveSpaces(stringRole).ToLower() != Commons.RemoveSpaces(Roles.Employee.GetDisplayName()).ToLower())
                     {
                         throw new ErrorResponse(StatusCodes.Status403Forbidden, (int)AccountErrorEnums.NOT_HAVE_PERMISSION, AccountErrorEnums.NOT_HAVE_PERMISSION.GetDisplayName());
                     };
@@ -466,7 +467,7 @@ namespace CES.BusinessTier.Services
                 {
                     var company = _mapper.Map<Company>(newCompany);
                     company.CreatedAt = TimeUtils.GetCurrentSEATime();
-                    company.Status = (int) Status.Active;
+                    company.Status = (int)Status.Active;
                     company.ContactPersonId = newAccount.Id;
                     company.CreatedBy = accountLoginId;
                     company.Used = 0;

@@ -21,4 +21,15 @@ public static class Commons
         else
             return (int)Roles.SupplierAdmin;
     }
+    public static string ConvertIntRoleToString(int role)
+    {
+        if (role == (int)Roles.SystemAdmin)
+            return Roles.SystemAdmin.GetDisplayName();
+        else if (role == (int)Roles.EnterpriseAdmin)
+            return Roles.EnterpriseAdmin.GetDisplayName();
+        else if (role == (int)Roles.Employee)
+            return Roles.Employee.GetDisplayName();
+        else
+            return Roles.SupplierAdmin.GetDisplayName();
+    }
 }
