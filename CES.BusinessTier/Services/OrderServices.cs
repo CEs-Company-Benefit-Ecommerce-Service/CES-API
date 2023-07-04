@@ -71,11 +71,13 @@ namespace CES.BusinessTier.Services
 
         public async Task<BaseResponseViewModel<OrderResponseModel>> GetById(Guid id)
         {
+            // var orderDetail = await _unitOfWork.Repository<Order>().AsQueryable()
+            //     .Include(x => x.Account)
+            //     .Include(x => x.OrderDetail)
+            //     .ThenInclude(x => x.Product)
+            //     .Where(x => x.Id == id).FirstOrDefaultAsync();
             var orderDetail = await _unitOfWork.Repository<Order>().AsQueryable()
-                .Include(x => x.Account)
-                .Include(x => x.OrderDetail)
-                .ThenInclude(x => x.Product)
-                .Where(x => x.Id == id).FirstOrDefaultAsync();
+                .FirstOrDefaultAsync();
 
             return new BaseResponseViewModel<OrderResponseModel>
             {
@@ -122,20 +124,28 @@ namespace CES.BusinessTier.Services
         {
             // get logined account
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
-            var accountLogin = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Wallet).FirstOrDefaultAsync();
-            var companyAddress = _unitOfWork.Repository<Company>().GetWhere(x => x.Id == accountLogin.CompanyId).Result.Select(x => x.Address).FirstOrDefault();
-
+            var accountLogin = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Wallets).FirstOrDefaultAsync();
+            // var companyAddress = _unitOfWork.Repository<Company>().GetWhere(x => x.Id == accountLogin.CompanyId).Result.Select(x => x.Address).FirstOrDefault();
+            var companyAddress = _unitOfWork.Repository<Company>().GetWhere(x => x.Id == 1).Result.Select(x => x.Address).FirstOrDefault();
             #region caculate orderDetail price + total
             foreach (var orderDetail in orderDetails)
             {
-                var product = _productServices.GetProductAsync((Guid)orderDetail.ProductId, new ProductResponseModel());
-                orderDetail.Price = orderDetail.Quantity * product.Result.Data.Price;
+                var product = _productServices.GetProductAsync((Guid)orderDetail.ProductId, new ProductResponseModel()).Result;
+                if (product.Data.Quantity < orderDetail.Quantity)
+                {
+                    return new BaseResponseViewModel<OrderResponseModel>
+                    {
+                        Code = StatusCodes.Status400BadRequest,
+                        Message = "Product quantity not enough",
+                    };
+                }
+                orderDetail.Price = orderDetail.Quantity * product.Data.Price;
             }
 
             var total = orderDetails.Select(x => x.Price).Sum();
 
             // get account wallet
-            var wallet = accountLogin.Wallet;
+            var wallet = accountLogin.Wallets.Where(x => x.AccountId == accountLoginId).FirstOrDefault();
             if (wallet.Balance < total)
             {
                 return new BaseResponseViewModel<OrderResponseModel>
@@ -147,14 +157,14 @@ namespace CES.BusinessTier.Services
             #endregion
             try
             {
-
+                var employee = _unitOfWork.Repository<Employee>().GetWhere(x => x.AccountId == accountLoginId).Result.FirstOrDefault();
                 // create order
                 var newOrder = new Order()
                 {
                     Id = Guid.NewGuid(),
                     CreatedAt = TimeUtils.GetCurrentSEATime(),
-                    AccountId = accountLoginId,
-                    Status = 0,
+                    EmployeeId = employee.Id,
+                    Status = (int)OrderStatusEnums.New,
                     Total = (double)total,
                     Address = companyAddress,
                     Notes = note,
@@ -172,38 +182,28 @@ namespace CES.BusinessTier.Services
                     };
                 }
 
-                if (wallet.Balance < total)
-                {
-                    wallet.Balance = 0;
-                }
-                else
-                {
-                    wallet.Balance -= total;
-                }
+
+                wallet.Balance -= total;
+
                 wallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
                 //create new transaction
                 var walletTransaction = new Transaction()
                 {
                     Id = Guid.NewGuid(),
-                    WalletId = wallet.Id,
+                    // WalletId = wallet.Id,
                     Type = (int)WalletTransactionTypeEnums.Order,
                     Description = "Mua đồ ",
                     OrderId = newOrder.Id,
                     Total = (double)total,
                     CreatedAt = TimeUtils.GetCurrentSEATime(),
                 };
-                //Create new transaction wallet log
-                var walletTransactionLog = new TransactionWalletLog()
+                foreach (var orderDetail in orderDetails)
                 {
-                    Id = Guid.NewGuid(),
-                    CompanyId = wallet.Account.Select(x => x.CompanyId).FirstOrDefault(),
-                    TransactionId = walletTransaction.Id,
-                    Description = "Log mua đồ || " + TimeUtils.GetCurrentSEATime(),
-                    CreatedAt = TimeUtils.GetCurrentSEATime(),
-                };
-
+                    var product = _unitOfWork.Repository<Product>().GetByIdGuid(orderDetail.ProductId);
+                    product.Result.Quantity = product.Result.Quantity - (int)orderDetail.Quantity;
+                    await _unitOfWork.Repository<Product>().UpdateDetached(product.Result);
+                }
                 await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransaction);
-                await _unitOfWork.Repository<TransactionWalletLog>().InsertAsync(walletTransactionLog);
                 await _unitOfWork.Repository<Wallet>().UpdateDetached(wallet);
                 await _unitOfWork.CommitAsync();
 
@@ -226,11 +226,7 @@ namespace CES.BusinessTier.Services
         public async Task<TotalOrderResponse> GetTotal(int companyId)
         {
             var ordersOfCompany = _unitOfWork.Repository<Order>()
-                .AsQueryable().Include(x => x.Account)
-                .Where(x => x.Account.CompanyId == companyId
-                         && x.Status == (int)OrderStatusEnums.Complete
-                         && x.DebtStatus == (int)DebtStatusEnums.New
-                      );
+                .AsQueryable();
             var sum = await ordersOfCompany.Select(x => x.Total).SumAsync();
             var listOrderId = await ordersOfCompany.Select(x => x.Id).ToListAsync();
             return new TotalOrderResponse()

@@ -9,18 +9,19 @@ namespace CES.BusinessTier.ResponseModels
 {
     public class GroupResponseModel
     {
-        public Guid? Id { get; set; }
+        public Guid Id { get; set; }
         public string? Name { get; set; }
         public int? Status { get; set; }
         public string? ImageUrl { get; set; }
         public string? Description { get; set; }
-        public int? CompanyId { get; set; }
-        public DateTime? CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public Guid? CreatedBy { get; set; }
         public Guid? UpdatedBy { get; set; }
+        //public int CompanyId { get; set; }
 
-        public ICollection<GroupAccountResponse>? GroupAccount { get; set; }
+        public CompanyResponseModel Company { get; set; } = null!;
+        public List<EmployeeGroupMapping> EmployeeGroupMappings { get; set; }
     }
 
     public partial class GroupAccountResponse

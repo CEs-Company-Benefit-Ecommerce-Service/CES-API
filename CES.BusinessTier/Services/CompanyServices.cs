@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
@@ -29,11 +30,13 @@ namespace CES.BusinessTier.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _contextAccessor;
 
-        public CompanyServices(IUnitOfWork unitOfWork, IMapper mapper)
+        public CompanyServices(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor contextAccessor)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _contextAccessor = contextAccessor;
         }
 
         public async Task<DynamicResponse<CompanyResponseModel>> Gets(CompanyResponseModel filter, PagingModel paging)
@@ -77,6 +80,8 @@ namespace CES.BusinessTier.Services
             var newCompany = _mapper.Map<Company>(request);
             newCompany.Status = (int)Status.Active;
             newCompany.CreatedAt = TimeUtils.GetCurrentSEATime();
+            newCompany.CreatedBy = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
+            newCompany.ExpiredDate = ((DateTime)newCompany.ExpiredDate).GetEndOfDate();
             try
             {
                 await _unitOfWork.Repository<Company>().InsertAsync(newCompany);

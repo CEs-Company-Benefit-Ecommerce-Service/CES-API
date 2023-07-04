@@ -16,6 +16,8 @@ namespace CES.BusinessTier.AutoMapperModules
         {
             mc.CreateMap<Benefit, BenefitRequestModel>().ReverseMap();
             mc.CreateMap<Benefit, BenefitResponseModel>().ReverseMap();
+            mc.CreateMap<Benefit, BenefitUpdateModel>().ReverseMap()
+                .ForAllMembers(opts => opts.Condition((_, _, srcMember) => srcMember != null));
         }
     }
 }

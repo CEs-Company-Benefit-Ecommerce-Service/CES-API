@@ -25,8 +25,8 @@ namespace CES.BusinessTier.RequestModels
 
     public class WalletUpdateBalanceModel
     {
-        public Guid Id { get; set; }
-        public int? BenefitId { get; set; }
+        public Guid? Id { get; set; }
+        public Guid? BenefitId { get; set; }
         public double Balance { get; set; }
         public int Type { get; set; }
         public Guid? OrderId { get; set; }

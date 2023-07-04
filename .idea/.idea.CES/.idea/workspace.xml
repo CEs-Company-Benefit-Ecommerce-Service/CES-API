@@ -8,8 +8,70 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c33e2030-59db-4d3d-a633-8e65857e01e7" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/DebtTicketRequestModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/DiscountRequestModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/EmployeeRequestModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/EnterpriseRequestModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/SupplierRequestModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/DiscountResponseModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/EmployeeResponseModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/EnterpriseResponseModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/SupplierResponseModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/UserResponseModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/Utilities/Commons.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/DebtNotes.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.DataTier/Models/DebtNotes.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.API/Controllers/AccountController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.API/Controllers/AccountController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.API/Controllers/BenefitController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.API/Controllers/BenefitController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.API/appsettings.Development.json" beforeDir="false" afterPath="$PROJECT_DIR$/CES.API/appsettings.Development.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/AutoMapperModules/AccountModule.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/AutoMapperModules/AccountModule.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/AutoMapperModules/BenefitModule.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/AutoMapperModules/BenefitModule.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/AutoMapperModules/DebtModule.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/AutoMapperModules/DebtModule.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/AutoMapperModules/ProjectModule.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/AutoMapperModules/ProjectModule.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/AccountRequestModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/AccountRequestModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/AccountUpdateModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/AccountUpdateModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/BenefitRequestModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/BenefitRequestModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/CategoryRequestModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/CategoryRequestModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/CompanyRequestModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/CompanyRequestModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/GroupRequestModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/GroupRequestModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/ProductRequestModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/ProductRequestModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/AccountResponseModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/AccountResponseModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/BenefitResponseModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/BenefitResponseModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/CategoryResponseModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/CategoryResponseModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/CompanyResponseModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/CompanyResponseModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/DebtTicketResponseModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/DebtTicketResponseModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/GroupResponseModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/GroupResponseModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/OrderDetailsResponseModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/OrderDetailsResponseModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/ProductResponseModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/ProductResponseModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/AccountServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/AccountServices.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/BenefitServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/BenefitServices.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/CompanyServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/CompanyServices.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/ExcelService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/ExcelService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupAccountServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupAccountServices.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupServices.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/LoginServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/LoginServices.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/ReceiptServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/ReceiptServices.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/WalletServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/WalletServices.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Utilities/Authen.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Utilities/Authen.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Utilities/Enums.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Utilities/Enums.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Account.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Benefit.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/CEsData_devContext.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Category.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Company.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/DebtTicket.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Discount.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Group.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/GroupAccount.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Invoke.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Order.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/OrderDetail.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Product.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Role.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Transaction.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/TransactionWalletLog.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Wallet.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/note.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CES.DataTier/note.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,10 +84,12 @@
     <setting file="file://$PROJECT_DIR$/CES.BusinessTier/Services/ProductService.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/CES.BusinessTier/Services/TransactionService.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/CES.BusinessTier/Services/WalletServices.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/CES.DataTier/Models/Transaction.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/CES.DataTier/Models/CEsData_devContext.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/20e384ee21504e0888002bf172dcbbd3196200/8e/91777ef3/JobStorage.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/528dd480fcfa493785cfd91f2ba7c12b1569d0/3e/cf211f8d/SqlInternalConnectionTds.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/1139bec68f639ea68cf7ec50a3d2dcb5f2ebeeb7e1ed5151656aa3f3ac56cbfe/NavigationExpandingExpressionVisitor.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/134622bcf8ad016d3faf7776eb0457b76a5798c537458aa82651ab2cee6e1/ThrowHelper.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/17a25bf4cd58852e31b6bc798fef1d6289441360eea1912bf89a9b4fd337a3/SingleQueryingEnumerable.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/6f2c3a317ee06bc1b0766b94d4e6a045ea25c9a3da49cb9075bcee751250d4/ControllerActionInvoker.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/7262732eee179af215faab36a7f3c3cfac93ba12af52a3888d839fe7e53420/ActionMethodExecutor.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/a8d75b28dec5e779cd4bf572bf3e5b2e7ab41689581f58caeb251b564d3cd78d/SelectExpression.cs" root0="SKIP_HIGHLIGHTING" />
@@ -34,6 +98,9 @@
     <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectId" id="2QgnE8FxyxuXfcMoO9xPF0SGfAM" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -153,42 +220,55 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/WalletServices.cs</url>
-          <line>228</line>
+          <line>229</line>
           <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/WalletServices.cs" initialLine="228" containingFunctionPresentation="Method 'CreateWalletForAccountDontHaveEnough'">
             <startOffsets>
-              <option value="8772" />
+              <option value="8888" />
             </startOffsets>
             <endOffsets>
-              <option value="9053" />
+              <option value="9169" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="5" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/ExcelService.cs</url>
-          <line>538</line>
-          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/ExcelService.cs" initialLine="523" containingFunctionPresentation="Method 'TransferBalanceForEmployee'">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/LoginServices.cs</url>
+          <line>46</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/LoginServices.cs" initialLine="46" containingFunctionPresentation="Method 'GetCurrentLoginAccount'">
             <startOffsets>
-              <option value="24525" />
+              <option value="1672" />
             </startOffsets>
             <endOffsets>
-              <option value="24578" />
+              <option value="1793" />
             </endOffsets>
           </properties>
-          <option name="timeStamp" value="22" />
+          <option name="timeStamp" value="30" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/DebtServices.cs</url>
-          <line>44</line>
-          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/DebtServices.cs" initialLine="44" containingFunctionPresentation="Method 'GetsAsync'">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/CompanyServices.cs</url>
+          <line>79</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/CompanyServices.cs" initialLine="76" containingFunctionPresentation="Method 'CreateNew'">
             <startOffsets>
-              <option value="1716" />
+              <option value="3058" />
             </startOffsets>
             <endOffsets>
-              <option value="2005" />
+              <option value="3105" />
             </endOffsets>
           </properties>
-          <option name="timeStamp" value="24" />
+          <option name="timeStamp" value="31" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/AccountServices.cs</url>
+          <line>73</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/AccountServices.cs" initialLine="75" containingFunctionPresentation="Method 'Gets'">
+            <startOffsets>
+              <option value="3013" />
+            </startOffsets>
+            <endOffsets>
+              <option value="3286" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="34" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

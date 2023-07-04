@@ -9,11 +9,11 @@ namespace CES.BusinessTier.ResponseModels
 {
     public class OrderDetailsResponseModel
     {
-        public Guid? Id { get; set; }
+        public Guid Id { get; set; }
         public double? Price { get; set; }
         public int? Quantity { get; set; }
-        public DateTime? CreatedAt { get; set; }
         public string? Notes { get; set; }
+        public DateTime CreatedAt { get; set; }
 
         public ProductResponseModel? Product { get; set; }
     }

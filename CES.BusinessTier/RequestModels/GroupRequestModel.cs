@@ -9,7 +9,6 @@ namespace CES.BusinessTier.RequestModels
     public class GroupRequestModel
     {
         public string? Name { get; set; }
-        public int? Status { get; set; }
         public string? ImageUrl { get; set; }
         public string? Description { get; set; }
     }

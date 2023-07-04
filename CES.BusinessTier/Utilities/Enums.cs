@@ -47,9 +47,9 @@ namespace CES.BusinessTier.Utilities
     }
     public enum WalletTypeEnums
     {
-        [Display(Name = "Food Wallet")] FoodWallet = 1,
+        [Display(Name = "General Wallet")] GeneralWallet= 1,
         [Display(Name = "Stationery Wallet")] StationeryWallet = 2,
-        [Display(Name = "General Wallet")] GeneralWallet = 3
+        [Display(Name = "Food Wallet")] FoodWallet  = 3
     }
     public enum WalletTransactionTypeEnums
     {
@@ -69,9 +69,10 @@ namespace CES.BusinessTier.Utilities
     public enum OrderStatusEnums
     {
         [Display(Name = "New")] New = 1,
-        [Display(Name = "Shipping")] Shipping = 2,
-        [Display(Name = "Complete")] Complete = 3,
-        [Display(Name = "Cancel")] Cancel = 4,
+        [Display(Name = "Ready")] Ready = 2,
+        [Display(Name = "Shipping")] Shipping = 3,
+        [Display(Name = "Complete")] Complete = 4,
+        [Display(Name = "Cancel")] Cancel = 5,
     }
     public enum DebtStatusEnums
     {

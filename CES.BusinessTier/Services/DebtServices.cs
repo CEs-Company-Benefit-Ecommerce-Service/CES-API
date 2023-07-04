@@ -124,6 +124,20 @@ namespace CES.BusinessTier.Services
         public async Task<BaseResponseViewModel<DebtTicketResponseModel>> CreateAsync(int companyId)
         {
             var totalOrderResult = _orderServices.GetTotal(companyId).Result;
+            var enterprise = _unitOfWork.Repository<Enterprise>().GetWhere(x => x.CompanyId == companyId && x.Status == (int)Status.Active).Result.FirstOrDefault();
+            var accountWallet = _unitOfWork.Repository<Account>().GetAll().Include(x => x.Wallets)
+                                                                .Where(x => x.Id == enterprise.AccountId)
+                                                                .Select(x => x.Wallets.FirstOrDefault())
+                                                                .FirstOrDefault();
+            if (accountWallet.Balance > 0)
+            {
+                return new BaseResponseViewModel<DebtTicketResponseModel>
+                {
+                    Code = StatusCodes.Status200OK,
+                    Message = "This company have not debt",
+                };
+            }
+
             var debt = new DebtTicket()
             {
                 CompanyId = companyId,
@@ -131,21 +145,12 @@ namespace CES.BusinessTier.Services
                 Name = "Tat toan ....",
                 InfoPayment = "MoMo: .... \nSTK: ...",
                 Status = (int)DebtStatusEnums.New,
-                Total = totalOrderResult.Total,
+                Total = Math.Abs((double)accountWallet.Balance),
                 UpdatedAt = TimeUtils.GetCurrentSEATime(),
-
-                //OrderId = totalOrderResult.OrderIds.ToString(),
             };
-            var updateOrder = new List<Order>();
-            foreach (var item in totalOrderResult.OrderIds)
-            {
-                var order = _unitOfWork.Repository<Order>().GetByIdGuid(item).Result;
-                order.DebtId = debt.Id;
-                updateOrder.Add(order);
-            }
+
             try
             {
-                _unitOfWork.Repository<Order>().UpdateRange(updateOrder.AsQueryable());
                 await _unitOfWork.Repository<DebtTicket>().InsertAsync(debt);
                 await _unitOfWork.CommitAsync();
 
@@ -165,19 +170,40 @@ namespace CES.BusinessTier.Services
                 };
             }
         }
-        //public async Task<BaseResponseViewModel<DebtTicketResponseModel>> UpdateAsync(Guid debtId, )
-        //{
-        //    var existedDebt = _unitOfWork.Repository<DebtTicket>().GetByIdGuid(debtId).Result;
-        //    if (existedDebt == null)
-        //    {
-        //        return new BaseResponseViewModel<DebtTicketResponseModel>()
-        //        {
-        //            Code = StatusCodes.Status404NotFound,
-        //            Message = "Not Found",
-        //        };
-        //    }
-
-        //}
+        public async Task<BaseResponseViewModel<DebtTicketResponseModel>> UpdateAsync(Guid debtId, int status)
+        {
+            var existedDebt = _unitOfWork.Repository<DebtTicket>().GetByIdGuid(debtId).Result;
+            if (existedDebt == null)
+            {
+                return new BaseResponseViewModel<DebtTicketResponseModel>()
+                {
+                    Code = StatusCodes.Status404NotFound,
+                    Message = "Not Found",
+                };
+            }
+            if (status == (int)DebtStatusEnums.Complete)
+                existedDebt.Status = (int)DebtStatusEnums.Complete;
+            else if (status == (int)DebtStatusEnums.Cancel)
+                existedDebt.Status = (int)DebtStatusEnums.Cancel;
+            try
+            {
+                await _unitOfWork.Repository<DebtTicket>().UpdateDetached(existedDebt);
+                await _unitOfWork.CommitAsync();
+                return new BaseResponseViewModel<DebtTicketResponseModel>()
+                {
+                    Code = StatusCodes.Status204NoContent,
+                    Message = "No content",
+                };
+            }
+            catch (Exception)
+            {
+                return new BaseResponseViewModel<DebtTicketResponseModel>()
+                {
+                    Code = StatusCodes.Status400BadRequest,
+                    Message = "Bad request",
+                };
+            }
+        }
         public async Task<BaseResponseViewModel<DebtTicketResponseModel>> DeleteAsync(Guid debtId)
         {
             var existedDebt = _unitOfWork.Repository<DebtTicket>().GetByIdGuid(debtId).Result;
