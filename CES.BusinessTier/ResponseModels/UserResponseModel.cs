@@ -10,5 +10,7 @@ public class UserResponseModel
     public int? Status { get; set; }
     public DateTime? CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
-    
+
+    public AccountResponseModel? Account { get; set; }
+
 }
