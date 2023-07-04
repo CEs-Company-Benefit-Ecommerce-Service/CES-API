@@ -19,7 +19,9 @@ namespace CES.BusinessTier.AutoMapperModules
             mc.CreateMap<Account, AccountResponseModel>()
                 .ForMember(x => x.Role, opt => opt.MapFrom(src => Utilities.Commons.ConvertStringRoleToInt(src.Role)))
                 .ReverseMap();
-            mc.CreateMap<Account, AccountAllResponseModel>().ReverseMap();
+            mc.CreateMap<Account, AccountAllResponseModel>()
+                .ForMember(x => x.Role, opt => opt.MapFrom(src => Utilities.Commons.ConvertStringRoleToInt(src.Role)))
+                .ReverseMap();
             mc.CreateMap<Account, AccountUpdateModel>().ReverseMap()
                 .ForAllMembers(opts => opts.Condition((_, _, srcMember) => srcMember != null));
 
