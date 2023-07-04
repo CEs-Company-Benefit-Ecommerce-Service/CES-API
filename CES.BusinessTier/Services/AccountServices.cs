@@ -17,6 +17,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Security.Claims;
 using System.Security.Principal;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CES.BusinessTier.Services
 {
@@ -154,7 +155,8 @@ namespace CES.BusinessTier.Services
                             user.UpdatedAt = TimeUtils.GetCurrentSEATime();
                             await _unitOfWork.Repository<Enterprise>().UpdateDetached(user);
                         }
-                    } else if (Commons.RemoveSpaces(temp.Role).ToLower() ==
+                    }
+                    else if (Commons.RemoveSpaces(temp.Role).ToLower() ==
                                Commons.RemoveSpaces(Roles.Employee.GetDisplayName()).ToLower())
                     {
                         var user = _unitOfWork.Repository<Employee>()
@@ -222,7 +224,7 @@ namespace CES.BusinessTier.Services
             newAccount.CreatedAt = TimeUtils.GetCurrentSEATime();
 
             HandleAccountRole(newAccount, (int)requestModel.CompanyId);
-            
+
             try
             {
                 await _unitOfWork.Repository<Account>().InsertAsync(newAccount);
@@ -278,7 +280,8 @@ namespace CES.BusinessTier.Services
                     user.UpdatedAt = TimeUtils.GetCurrentSEATime();
                     await _unitOfWork.Repository<Enterprise>().UpdateDetached(user);
                 }
-            } else if (Commons.RemoveSpaces(account.Role).ToLower() ==
+            }
+            else if (Commons.RemoveSpaces(account.Role).ToLower() ==
                        Commons.RemoveSpaces(Roles.Employee.GetDisplayName()).ToLower())
             {
                 var user = _unitOfWork.Repository<Employee>()
@@ -289,7 +292,8 @@ namespace CES.BusinessTier.Services
                     user.UpdatedAt = TimeUtils.GetCurrentSEATime();
                     await _unitOfWork.Repository<Employee>().UpdateDetached(user);
                 }
-            } else if (Commons.RemoveSpaces(account.Role).ToLower() ==
+            }
+            else if (Commons.RemoveSpaces(account.Role).ToLower() ==
                        Commons.RemoveSpaces(Roles.SupplierAdmin.GetDisplayName()).ToLower())
             {
                 var user = _unitOfWork.Repository<Supplier>()
@@ -411,7 +415,7 @@ namespace CES.BusinessTier.Services
                         AccountId = newAccount.Id
                     }
                 };
-                
+
                 await _unitOfWork.Repository<Employee>().InsertAsync(user);
                 await _unitOfWork.Repository<Wallet>().AddRangeAsync(wallets);
             }
@@ -429,7 +433,7 @@ namespace CES.BusinessTier.Services
                     }
                     company.ContactPersonId = newAccount.Id;
                     await _unitOfWork.Repository<Company>().UpdateDetached(company);
-                    
+
                     var user = new Enterprise()
                     {
                         Id = Guid.NewGuid(),
@@ -438,7 +442,7 @@ namespace CES.BusinessTier.Services
                         Status = (int)Status.Active,
                         CreatedAt = TimeUtils.GetCurrentSEATime()
                     };
-                    
+
                     List<Wallet> wallets = new List<Wallet>()
                     {
                         new Wallet()
@@ -452,7 +456,7 @@ namespace CES.BusinessTier.Services
                             AccountId = newAccount.Id
                         }
                     };
-                    
+
                     await _unitOfWork.Repository<Enterprise>().InsertAsync(user);
                     await _unitOfWork.Repository<Wallet>().AddRangeAsync(wallets);
                 }
