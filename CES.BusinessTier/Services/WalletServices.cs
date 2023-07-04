@@ -17,6 +17,7 @@ using System.Net.NetworkInformation;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Hangfire;
 
 namespace CES.BusinessTier.Services
 {
@@ -28,8 +29,10 @@ namespace CES.BusinessTier.Services
         Task<BaseResponseViewModel<WalletResponseModel>> CreateAsync(WalletRequestModel request);
         Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletInfoAsync(Guid id, WalletInfoRequestModel request);
         Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletBalanceAsync(WalletUpdateBalanceModel request);
+        Task ScheduleUpdateWalletBalanceForGroupAsync(WalletUpdateBalanceModel request, DateTime time);
         Task CreateWalletForAccountDontHaveEnough();
     }
+
     public class WalletServices : IWalletServices
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -37,7 +40,8 @@ namespace CES.BusinessTier.Services
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _contextAccessor;
 
-        public WalletServices(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration, IHttpContextAccessor contextAccessor)
+        public WalletServices(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration,
+            IHttpContextAccessor contextAccessor)
         {
             _configuration = configuration;
             _unitOfWork = unitOfWork;
@@ -48,8 +52,8 @@ namespace CES.BusinessTier.Services
         public async Task<DynamicResponse<WalletResponseModel>> GetsAsync(PagingModel pagingModel)
         {
             var wallets = _unitOfWork.Repository<Wallet>().AsQueryable()
-            .ProjectTo<WalletResponseModel>(_mapper.ConfigurationProvider)
-               .PagingQueryable(pagingModel.Page, pagingModel.Size, Constants.LimitPaging, Constants.DefaultPaging);
+                .ProjectTo<WalletResponseModel>(_mapper.ConfigurationProvider)
+                .PagingQueryable(pagingModel.Page, pagingModel.Size, Constants.LimitPaging, Constants.DefaultPaging);
             var wa = _unitOfWork.Repository<Wallet>().AsQueryable();
             return new DynamicResponse<WalletResponseModel>
             {
@@ -59,6 +63,7 @@ namespace CES.BusinessTier.Services
                 Data = await wallets.Item2.ToListAsync()
             };
         }
+
         public BaseResponseViewModel<List<WalletResponseModel>> GetWalletsAccount(Guid accountId)
         {
             // var wallets = _unitOfWork.Repository<Wallet>().GetAll().Where(x => x.Account.Select(x => x.Id).FirstOrDefault() == accountId);
@@ -78,6 +83,7 @@ namespace CES.BusinessTier.Services
                 Data = _mapper.Map<List<WalletResponseModel>>(wallets)
             };
         }
+
         public BaseResponseViewModel<WalletResponseModel> Get(Guid id)
         {
             var wallet = _unitOfWork.Repository<Wallet>().GetByIdGuid(id);
@@ -89,6 +95,7 @@ namespace CES.BusinessTier.Services
                     Message = "Not found",
                 };
             }
+
             return new BaseResponseViewModel<WalletResponseModel>
             {
                 Code = 200,
@@ -126,7 +133,9 @@ namespace CES.BusinessTier.Services
                 };
             }
         }
-        public async Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletInfoAsync(Guid id, WalletInfoRequestModel request)
+
+        public async Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletInfoAsync(Guid id,
+            WalletInfoRequestModel request)
         {
             var existedWallet = _unitOfWork.Repository<Wallet>().GetByIdGuid(id).Result;
             if (existedWallet == null)
@@ -137,6 +146,7 @@ namespace CES.BusinessTier.Services
                     Message = "Not found",
                 };
             }
+
             _mapper.Map<WalletInfoRequestModel, Wallet>(request, existedWallet);
             existedWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
             try
@@ -159,15 +169,20 @@ namespace CES.BusinessTier.Services
                 };
             }
         }
-        public async Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletBalanceAsync(WalletUpdateBalanceModel request)
+
+        public async Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletBalanceAsync(
+            WalletUpdateBalanceModel request)
         {
-            Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
+            Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value
+                .ToString());
             if (request.BenefitId == null)
             {
                 request.BenefitId = Guid.Empty;
             }
+
             var benefit = _unitOfWork.Repository<Benefit>().GetByIdGuid((Guid)request.BenefitId).Result;
-            var existedWallet = await _unitOfWork.Repository<Wallet>().AsQueryable(x => x.Id == request.Id).Include(x => x.Account).FirstOrDefaultAsync();
+            var existedWallet = await _unitOfWork.Repository<Wallet>().AsQueryable(x => x.Id == request.Id)
+                .Include(x => x.Account).FirstOrDefaultAsync();
             if (existedWallet == null)
             {
                 return new BaseResponseViewModel<WalletResponseModel>
@@ -176,6 +191,7 @@ namespace CES.BusinessTier.Services
                     Message = "Not found",
                 };
             }
+
             switch (request.Type)
             {
                 case 1:
@@ -188,6 +204,7 @@ namespace CES.BusinessTier.Services
                             Message = "No found",
                         };
                     }
+
                     if (request.Balance > benefit.UnitPrice)
                     {
                         return new BaseResponseViewModel<WalletResponseModel>
@@ -196,6 +213,7 @@ namespace CES.BusinessTier.Services
                             Message = "Balance was higher than unit price of benefit",
                         };
                     }
+
                     existedWallet.Balance += request.Balance;
                     break;
                 case 2:
@@ -208,10 +226,12 @@ namespace CES.BusinessTier.Services
                     {
                         existedWallet.Balance -= request.Balance;
                     }
+
                     break;
                 default:
                     break;
             }
+
             existedWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
             var walletTransaction = new Transaction()
             {
@@ -238,6 +258,142 @@ namespace CES.BusinessTier.Services
                 await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransaction);
                 // await _unitOfWork.Repository<TransactionWalletLog>().InsertAsync(walletTransactionLog);
                 await _unitOfWork.Repository<Wallet>().UpdateDetached(existedWallet);
+                await _unitOfWork.CommitAsync();
+
+                return new BaseResponseViewModel<WalletResponseModel>
+                {
+                    Code = 204,
+                    Message = "No content",
+                };
+            }
+            catch (Exception)
+            {
+                return new BaseResponseViewModel<WalletResponseModel>
+                {
+                    Code = 400,
+                    Message = "Bad request",
+                };
+            }
+        }
+
+        public async Task ScheduleUpdateWalletBalanceForGroupAsync(
+            WalletUpdateBalanceModel request, DateTime time)
+        {
+            Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value
+                .ToString());
+            if (request.BenefitId == null)
+            {
+                request.BenefitId = Guid.Empty;
+            }
+            DateTimeOffset dateTimeOffset = new DateTimeOffset(time);
+            if (time < TimeUtils.GetCurrentSEATime())
+            {
+                dateTimeOffset = new DateTimeOffset(TimeUtils.GetCurrentSEATime());
+                dateTimeOffset = dateTimeOffset.AddMinutes(2);
+            }
+            BackgroundJob.Schedule(() => UpdateWalletBalanceForGroupAsync(request, accountLoginId), dateTimeOffset);
+        }
+
+        public async Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletBalanceForGroupAsync(
+            WalletUpdateBalanceModel request, Guid accountLoginId)
+        {
+            var group = _unitOfWork.Repository<EmployeeGroupMapping>().AsQueryable(x => x.GroupId == request.Id)
+                .Include(x => x.Employee)
+                .ThenInclude(x => x.Account)
+                .ThenInclude(x => x.Wallets);
+            if (request.BenefitId == null)
+            {
+                request.BenefitId = Guid.Empty;
+            }
+
+            var benefit = _unitOfWork.Repository<Benefit>().GetByIdGuid((Guid)request.BenefitId).Result;
+            switch (request.Type)
+            {
+                case 1:
+
+                    if (benefit == null)
+                    {
+                        return new BaseResponseViewModel<WalletResponseModel>
+                        {
+                            Code = (int)StatusCodes.Status404NotFound,
+                            Message = "No found",
+                        };
+                    }
+
+                    if (request.Balance > benefit.UnitPrice)
+                    {
+                        return new BaseResponseViewModel<WalletResponseModel>
+                        {
+                            Code = (int)StatusCodes.Status400BadRequest,
+                            Message = "Balance was higher than unit price of benefit",
+                        };
+                    }
+
+                    foreach (var employeeGroup in group)
+                    {
+                        foreach (var wallet in employeeGroup.Employee.Account.Wallets)
+                        {
+                            wallet.Balance += request.Balance;
+                            wallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
+                            var walletTransaction = new Transaction()
+                            {
+                                Id = Guid.NewGuid(),
+                                SenderId = accountLoginId,
+                                RecieveId = wallet.AccountId,
+                                WalletId = wallet.Id,
+                                Type = (int)WalletTransactionTypeEnums.AddWelfare,
+                                Description = "Nhận tiền từ " + benefit.Description,
+                                Total = request.Balance,
+                                CreatedAt = TimeUtils.GetCurrentSEATime(),
+                                CompanyId = benefit.CompanyId,
+                            };
+                            await _unitOfWork.Repository<Wallet>().UpdateDetached(wallet);
+                            await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransaction);
+                        }
+                    }
+
+                    break;
+                case 2:
+
+                    foreach (var employeeGroup in group)
+                    {
+                        foreach (var wallet in employeeGroup.Employee.Account.Wallets)
+                        {
+                            if (wallet.Balance < request.Balance)
+                            {
+                                wallet.Balance = 0;
+                                wallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
+                                var walletTransaction = new Transaction()
+                                {
+                                    Id = Guid.NewGuid(),
+                                    SenderId = accountLoginId,
+                                    RecieveId = wallet.AccountId,
+                                    WalletId = wallet.Id,
+                                    Type = (int)WalletTransactionTypeEnums.AddWelfare,
+                                    Description = "Nhận tiền từ " + benefit.Description,
+                                    Total = request.Balance,
+                                    CreatedAt = TimeUtils.GetCurrentSEATime(),
+                                    CompanyId = benefit.CompanyId,
+                                };
+                                await _unitOfWork.Repository<Wallet>().UpdateDetached(wallet);
+                                await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransaction);
+                            }
+                            else
+                            {
+                                wallet.Balance -= request.Balance;
+                                wallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
+                                await _unitOfWork.Repository<Wallet>().UpdateDetached(wallet);
+                            }
+                        }
+                    }
+
+                    break;
+                default:
+                    break;
+            }
+
+            try
+            {
                 await _unitOfWork.CommitAsync();
 
                 return new BaseResponseViewModel<WalletResponseModel>

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
+using Hangfire;
 
 namespace CES.API.Controllers
 {
@@ -117,8 +118,27 @@ namespace CES.API.Controllers
             var result = _walletServices.UpdateWalletBalanceAsync(request).Result;
             return StatusCode((int)result.Code, result);
         }
-
+        
         /// <summary>
+        /// update wallet balance, only Enterprise can use
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="balance"></param>
+        /// <returns></returns>
+        [HttpPut("balance/group")]
+        [SwaggerOperation(summary: "Type", description: "1 - Add, 2 - Minus")]
+        public async Task<IActionResult> UpdateWalletBalanceForGroupAsync([FromBody] WalletUpdateBalanceModel request, [FromQuery] DateTime time)
+        {
+            var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value.ToString();
+            if (role != Roles.EnterpriseAdmin.GetDisplayName())
+            {
+                return StatusCode(401);
+            }
+            await _walletServices.ScheduleUpdateWalletBalanceForGroupAsync(request, time);
+            return Ok();
+        }
+
+        /// <summary>a
         /// Api này để BE pùa pùa database, sau sẽ xoá
         /// </summary>
         [HttpPut("updateWallet")]
