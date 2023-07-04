@@ -409,26 +409,6 @@ namespace CES.BusinessTier.Services
                         CreatedAt = TimeUtils.GetCurrentSEATime(),
                         CreatedBy = accountLoginId,
                         AccountId = newAccount.Id
-                    },
-                    new Wallet()
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = WalletTypeEnums.StationeryWallet.GetDisplayName(),
-                        Status = (int)Status.Active,
-                        Balance = 0,
-                        CreatedAt = TimeUtils.GetCurrentSEATime(),
-                        CreatedBy = accountLoginId,
-                        AccountId = newAccount.Id
-                    },
-                    new Wallet()
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = WalletTypeEnums.FoodWallet.GetDisplayName(),
-                        Status = (int)Status.Active,
-                        Balance = 0,
-                        CreatedAt = TimeUtils.GetCurrentSEATime(),
-                        CreatedBy = accountLoginId,
-                        AccountId = newAccount.Id
                     }
                 };
                 

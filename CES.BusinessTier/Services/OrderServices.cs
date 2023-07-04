@@ -130,33 +130,41 @@ namespace CES.BusinessTier.Services
             #region caculate orderDetail price + total
             foreach (var orderDetail in orderDetails)
             {
-                var product = _productServices.GetProductAsync((Guid)orderDetail.ProductId, new ProductResponseModel());
-                orderDetail.Price = orderDetail.Quantity * product.Result.Data.Price;
+                var product = _productServices.GetProductAsync((Guid)orderDetail.ProductId, new ProductResponseModel()).Result;
+                if (product.Data.Quantity < orderDetail.Quantity)
+                {
+                    return new BaseResponseViewModel<OrderResponseModel>
+                    {
+                        Code = StatusCodes.Status400BadRequest,
+                        Message = "Product quantity not enough",
+                    };
+                }
+                orderDetail.Price = orderDetail.Quantity * product.Data.Price;
             }
 
             var total = orderDetails.Select(x => x.Price).Sum();
 
             // get account wallet
-            // var wallet = accountLogin.Wallet;
-            // if (wallet.Balance < total)
-            // {
-            //     return new BaseResponseViewModel<OrderResponseModel>
-            //     {
-            //         Code = StatusCodes.Status400BadRequest,
-            //         Message = "Balance in wallet not enough",
-            //     };
-            // }
+            var wallet = accountLogin.Wallets.Where(x => x.AccountId == accountLoginId).FirstOrDefault();
+            if (wallet.Balance < total)
+            {
+                return new BaseResponseViewModel<OrderResponseModel>
+                {
+                    Code = StatusCodes.Status400BadRequest,
+                    Message = "Balance in wallet not enough",
+                };
+            }
             #endregion
             try
             {
-
+                var employee = _unitOfWork.Repository<Employee>().GetWhere(x => x.AccountId == accountLoginId).Result.FirstOrDefault();
                 // create order
                 var newOrder = new Order()
                 {
                     Id = Guid.NewGuid(),
                     CreatedAt = TimeUtils.GetCurrentSEATime(),
-                    // AccountId = accountLoginId,
-                    Status = 0,
+                    EmployeeId = employee.Id,
+                    Status = (int)OrderStatusEnums.New,
                     Total = (double)total,
                     Address = companyAddress,
                     Notes = note,
@@ -174,15 +182,10 @@ namespace CES.BusinessTier.Services
                     };
                 }
 
-                // if (wallet.Balance < total)
-                // {
-                //     wallet.Balance = 0;
-                // }
-                // else
-                // {
-                //     wallet.Balance -= total;
-                // }
-                // wallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
+
+                wallet.Balance -= total;
+
+                wallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
                 //create new transaction
                 var walletTransaction = new Transaction()
                 {
@@ -194,19 +197,14 @@ namespace CES.BusinessTier.Services
                     Total = (double)total,
                     CreatedAt = TimeUtils.GetCurrentSEATime(),
                 };
-                //Create new transaction wallet log
-                // var walletTransactionLog = new TransactionWalletLog()
-                // {
-                //     Id = Guid.NewGuid(),
-                //     CompanyId = wallet.Account.Select(x => x.CompanyId).FirstOrDefault(),
-                //     TransactionId = walletTransaction.Id,
-                //     Description = "Log mua đồ || " + TimeUtils.GetCurrentSEATime(),
-                //     CreatedAt = TimeUtils.GetCurrentSEATime(),
-                // };
-                //
-                // await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransaction);
-                // await _unitOfWork.Repository<TransactionWalletLog>().InsertAsync(walletTransactionLog);
-                // await _unitOfWork.Repository<Wallet>().UpdateDetached(wallet);
+                foreach (var orderDetail in orderDetails)
+                {
+                    var product = _unitOfWork.Repository<Product>().GetByIdGuid(orderDetail.ProductId);
+                    product.Result.Quantity = product.Result.Quantity - (int)orderDetail.Quantity;
+                    await _unitOfWork.Repository<Product>().UpdateDetached(product.Result);
+                }
+                await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransaction);
+                await _unitOfWork.Repository<Wallet>().UpdateDetached(wallet);
                 await _unitOfWork.CommitAsync();
 
                 return new BaseResponseViewModel<OrderResponseModel>
