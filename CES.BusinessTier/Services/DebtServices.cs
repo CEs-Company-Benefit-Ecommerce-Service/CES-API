@@ -129,7 +129,7 @@ namespace CES.BusinessTier.Services
                                                                 .Where(x => x.Id == enterprise.AccountId)
                                                                 .Select(x => x.Wallets.FirstOrDefault())
                                                                 .FirstOrDefault();
-            if (accountWallet.Balance > 0)
+            if (accountWallet.Balance >= 0)
             {
                 return new BaseResponseViewModel<DebtTicketResponseModel>
                 {
