@@ -11,7 +11,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -70,6 +72,7 @@ namespace CES.BusinessTier.Services
         public async Task<DynamicResponse<DebtTicketResponseModel>> GetsWithCompanyAsync(DebtTicketResponseModel filter, PagingModel paging, int companyId)
         {
             var debts = _unitOfWork.Repository<DebtTicket>().AsQueryable(x => x.CompanyId == companyId)
+                           .Include(x => x.Company)
                            .ProjectTo<DebtTicketResponseModel>(_mapper.ConfigurationProvider)
                            .DynamicFilter(filter)
                            .DynamicSort(paging.Sort, paging.Order)
@@ -105,7 +108,10 @@ namespace CES.BusinessTier.Services
         }
         public BaseResponseViewModel<DebtTicketResponseModel> GetById(int id)
         {
-            var debt = _unitOfWork.Repository<DebtTicket>().GetById(id).Result;
+            var debt = _unitOfWork.Repository<DebtTicket>().AsQueryable(x => x.Id == id)
+                           .Include(x => x.Company)
+                           .ProjectTo<DebtTicketResponseModel>(_mapper.ConfigurationProvider)
+                           .FirstOrDefault();
             if (debt == null)
             {
                 return new BaseResponseViewModel<DebtTicketResponseModel>()
