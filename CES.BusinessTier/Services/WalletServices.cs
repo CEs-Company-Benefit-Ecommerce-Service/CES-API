@@ -286,7 +286,7 @@ namespace CES.BusinessTier.Services
                 request.BenefitId = Guid.Empty;
             }
 
-            DateTimeOffset currentDateTimeOffset = TimeZoneInfo.ConvertTime(TimeUtils.GetCurrentSEATime(), TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            DateTimeOffset currentDateTimeOffset = new DateTimeOffset(TimeUtils.GetCurrentSEATime());
             DateTimeOffset dateTimeOffset = new DateTimeOffset(time);
             if (dateTimeOffset <= currentDateTimeOffset)
             {
