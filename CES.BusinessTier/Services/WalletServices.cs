@@ -291,9 +291,8 @@ namespace CES.BusinessTier.Services
             if (dateTimeOffset <= currentDateTimeOffset)
             {
                 dateTimeOffset = currentDateTimeOffset.AddMinutes(2);
+                dateTimeOffset = dateTimeOffset.AddHours(7);
             }
-
-            dateTimeOffset = dateTimeOffset.AddHours(7);
             BackgroundJob.Schedule(() => UpdateWalletBalanceForGroupAsync(request, accountLoginId), dateTimeOffset);
             DateTimeOffset systemTimeOffSet = new DateTimeOffset(DateTime.Now);
             BackgroundJob.Schedule(() => Console.Write($"System Time: {systemTimeOffSet}"), systemTimeOffSet);
