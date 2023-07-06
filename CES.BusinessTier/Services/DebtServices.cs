@@ -21,7 +21,7 @@ namespace CES.BusinessTier.Services
     {
         Task<DynamicResponse<DebtTicketResponseModel>> GetsAsync(DebtTicketResponseModel filter, PagingModel paging);
         Task<DynamicResponse<DebtTicketResponseModel>> GetsWithCompanyAsync(DebtTicketResponseModel filter, PagingModel paging, int companyId);
-        BaseResponseViewModel<DebtTicketResponseModel> GetById(Guid id);
+        BaseResponseViewModel<DebtTicketResponseModel> GetById(int id);
         Task<BaseResponseViewModel<DebtTicketResponseModel>> CreateAsync(int companyId);
         Task<BaseResponseViewModel<DebtTicketResponseModel>> DeleteAsync(Guid debtId);
     }
@@ -103,9 +103,9 @@ namespace CES.BusinessTier.Services
                 Data = await debts.Item2.ToListAsync()
             };
         }
-        public BaseResponseViewModel<DebtTicketResponseModel> GetById(Guid id)
+        public BaseResponseViewModel<DebtTicketResponseModel> GetById(int id)
         {
-            var debt = _unitOfWork.Repository<DebtTicket>().GetByIdGuid(id).Result;
+            var debt = _unitOfWork.Repository<DebtTicket>().GetById(id).Result;
             if (debt == null)
             {
                 return new BaseResponseViewModel<DebtTicketResponseModel>()
