@@ -292,6 +292,7 @@ namespace CES.BusinessTier.Services
             {
                 dateTimeOffset = currentDateTimeOffset.AddMinutes(2);
             }
+            dateTimeOffset = dateTimeOffset.AddHours(-7);
             BackgroundJob.Schedule(() => UpdateWalletBalanceForGroupAsync(request, accountLoginId), dateTimeOffset);
             // RecurringJob.AddOrUpdate(() => UpdateWalletBalanceForGroupAsync(request, accountLoginId), TimeUtils.ToCronExpression(time), TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
         }
