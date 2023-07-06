@@ -44,6 +44,12 @@ namespace CES.API.Controllers
             var result = await _debtServices.CreateAsync(companyId);
             return StatusCode((int)result.Code, result);
         }
+        [HttpDelete("debt/{debtId}")]
+        public async Task<ActionResult> Delete(int debtId)
+        {
+            var result = await _debtServices.DeleteAsync(debtId);
+            return StatusCode((int)result.Code, result);
+        }
         //[HttpGet("receipt")]
         //public async Task<ActionResult> GetReceipts([FromQuery] InvokeResponseModel filter, [FromQuery] PagingModel paging)
         //{
