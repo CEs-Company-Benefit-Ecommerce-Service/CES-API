@@ -8,9 +8,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c33e2030-59db-4d3d-a633-8e65857e01e7" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/WalletServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/WalletServices.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Utilities/TimeUtils.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Utilities/TimeUtils.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -199,16 +197,16 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/WalletServices.cs</url>
-          <line>289</line>
-          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/WalletServices.cs" initialLine="289" containingFunctionPresentation="Method 'ScheduleUpdateWalletBalanceForGroupAsync'">
+          <line>296</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/WalletServices.cs" initialLine="296" containingFunctionPresentation="Method 'ScheduleUpdateWalletBalanceForGroupAsync'">
             <startOffsets>
-              <option value="11215" />
+              <option value="11712" />
             </startOffsets>
             <endOffsets>
-              <option value="11260" />
+              <option value="11767" />
             </endOffsets>
           </properties>
-          <option name="timeStamp" value="51" />
+          <option name="timeStamp" value="53" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
