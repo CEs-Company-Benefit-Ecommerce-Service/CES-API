@@ -285,13 +285,16 @@ namespace CES.BusinessTier.Services
             {
                 request.BenefitId = Guid.Empty;
             }
-            DateTimeOffset dateTimeOffset = new DateTimeOffset(time);
-            if (time < TimeUtils.GetCurrentSEATime())
+
+            DateTimeOffset currentDateTimeOffset = TimeZoneInfo.ConvertTime(TimeUtils.GetCurrentSEATime(), TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            DateTimeOffset dateTimeOffset =
+                TimeZoneInfo.ConvertTime(time, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            if (dateTimeOffset <= currentDateTimeOffset)
             {
-                dateTimeOffset = new DateTimeOffset(TimeUtils.GetCurrentSEATime());
-                dateTimeOffset = dateTimeOffset.AddMinutes(2);
+                dateTimeOffset = currentDateTimeOffset.AddMinutes(2);
             }
             BackgroundJob.Schedule(() => UpdateWalletBalanceForGroupAsync(request, accountLoginId), dateTimeOffset);
+            // RecurringJob.AddOrUpdate(() => UpdateWalletBalanceForGroupAsync(request, accountLoginId), TimeUtils.ToCronExpression(time), TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
         }
 
         public async Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletBalanceForGroupAsync(
