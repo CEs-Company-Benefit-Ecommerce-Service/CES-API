@@ -200,13 +200,13 @@
           <line>296</line>
           <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/WalletServices.cs" initialLine="296" containingFunctionPresentation="Method 'ScheduleUpdateWalletBalanceForGroupAsync'">
             <startOffsets>
-              <option value="11712" />
+              <option value="11596" />
             </startOffsets>
             <endOffsets>
-              <option value="11767" />
+              <option value="11623" />
             </endOffsets>
           </properties>
-          <option name="timeStamp" value="53" />
+          <option name="timeStamp" value="54" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
