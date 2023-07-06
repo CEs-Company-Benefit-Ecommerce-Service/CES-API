@@ -44,7 +44,7 @@ namespace CES.BusinessTier.Services
         {
             try
             {
-                var debts = _unitOfWork.Repository<DebtTicket>().GetAll()
+                var debts = _unitOfWork.Repository<DebtTicket>().AsQueryable(x => x.Status != (int)DebtStatusEnums.Cancel)
                .ProjectTo<DebtTicketResponseModel>(_mapper.ConfigurationProvider)
                .DynamicFilter(filter)
                .DynamicSort(paging.Sort, paging.Order)
@@ -71,7 +71,7 @@ namespace CES.BusinessTier.Services
         }
         public async Task<DynamicResponse<DebtTicketResponseModel>> GetsWithCompanyAsync(DebtTicketResponseModel filter, PagingModel paging, int companyId)
         {
-            var debts = _unitOfWork.Repository<DebtTicket>().AsQueryable(x => x.CompanyId == companyId)
+            var debts = _unitOfWork.Repository<DebtTicket>().AsQueryable(x => x.CompanyId == companyId && x.Status != (int)DebtStatusEnums.Cancel)
                            .Include(x => x.Company)
                            .ProjectTo<DebtTicketResponseModel>(_mapper.ConfigurationProvider)
                            .DynamicFilter(filter)

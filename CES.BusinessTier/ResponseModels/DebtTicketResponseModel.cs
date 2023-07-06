@@ -11,7 +11,7 @@ namespace CES.BusinessTier.ResponseModels
     {
         public int? Id { get; set; }
         public string? Name { get; set; }
-        public double Total { get; set; }
+        public double? Total { get; set; }
         public int? Status { get; set; }
         public string? InfoPayment { get; set; }
         public DateTime? CreatedAt { get; set; }
