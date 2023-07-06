@@ -294,6 +294,8 @@ namespace CES.BusinessTier.Services
                 dateTimeOffset = currentDateTimeOffset.AddMinutes(2);
             }
             BackgroundJob.Schedule(() => UpdateWalletBalanceForGroupAsync(request, accountLoginId), dateTimeOffset);
+            DateTimeOffset systemTimeOffSet = new DateTimeOffset(DateTime.Now);
+            BackgroundJob.Schedule(() => Console.Write($"System Time: {systemTimeOffSet}"), systemTimeOffSet);
             // RecurringJob.AddOrUpdate(() => UpdateWalletBalanceForGroupAsync(request, accountLoginId), TimeUtils.ToCronExpression(time), TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
         }
 
