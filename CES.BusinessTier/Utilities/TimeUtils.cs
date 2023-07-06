@@ -62,5 +62,24 @@ namespace CES.BusinessTier.Utilities
             var last = first.AddMonths(1).AddDays(-1);
             return (first, last);
         }
+        
+        public static string ToCronExpression(DateTime dateTime)
+        {
+            // Extract the individual components from the DateTime object
+            int minute = dateTime.Minute;
+            int hour = dateTime.Hour;
+            int dayOfMonth = dateTime.Day;
+            int month = dateTime.Month;
+            int dayOfWeek = (int)dateTime.DayOfWeek;
+
+            // Adjust dayOfWeek to match the cron format (Sunday starts at 0)
+            if (dayOfWeek == 0)
+                dayOfWeek = 7;
+
+            // Build the cron expression string
+            string cronExpression = $"{minute} {hour} {dayOfMonth} {month} {dayOfWeek}";
+
+            return cronExpression;
+        }
     }
 }
