@@ -286,15 +286,14 @@ namespace CES.BusinessTier.Services
                 request.BenefitId = Guid.Empty;
             }
 
-            DateTimeOffset currentDateTimeOffset = TimeZoneInfo.ConvertTime(TimeUtils.GetCurrentSEATime(), TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
-            DateTimeOffset dateTimeOffset =
-                TimeZoneInfo.ConvertTime(time, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            DateTimeOffset currentDateTimeOffset = new DateTimeOffset(DateTime.Now);
+            DateTimeOffset dateTimeOffset = new DateTimeOffset(time);
             if (dateTimeOffset <= currentDateTimeOffset)
             {
                 dateTimeOffset = currentDateTimeOffset.AddMinutes(2);
             }
 
-            dateTimeOffset.AddHours(-7);
+            dateTimeOffset = dateTimeOffset.AddHours(7);
             BackgroundJob.Schedule(() => UpdateWalletBalanceForGroupAsync(request, accountLoginId), dateTimeOffset);
             DateTimeOffset systemTimeOffSet = new DateTimeOffset(DateTime.Now);
             BackgroundJob.Schedule(() => Console.Write($"System Time: {systemTimeOffSet}"), systemTimeOffSet);

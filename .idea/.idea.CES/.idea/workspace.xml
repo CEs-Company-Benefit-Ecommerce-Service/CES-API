@@ -197,13 +197,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/WalletServices.cs</url>
-          <line>296</line>
+          <line>295</line>
           <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/WalletServices.cs" initialLine="296" containingFunctionPresentation="Method 'ScheduleUpdateWalletBalanceForGroupAsync'">
             <startOffsets>
-              <option value="11596" />
+              <option value="11427" />
             </startOffsets>
             <endOffsets>
-              <option value="11623" />
+              <option value="11441" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="54" />
