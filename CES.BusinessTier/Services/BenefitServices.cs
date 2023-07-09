@@ -30,12 +30,14 @@ namespace CES.BusinessTier.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IGroupServices _groupServices;
 
-        public BenefitServices(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor contextAccessor)
+        public BenefitServices(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor contextAccessor, IGroupServices groupServices)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _contextAccessor = contextAccessor;
+            _groupServices = groupServices;
         }
 
         public async Task<DynamicResponse<BenefitResponseModel>> GetAllAsync(BenefitResponseModel filter, PagingModel paging)
@@ -85,9 +87,21 @@ namespace CES.BusinessTier.Services
             newBenefit.Status = (int)Status.Active;
             newBenefit.CreatedAt = TimeUtils.GetCurrentSEATime();
             newBenefit.CompanyId = (int)user.CompanyId;
+
+            var group = new Group()
+            {
+                Id = Guid.NewGuid(),
+                Name = $"Group {request.Name}",
+                Status = (int)Status.Active,
+                CreatedAt = TimeUtils.GetCurrentSEATime(),
+                CreatedBy = accountLoginId,
+                BenefitId = newBenefit.Id
+            };
+            
             try
             {
                 await _unitOfWork.Repository<Benefit>().InsertAsync(newBenefit);
+                await _unitOfWork.Repository<Group>().InsertAsync(group);
                 await _unitOfWork.CommitAsync();
 
                 return new BaseResponseViewModel<BenefitResponseModel>()

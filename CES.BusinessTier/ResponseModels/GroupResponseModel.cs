@@ -18,9 +18,9 @@ namespace CES.BusinessTier.ResponseModels
         public DateTime? UpdatedAt { get; set; }
         public Guid? CreatedBy { get; set; }
         public Guid? UpdatedBy { get; set; }
-        //public int CompanyId { get; set; }
+        public Guid? BenefitId { get; set; }
 
-        public CompanyResponseModel Company { get; set; } = null!;
+        public BenefitResponseModel Benefit { get; set; } = null!;
         public List<EmployeeGroupMapping> EmployeeGroupMappings { get; set; }
     }
 
