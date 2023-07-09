@@ -74,10 +74,10 @@ namespace CES.BusinessTier.Services
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
             var account = _accountServices.Get(accountLoginId);
             var enterprise = _unitOfWork.Repository<Enterprise>().GetWhere(x => x.AccountId == accountLoginId).Result.FirstOrDefault();
-            var project = await _unitOfWork.Repository<Group>().GetAll()
+            var group = await _unitOfWork.Repository<Group>().GetAll()
                 .Include(x => x.EmployeeGroupMappings)
                 .ThenInclude(y => y.Employee)
-                .Where(x => x.Id == id && x.CompanyId == enterprise.CompanyId)
+                // .Where(x => x.Id == id && x.BenefitId == enterprise.CompanyId)
                 .FirstOrDefaultAsync();
             //var project = await _unitOfWork.Repository<Group>().GetAll()
             //    .FirstOrDefaultAsync();
@@ -85,7 +85,7 @@ namespace CES.BusinessTier.Services
             {
                 Code = 200,
                 Message = "OK",
-                Data = _mapper.Map<GroupResponseModel>(project)
+                Data = _mapper.Map<GroupResponseModel>(group)
             };
         }
         public async Task<BaseResponseViewModel<GroupResponseModel>> Update(Guid id, GroupRequestModel request)
@@ -123,13 +123,16 @@ namespace CES.BusinessTier.Services
         public async Task<BaseResponseViewModel<GroupResponseModel>> Create(GroupRequestModel request)
         {
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
-            //var account = _accountServices.Get(accountLoginId);
-            var enterprise = await _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.AccountId == accountLoginId).FirstOrDefaultAsync();
+            var benefit = await _unitOfWork.Repository<Benefit>().AsQueryable(x => x.Id == request.BenefitId).FirstOrDefaultAsync();
+            if (benefit == null)
+            {
+                throw new ErrorResponse(StatusCodes.Status404NotFound, 404, "Benefit does not exist");
+            }
 
             var newGroup = _mapper.Map<Group>(request);
             newGroup.Id = Guid.NewGuid();
             newGroup.CreatedAt = TimeUtils.GetCurrentSEATime();
-            newGroup.CompanyId = enterprise.CompanyId;
+            newGroup.BenefitId = request.BenefitId;
             newGroup.CreatedBy = accountLoginId;
             newGroup.Status = (int)Status.Active;
             // newGroup.CompanyId = (int)account.Data.CompanyId;

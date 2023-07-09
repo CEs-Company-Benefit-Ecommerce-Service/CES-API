@@ -5,6 +5,11 @@ namespace CES.DataTier.Models
 {
     public partial class Benefit
     {
+        public Benefit()
+        {
+            Groups = new HashSet<Group>();
+        }
+
         public Guid Id { get; set; }
         public string? Name { get; set; }
         public string? Description { get; set; }
@@ -16,5 +21,6 @@ namespace CES.DataTier.Models
         public int CompanyId { get; set; }
 
         public virtual Company Company { get; set; } = null!;
+        public virtual ICollection<Group> Groups { get; set; }
     }
 }

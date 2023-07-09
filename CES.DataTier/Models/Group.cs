@@ -19,9 +19,9 @@ namespace CES.DataTier.Models
         public DateTime? UpdatedAt { get; set; }
         public Guid? CreatedBy { get; set; }
         public Guid? UpdatedBy { get; set; }
-        public int CompanyId { get; set; }
+        public Guid? BenefitId { get; set; }
 
-        public virtual Company Company { get; set; } = null!;
+        public virtual Benefit? Benefit { get; set; }
         public virtual ICollection<EmployeeGroupMapping> EmployeeGroupMappings { get; set; }
     }
 }

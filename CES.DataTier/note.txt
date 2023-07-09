@@ -1,4 +1,4 @@
-Scaffold-DbContext "Server=35.187.237.212;Database=CEsData_dev;uid=sa;pwd=zaQ@1234" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -force
+Scaffold-DbContext "Server=35.187.237.212;Database=CEsData_dev;uid=sa;pwd=zaQ@1234" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models --force
 
 dotnet tool install --global dotnet-ef
 dotnet ef dbcontext scaffold "Server=35.187.237.212;Database=CEsData_dev_v3;uid=sa;pwd=zaQ@1234" Microsoft.EntityFrameworkCore.SqlServer -o Models

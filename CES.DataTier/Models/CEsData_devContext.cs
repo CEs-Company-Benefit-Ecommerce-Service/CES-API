@@ -250,11 +250,10 @@ namespace CES.DataTier.Models
 
                 entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
-                entity.HasOne(d => d.Company)
+                entity.HasOne(d => d.Benefit)
                     .WithMany(p => p.Groups)
-                    .HasForeignKey(d => d.CompanyId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Group_Company");
+                    .HasForeignKey(d => d.BenefitId)
+                    .HasConstraintName("FK_Group_Benefit");
             });
 
             modelBuilder.Entity<Order>(entity =>
