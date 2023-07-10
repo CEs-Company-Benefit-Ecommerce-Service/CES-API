@@ -175,6 +175,8 @@ namespace CES.BusinessTier.Services
         {
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value
                 .ToString());
+            var accountLogin = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Wallets).FirstOrDefaultAsync();
+            var accountLoginWallet = accountLogin.Wallets.FirstOrDefault();
             if (request.BenefitId == null)
             {
                 request.BenefitId = Guid.Empty;
@@ -195,15 +197,23 @@ namespace CES.BusinessTier.Services
             switch (request.Type)
             {
                 case 1:
-
                     if (benefit == null)
                     {
                         return new BaseResponseViewModel<WalletResponseModel>
                         {
                             Code = (int)StatusCodes.Status404NotFound,
-                            Message = "No found",
+                            Message = "No found benefit",
                         };
                     }
+                    //if (accountLoginWallet.Balance < benefit.UnitPrice)
+                    //{
+                    //    return new BaseResponseViewModel<WalletResponseModel>
+                    //    {
+                    //        Code = (int)StatusCodes.Status400BadRequest,
+                    //        Message = "Not have enough balance in your wallet",
+                    //    };
+                    //}
+                    accountLoginWallet.Balance -= benefit.UnitPrice;
 
                     //if (request.Balance > benefit.UnitPrice)
                     //{
@@ -215,6 +225,7 @@ namespace CES.BusinessTier.Services
                     //}
 
                     existedWallet.Balance += benefit.UnitPrice;
+
                     break;
                 case 2:
 
@@ -253,11 +264,13 @@ namespace CES.BusinessTier.Services
             //     Description = "Log Chuyển tiền || " + TimeUtils.GetCurrentSEATime(),
             //     CreatedAt = TimeUtils.GetCurrentSEATime(),
             // };
+
             try
             {
                 await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransaction);
                 // await _unitOfWork.Repository<TransactionWalletLog>().InsertAsync(walletTransactionLog);
                 await _unitOfWork.Repository<Wallet>().UpdateDetached(existedWallet);
+                await _unitOfWork.Repository<Wallet>().UpdateDetached(accountLoginWallet);
                 await _unitOfWork.CommitAsync();
 
                 return new BaseResponseViewModel<WalletResponseModel>

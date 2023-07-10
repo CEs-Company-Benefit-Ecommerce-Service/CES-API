@@ -45,7 +45,7 @@ namespace CES.BusinessTier.Services
         public async Task<AccountResponseModel> GetCurrentLoginAccount()
         {
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
-            var account = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).FirstOrDefaultAsync();
+            var account = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Wallets).FirstOrDefaultAsync();
 
             if (account == null)
             {
