@@ -46,12 +46,27 @@ namespace CES.BusinessTier.Services
         {
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
             var account = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).FirstOrDefaultAsync();
+
             if (account == null)
             {
                 throw new ErrorResponse(404, (int)AccountErrorEnums.NOT_FOUND_ID,
                     AccountErrorEnums.NOT_FOUND_ID.GetDisplayName());
             }
-            return _mapper.Map<AccountResponseModel>(account);
+
+            var result = _mapper.Map<AccountResponseModel>(account);
+            //get company id in account response for EA and Emp; SA and SupA will get companyId = 0
+            if (account.Role.Equals(Roles.EnterpriseAdmin.GetDisplayName()))
+            {
+                var companyId = _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.AccountId == account.Id).Select(x => x.CompanyId).FirstOrDefault();
+                result.CompanyId = companyId;
+            }
+            else if (account.Role.Equals(Roles.Employee.GetDisplayName()))
+            {
+                var companyId = _unitOfWork.Repository<Employee>().AsQueryable(x => x.AccountId == account.Id).Select(x => x.CompanyId).FirstOrDefault();
+                result.CompanyId = companyId;
+            }
+
+            return result;
         }
 
         public BaseResponseViewModel<LoginResponseModel> Login(LoginModel loginModel)

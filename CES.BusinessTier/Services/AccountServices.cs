@@ -48,8 +48,8 @@ namespace CES.BusinessTier.Services
 
         public BaseResponseViewModel<AccountResponseModel> Get(Guid id)
         {
-            var account = _unitOfWork.Repository<Account>().GetAll().Include(x => x.Wallets).Where(x => x.Id == id).FirstOrDefaultAsync();
-            if (account.Result == null)
+            var account = _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == id).Include(x => x.Wallets).FirstOrDefault();
+            if (account == null)
             {
                 return new BaseResponseViewModel<AccountResponseModel>
                 {
@@ -58,11 +58,13 @@ namespace CES.BusinessTier.Services
 
                 };
             }
+            
             return new BaseResponseViewModel<AccountResponseModel>
             {
                 Code = 200,
                 Message = "OK",
-                Data = _mapper.Map<AccountResponseModel>(account.Result)
+                Data = _mapper.Map<AccountResponseModel>(account)
+                //Data = account
             };
         }
 
