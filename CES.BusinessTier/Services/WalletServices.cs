@@ -205,16 +205,16 @@ namespace CES.BusinessTier.Services
                         };
                     }
 
-                    if (request.Balance > benefit.UnitPrice)
-                    {
-                        return new BaseResponseViewModel<WalletResponseModel>
-                        {
-                            Code = (int)StatusCodes.Status400BadRequest,
-                            Message = "Balance was higher than unit price of benefit",
-                        };
-                    }
+                    //if (request.Balance > benefit.UnitPrice)
+                    //{
+                    //    return new BaseResponseViewModel<WalletResponseModel>
+                    //    {
+                    //        Code = (int)StatusCodes.Status400BadRequest,
+                    //        Message = "Balance was higher than unit price of benefit",
+                    //    };
+                    //}
 
-                    existedWallet.Balance += request.Balance;
+                    existedWallet.Balance += benefit.UnitPrice;
                     break;
                 case 2:
 
@@ -240,8 +240,8 @@ namespace CES.BusinessTier.Services
                 RecieveId = existedWallet.Account.Id,
                 WalletId = existedWallet.Id,
                 Type = (int)WalletTransactionTypeEnums.AddWelfare,
-                Description = "Nhận tiền từ " + benefit.Description,
-                Total = request.Balance,
+                Description = "Nhận tiền từ " + benefit.Name,
+                Total = benefit.UnitPrice,
                 CreatedAt = TimeUtils.GetCurrentSEATime(),
                 CompanyId = benefit.CompanyId,
             };
