@@ -25,7 +25,7 @@ namespace CES.BusinessTier.Services
     {
         Task<DynamicResponse<WalletResponseModel>> GetsAsync(PagingModel pagingModel);
         BaseResponseViewModel<WalletResponseModel> Get(Guid id);
-        BaseResponseViewModel<WalletResponseModel> GetWalletsAccount(Guid accountId);
+        BaseResponseViewModel<List<WalletResponseModel>> GetWalletsAccount(Guid accountId);
         Task<BaseResponseViewModel<WalletResponseModel>> CreateAsync(WalletRequestModel request);
         Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletInfoAsync(Guid id, WalletInfoRequestModel request);
         Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletBalanceAsync(WalletUpdateBalanceModel request);
@@ -64,15 +64,14 @@ namespace CES.BusinessTier.Services
             };
         }
 
-        public BaseResponseViewModel<WalletResponseModel> GetWalletsAccount(Guid accountId)
+        public BaseResponseViewModel<List<WalletResponseModel>> GetWalletsAccount(Guid accountId)
         {
             var account = _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountId).Include(x => x.Wallets).FirstOrDefault();
-            var wallet = account.Wallets.FirstOrDefault();
-            return new BaseResponseViewModel<WalletResponseModel>
+            return new BaseResponseViewModel<List<WalletResponseModel>>
             {
                 Code = 200,
                 Message = "OK",
-                Data = _mapper.Map<WalletResponseModel>(wallet)
+                Data = _mapper.Map<List<WalletResponseModel>>(account.Wallets)
             };
         }
 
