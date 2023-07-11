@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CES.API.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize(Roles = "Supplier Admin")]
+    //[Authorize(Roles = "Supplier Admin")]
     [ApiController]
     public class ProductController : ControllerBase
     {
@@ -42,6 +42,7 @@ namespace CES.API.Controllers
 
         // POST: api/Product
         [HttpPost]
+        [Authorize(Roles = "Supplier Admin")]
         public async Task<ActionResult<BaseResponseViewModel<ProductResponseModel>>> CreateProduct([FromBody] ProductRequestModel product)
         {
             return Ok(await _productService.CreateProductAsync(product));
@@ -49,6 +50,7 @@ namespace CES.API.Controllers
 
         // PUT: api/Product/5
         [HttpPut("{id}")]
+        [Authorize(Roles = "Supplier Admin")]
         public async Task<ActionResult<BaseResponseViewModel<ProductResponseModel>>> UpdateProduct(Guid id, [FromBody] ProductRequestModel productUpdate)
         {
             return Ok(await _productService.UpdateProductAsync(id, productUpdate));
@@ -56,6 +58,7 @@ namespace CES.API.Controllers
 
         // DELETE: api/Product/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Supplier Admin")]
         public async Task<ActionResult<BaseResponseViewModel<ProductResponseModel>>> DeleteProduct(Guid id)
         {
             return Ok(await _productService.DeleteProductAsync(id));
