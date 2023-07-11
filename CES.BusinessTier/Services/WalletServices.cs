@@ -25,7 +25,7 @@ namespace CES.BusinessTier.Services
     {
         Task<DynamicResponse<WalletResponseModel>> GetsAsync(PagingModel pagingModel);
         BaseResponseViewModel<WalletResponseModel> Get(Guid id);
-        BaseResponseViewModel<List<WalletResponseModel>> GetWalletsAccount(Guid accountId);
+        BaseResponseViewModel<WalletResponseModel> GetWalletsAccount(Guid accountId);
         Task<BaseResponseViewModel<WalletResponseModel>> CreateAsync(WalletRequestModel request);
         Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletInfoAsync(Guid id, WalletInfoRequestModel request);
         Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletBalanceAsync(WalletUpdateBalanceModel request);
@@ -64,23 +64,15 @@ namespace CES.BusinessTier.Services
             };
         }
 
-        public BaseResponseViewModel<List<WalletResponseModel>> GetWalletsAccount(Guid accountId)
+        public BaseResponseViewModel<WalletResponseModel> GetWalletsAccount(Guid accountId)
         {
-            // var wallets = _unitOfWork.Repository<Wallet>().GetAll().Where(x => x.Account.Select(x => x.Id).FirstOrDefault() == accountId);
-            var wallets = _unitOfWork.Repository<Wallet>().GetAll().FirstOrDefault();
-            // if (wallets.Count() == 0)
-            // {
-            //     return new BaseResponseViewModel<List<WalletResponseModel>>
-            //     {
-            //         Code = 404,
-            //         Message = "Not found",
-            //     };
-            // }
-            return new BaseResponseViewModel<List<WalletResponseModel>>
+            var account = _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountId).Include(x => x.Wallets).FirstOrDefault();
+            var wallet = account.Wallets.FirstOrDefault();
+            return new BaseResponseViewModel<WalletResponseModel>
             {
                 Code = 200,
                 Message = "OK",
-                Data = _mapper.Map<List<WalletResponseModel>>(wallets)
+                Data = _mapper.Map<WalletResponseModel>(wallet)
             };
         }
 

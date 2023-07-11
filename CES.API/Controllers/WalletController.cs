@@ -62,13 +62,14 @@ namespace CES.API.Controllers
         /// <param name="accountId"></param>
         /// <returns></returns>
         [HttpGet("account/{accountId}")]
+        [Authorize(Roles = "Enterprise Admin, Employee")]
         public IActionResult GetWalletAccount(Guid accountId)
         {
-            var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value.ToString();
-            if (role == Roles.SystemAdmin.GetDisplayName())
-            {
-                return StatusCode(401);
-            }
+            //var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value.ToString();
+            //if (role == Roles.SystemAdmin.GetDisplayName())
+            //{
+            //    return StatusCode(401);
+            //}
             var result = _walletServices.GetWalletsAccount(accountId);
             return StatusCode((int)result.Code, result);
         }
@@ -118,7 +119,7 @@ namespace CES.API.Controllers
             var result = _walletServices.UpdateWalletBalanceAsync(request).Result;
             return StatusCode((int)result.Code, result);
         }
-        
+
         /// <summary>
         /// update wallet balance, only Enterprise can use
         /// </summary>
