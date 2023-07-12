@@ -8,12 +8,14 @@ namespace CES.DataTier.Models
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
         public double? Balance { get; set; }
+        public double? Used { get; set; } = 0;
         public int Status { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public Guid? CreatedBy { get; set; }
         public Guid? UpdatedBy { get; set; }
         public Guid? AccountId { get; set; }
+
 
         public virtual Account? Account { get; set; }
     }

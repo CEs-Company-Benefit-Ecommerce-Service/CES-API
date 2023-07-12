@@ -58,7 +58,7 @@ namespace CES.BusinessTier.Services
 
                 };
             }
-            
+
             return new BaseResponseViewModel<AccountResponseModel>
             {
                 Code = 200,
@@ -414,6 +414,7 @@ namespace CES.BusinessTier.Services
                         Name = WalletTypeEnums.GeneralWallet.GetDisplayName(),
                         Status = (int)Status.Active,
                         Balance = 0,
+                        Used = 0,
                         CreatedAt = TimeUtils.GetCurrentSEATime(),
                         CreatedBy = accountLoginId,
                         AccountId = newAccount.Id

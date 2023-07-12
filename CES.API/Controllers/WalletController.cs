@@ -147,5 +147,12 @@ namespace CES.API.Controllers
         {
             await _walletServices.CreateWalletForAccountDontHaveEnough();
         }
+
+        [HttpPost("reset/{companyId}")]
+        public async Task<ActionResult> ResetAllAfterEAPayment(int companyId)
+        {
+            var result = _walletServices.ResetAllAfterEAPayment(companyId).Result;
+            return StatusCode((int)result.Code, result);
+        }
     }
 }

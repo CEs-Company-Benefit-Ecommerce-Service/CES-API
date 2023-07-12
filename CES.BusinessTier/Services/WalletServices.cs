@@ -31,6 +31,8 @@ namespace CES.BusinessTier.Services
         Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletBalanceAsync(WalletUpdateBalanceModel request);
         Task ScheduleUpdateWalletBalanceForGroupAsync(WalletUpdateBalanceModel request, DateTime time);
         Task CreateWalletForAccountDontHaveEnough();
+        Task<BaseResponseViewModel<string>> ResetAllAfterEAPayment(int companyId);
+        Task<BaseResponseViewModel<string>> ResetAllAfterExpired(int companyId);
     }
 
     public class WalletServices : IWalletServices
@@ -168,6 +170,7 @@ namespace CES.BusinessTier.Services
                 .ToString());
             var accountLogin = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Wallets).FirstOrDefaultAsync();
             var accountLoginWallet = accountLogin.Wallets.FirstOrDefault();
+
             if (request.BenefitId == null)
             {
                 request.BenefitId = Guid.Empty;
@@ -176,6 +179,7 @@ namespace CES.BusinessTier.Services
             var benefit = _unitOfWork.Repository<Benefit>().GetByIdGuid((Guid)request.BenefitId).Result;
             var existedWallet = await _unitOfWork.Repository<Wallet>().AsQueryable(x => x.Id == request.Id)
                 .Include(x => x.Account).FirstOrDefaultAsync();
+
             if (existedWallet == null)
             {
                 return new BaseResponseViewModel<WalletResponseModel>
@@ -196,25 +200,15 @@ namespace CES.BusinessTier.Services
                             Message = "No found benefit",
                         };
                     }
-                    //if (accountLoginWallet.Balance < benefit.UnitPrice)
-                    //{
-                    //    return new BaseResponseViewModel<WalletResponseModel>
-                    //    {
-                    //        Code = (int)StatusCodes.Status400BadRequest,
-                    //        Message = "Not have enough balance in your wallet",
-                    //    };
-                    //}
+                    if (accountLoginWallet.Balance < benefit.UnitPrice)
+                    {
+                        return new BaseResponseViewModel<WalletResponseModel>
+                        {
+                            Code = (int)StatusCodes.Status400BadRequest,
+                            Message = "Not have enough balance in your wallet",
+                        };
+                    }
                     accountLoginWallet.Balance -= benefit.UnitPrice;
-
-                    //if (request.Balance > benefit.UnitPrice)
-                    //{
-                    //    return new BaseResponseViewModel<WalletResponseModel>
-                    //    {
-                    //        Code = (int)StatusCodes.Status400BadRequest,
-                    //        Message = "Balance was higher than unit price of benefit",
-                    //    };
-                    //}
-
                     existedWallet.Balance += benefit.UnitPrice;
 
                     break;
@@ -235,7 +229,7 @@ namespace CES.BusinessTier.Services
             }
 
             existedWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
-            var walletTransaction = new Transaction()
+            var walletTransactionForReceiver = new Transaction()
             {
                 Id = Guid.NewGuid(),
                 SenderId = accountLoginId,
@@ -247,19 +241,23 @@ namespace CES.BusinessTier.Services
                 CreatedAt = TimeUtils.GetCurrentSEATime(),
                 CompanyId = benefit.CompanyId,
             };
-            // var walletTransactionLog = new TransactionWalletLog()
-            // {
-            //     Id = Guid.NewGuid(),
-            //     CompanyId = benefit.CompanyId,
-            //     TransactionId = walletTransaction.Id,
-            //     Description = "Log Chuyển tiền || " + TimeUtils.GetCurrentSEATime(),
-            //     CreatedAt = TimeUtils.GetCurrentSEATime(),
-            // };
+            var walletTransactionForSender = new Transaction()
+            {
+                Id = Guid.NewGuid(),
+                SenderId = accountLoginId,
+                RecieveId = existedWallet.Account.Id,
+                WalletId = accountLoginWallet.Id,
+                Type = (int)WalletTransactionTypeEnums.AddWelfare,
+                Description = "Chuyển tiền cho " + existedWallet.Account.Name,
+                Total = benefit.UnitPrice,
+                CreatedAt = TimeUtils.GetCurrentSEATime(),
+                CompanyId = benefit.CompanyId,
+            };
 
             try
             {
-                await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransaction);
-                // await _unitOfWork.Repository<TransactionWalletLog>().InsertAsync(walletTransactionLog);
+                await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransactionForReceiver);
+                await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransactionForSender);
                 await _unitOfWork.Repository<Wallet>().UpdateDetached(existedWallet);
                 await _unitOfWork.Repository<Wallet>().UpdateDetached(accountLoginWallet);
                 await _unitOfWork.CommitAsync();
@@ -418,7 +416,94 @@ namespace CES.BusinessTier.Services
                 };
             }
         }
+        public async Task<BaseResponseViewModel<string>> ResetAllAfterEAPayment(int companyId)
+        {   // this function will call immediately after EA use payment function
 
+            var employees = await _unitOfWork.Repository<Employee>().AsQueryable(x => x.CompanyId == companyId)
+                                                            .Include(x => x.Account).ThenInclude(x => x.Wallets).ToListAsync();
+            var enterprise = await _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.CompanyId == companyId)
+                                                            .Include(x => x.Account).ThenInclude(x => x.Wallets).FirstOrDefaultAsync();
+            var company = _unitOfWork.Repository<Company>().GetById(companyId);
+
+            try
+            {
+                // Reset balance in Emp wallet = 0
+                foreach (var emp in employees)
+                {
+                    var empWallet = emp.Account.Wallets.FirstOrDefault();
+                    empWallet.Balance = 0;
+                    await _unitOfWork.Repository<Wallet>().UpdateDetached(empWallet);
+                }
+                // update EA balance = Company limits
+                var EAWallet = enterprise.Account.Wallets.FirstOrDefault();
+                EAWallet.Balance = company.Result.Limits;
+                EAWallet.Used = 0;
+
+                await _unitOfWork.Repository<Wallet>().UpdateDetached(EAWallet);
+
+                await _unitOfWork.CommitAsync();
+
+                return new BaseResponseViewModel<string>
+                {
+                    Code = StatusCodes.Status200OK,
+                    Message = "OK",
+                    Data = "Reset done!"
+                };
+            }
+            catch (Exception ex)
+            {
+
+                return new BaseResponseViewModel<string>
+                {
+                    Code = StatusCodes.Status400BadRequest,
+                    Message = "Bad Request",
+                    Data = ex.Message
+                };
+            }
+
+
+        }
+
+        public async Task<BaseResponseViewModel<string>> ResetAllAfterExpired(int companyId)
+        { // this function use for backgroud job
+            var employees = await _unitOfWork.Repository<Employee>().AsQueryable(x => x.CompanyId == companyId)
+                                                            .Include(x => x.Account).ThenInclude(x => x.Wallets).ToListAsync();
+            var enterprise = await _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.CompanyId == companyId)
+                                                            .Include(x => x.Account).ThenInclude(x => x.Wallets).FirstOrDefaultAsync();
+            var company = _unitOfWork.Repository<Company>().GetById(companyId).Result;
+
+            if (company.ExpiredDate.Value.GetStartOfDate() == DateTime.Now.GetStartOfDate()) // không biết có thể dùng datetime.Now k?? cần test!!
+            {
+                try
+                {
+                    // Reset balance in Emp wallet = 0
+                    foreach (var emp in employees)
+                    {
+                        var empWallet = emp.Account.Wallets.FirstOrDefault();
+                        empWallet.Balance = 0;
+                        await _unitOfWork.Repository<Wallet>().UpdateDetached(empWallet);
+                    }
+                    await _unitOfWork.CommitAsync();
+                }
+                catch (Exception ex)
+                {
+
+                    return new BaseResponseViewModel<string>
+                    {
+                        Code = StatusCodes.Status400BadRequest,
+                        Message = "Bad Request",
+                        Data = ex.Message
+                    };
+                }
+            }
+
+            return new BaseResponseViewModel<string>
+            {
+                Code = StatusCodes.Status200OK,
+                Message = "OK",
+                Data = "Reset done!"
+            };
+        }
         public async Task CreateWalletForAccountDontHaveEnough()
         {
             //var activeAccounts = _unitOfWork.Repository<Account>()

@@ -14,5 +14,6 @@ namespace CES.BusinessTier.RequestModels
         public string? ImageUrl { get; set; }
         public double? Limits { get; set; }
         public DateTime? ExpiredDate { get; set; }
+        public DateTime? TimeOut { get; set; }
     }
 }

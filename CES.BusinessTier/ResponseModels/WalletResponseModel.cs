@@ -12,6 +12,7 @@ namespace CES.BusinessTier.ResponseModels
         public string? Name { get; set; }
         public int? Status { get; set; }
         public double? Balance { get; set; }
+        public double? Used { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public Guid? CreatedBy { get; set; }

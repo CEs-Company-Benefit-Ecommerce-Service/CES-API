@@ -23,6 +23,7 @@ namespace CES.DataTier.Models
         public double? Limits { get; set; }
         public double? Used { get; set; }
         public DateTime? ExpiredDate { get; set; }
+        public DateTime? TimeOut { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public Guid? CreatedBy { get; set; }
