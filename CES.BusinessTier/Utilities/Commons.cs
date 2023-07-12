@@ -35,5 +35,13 @@ public static class Commons
         else
             return Roles.SupplierAdmin.GetDisplayName();
     }
-
+    public static double GetLimitInCompany(Account account)
+    {
+        if (account.Enterprises.Count > 0)
+        {
+            return (double)account.Enterprises.FirstOrDefault().Company.Limits;
+        }
+        else
+            return 0;
+    }
 }
