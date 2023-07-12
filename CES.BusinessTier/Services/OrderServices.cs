@@ -122,12 +122,19 @@ namespace CES.BusinessTier.Services
 
         public async Task<BaseResponseViewModel<OrderResponseModel>> CreateOrder(List<OrderDetailsRequestModel> orderDetails, string? note)
         {
-            // get logined account
+            #region get logined account + company +  EA account + EA wallet
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
             var accountLogin = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Wallets).FirstOrDefaultAsync();
-            // var companyAddress = _unitOfWork.Repository<Company>().GetWhere(x => x.Id == accountLogin.CompanyId).Result.Select(x => x.Address).FirstOrDefault();
+
             var companyId = await GetCompany(accountLoginId);
             var companyAddress = _unitOfWork.Repository<Company>().GetWhere(x => x.Id == companyId).Result.Select(x => x.Address).FirstOrDefault();
+
+            var enterprise = await _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.CompanyId == companyId)
+                                                                        .Include(x => x.Account).ThenInclude(x => x.Wallets)
+                                                                        .FirstOrDefaultAsync();
+            var enterpriseWallet = enterprise.Account.Wallets.FirstOrDefault();
+            #endregion
+
             #region caculate orderDetail price + total
             foreach (var orderDetail in orderDetails)
             {
@@ -145,7 +152,7 @@ namespace CES.BusinessTier.Services
 
             var total = orderDetails.Select(x => x.Price).Sum();
 
-            // get account wallet
+            // get accountLogin wallet
             var wallet = accountLogin.Wallets.Where(x => x.AccountId == accountLoginId).FirstOrDefault();
             if (wallet.Balance < total)
             {
@@ -183,10 +190,13 @@ namespace CES.BusinessTier.Services
                     };
                 }
 
-
+                // update Emp wallet balance + EA wallet used
                 wallet.Balance -= total;
-
                 wallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
+
+                enterpriseWallet.Used += total;
+                enterpriseWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
+
                 //create new transaction
                 var walletTransaction = new Transaction()
                 {
@@ -206,6 +216,7 @@ namespace CES.BusinessTier.Services
                 }
                 await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransaction);
                 await _unitOfWork.Repository<Wallet>().UpdateDetached(wallet);
+                await _unitOfWork.Repository<Wallet>().UpdateDetached(enterpriseWallet);
                 await _unitOfWork.CommitAsync();
 
                 return new BaseResponseViewModel<OrderResponseModel>
