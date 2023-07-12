@@ -14,7 +14,10 @@ namespace CES.BusinessTier.AutoMapperModules
     {
         public static void ConfigCompanyModule(this IMapperConfigurationExpression mc)
         {
-            mc.CreateMap<Company, CompanyResponseModel>().ReverseMap();
+            mc.CreateMap<Company, CompanyResponseModel>()
+                .ForMember(x => x.Used, opt => 
+                opt.MapFrom(src => src.Enterprises.Where(w => w.CompanyId == src.Id).FirstOrDefault().Account.Wallets.FirstOrDefault().Used))
+                .ReverseMap();
             mc.CreateMap<Company, CompanyAllInfoResponse>().ReverseMap();
             mc.CreateMap<Company, CompanyRequestModel>().ReverseMap();
             mc.CreateMap<CompanyResponseModel, CompanyAllInfoResponse>().ReverseMap();

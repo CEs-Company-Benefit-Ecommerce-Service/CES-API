@@ -42,11 +42,11 @@ namespace CES.BusinessTier.Services
         public async Task<DynamicResponse<CompanyResponseModel>> Gets(CompanyResponseModel filter, PagingModel paging)
         {
             var company = _unitOfWork.Repository<Company>().AsQueryable()
+                .Include(x => x.Enterprises).ThenInclude(x => x.Account).ThenInclude(x => x.Wallets)
                 .ProjectTo<CompanyResponseModel>(_mapper.ConfigurationProvider)
                 .DynamicFilter(filter)
                 .DynamicSort(paging.Sort, paging.Order)
                 .PagingQueryable(paging.Page, paging.Size);
-            ;
 
             return new DynamicResponse<CompanyResponseModel>
             {
@@ -64,6 +64,7 @@ namespace CES.BusinessTier.Services
         public async Task<BaseResponseViewModel<CompanyResponseModel>> GetById(int id)
         {
             var company = await _unitOfWork.Repository<Company>().AsQueryable(x => x.Id == id)
+                .Include(x => x.Enterprises).ThenInclude(x => x.Account).ThenInclude(x => x.Wallets)
                 .ProjectTo<CompanyResponseModel>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
 
             return new BaseResponseViewModel<CompanyResponseModel>

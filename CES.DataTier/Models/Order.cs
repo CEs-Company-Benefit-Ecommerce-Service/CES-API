@@ -19,7 +19,7 @@ namespace CES.DataTier.Models
         public DateTime? UpdatedAt { get; set; }
         public int? DebtStatus { get; set; }
         public Guid EmployeeId { get; set; }
-        public int? DebtId { get; set; }
+        public int? CompanyId { get; set; }
 
         public virtual Employee Employee { get; set; } = null!;
         public virtual ICollection<OrderDetail> OrderDetails { get; set; }

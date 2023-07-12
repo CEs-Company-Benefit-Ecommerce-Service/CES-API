@@ -18,6 +18,7 @@ namespace CES.BusinessTier.ResponseModels
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public Guid? EmployeeId { get; set; }
+        public int? CompanyId { get; set; }
         public ICollection<OrderDetailsResponseModel>? OrderDetails { get; set; }
         public UserResponseModel? Employee { get; set; } = null!;
     }
