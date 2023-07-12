@@ -472,7 +472,7 @@ namespace CES.BusinessTier.Services
                                                             .Include(x => x.Account).ThenInclude(x => x.Wallets).FirstOrDefaultAsync();
             var company = _unitOfWork.Repository<Company>().GetById(companyId).Result;
 
-            if (company.ExpiredDate.Value.GetStartOfDate() == DateTime.Now.GetStartOfDate()) // không biết có thể dùng datetime.Now k?? cần test!!
+            if (company.ExpiredDate.Value.GetStartOfDate() == TimeUtils.GetCurrentSEATime().GetStartOfDate())
             {
                 try
                 {
@@ -481,8 +481,14 @@ namespace CES.BusinessTier.Services
                     {
                         var empWallet = emp.Account.Wallets.FirstOrDefault();
                         empWallet.Balance = 0;
+                        empWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
                         await _unitOfWork.Repository<Wallet>().UpdateDetached(empWallet);
                     }
+                    var EAWallet = enterprise.Account.Wallets.FirstOrDefault();
+                    EAWallet.Balance = 0;
+                    EAWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
+                    await _unitOfWork.Repository<Wallet>().UpdateDetached(EAWallet);
+
                     await _unitOfWork.CommitAsync();
                 }
                 catch (Exception ex)

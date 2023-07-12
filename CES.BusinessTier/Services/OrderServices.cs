@@ -151,7 +151,6 @@ namespace CES.BusinessTier.Services
             }
 
             var total = orderDetails.Select(x => x.Price).Sum();
-
             // get accountLogin wallet
             var wallet = accountLogin.Wallets.Where(x => x.AccountId == accountLoginId).FirstOrDefault();
             if (wallet.Balance < total)
@@ -177,6 +176,7 @@ namespace CES.BusinessTier.Services
                     Address = companyAddress,
                     Notes = note,
                     DebtStatus = (int)DebtStatusEnums.New,
+                    CompanyId = companyId
                 };
                 await _unitOfWork.Repository<Order>().InsertAsync(newOrder);
 
