@@ -168,6 +168,7 @@ namespace CES.BusinessTier.Services
                 .ToString());
             var accountLogin = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Wallets).FirstOrDefaultAsync();
             var accountLoginWallet = accountLogin.Wallets.FirstOrDefault();
+
             if (request.BenefitId == null)
             {
                 request.BenefitId = Guid.Empty;
@@ -176,6 +177,7 @@ namespace CES.BusinessTier.Services
             var benefit = _unitOfWork.Repository<Benefit>().GetByIdGuid((Guid)request.BenefitId).Result;
             var existedWallet = await _unitOfWork.Repository<Wallet>().AsQueryable(x => x.Id == request.Id)
                 .Include(x => x.Account).FirstOrDefaultAsync();
+
             if (existedWallet == null)
             {
                 return new BaseResponseViewModel<WalletResponseModel>
@@ -196,25 +198,15 @@ namespace CES.BusinessTier.Services
                             Message = "No found benefit",
                         };
                     }
-                    //if (accountLoginWallet.Balance < benefit.UnitPrice)
-                    //{
-                    //    return new BaseResponseViewModel<WalletResponseModel>
-                    //    {
-                    //        Code = (int)StatusCodes.Status400BadRequest,
-                    //        Message = "Not have enough balance in your wallet",
-                    //    };
-                    //}
+                    if (accountLoginWallet.Balance < benefit.UnitPrice)
+                    {
+                        return new BaseResponseViewModel<WalletResponseModel>
+                        {
+                            Code = (int)StatusCodes.Status400BadRequest,
+                            Message = "Not have enough balance in your wallet",
+                        };
+                    }
                     accountLoginWallet.Balance -= benefit.UnitPrice;
-
-                    //if (request.Balance > benefit.UnitPrice)
-                    //{
-                    //    return new BaseResponseViewModel<WalletResponseModel>
-                    //    {
-                    //        Code = (int)StatusCodes.Status400BadRequest,
-                    //        Message = "Balance was higher than unit price of benefit",
-                    //    };
-                    //}
-
                     existedWallet.Balance += benefit.UnitPrice;
 
                     break;
@@ -235,7 +227,7 @@ namespace CES.BusinessTier.Services
             }
 
             existedWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
-            var walletTransaction = new Transaction()
+            var walletTransactionForReceiver = new Transaction()
             {
                 Id = Guid.NewGuid(),
                 SenderId = accountLoginId,
@@ -247,19 +239,23 @@ namespace CES.BusinessTier.Services
                 CreatedAt = TimeUtils.GetCurrentSEATime(),
                 CompanyId = benefit.CompanyId,
             };
-            // var walletTransactionLog = new TransactionWalletLog()
-            // {
-            //     Id = Guid.NewGuid(),
-            //     CompanyId = benefit.CompanyId,
-            //     TransactionId = walletTransaction.Id,
-            //     Description = "Log Chuyển tiền || " + TimeUtils.GetCurrentSEATime(),
-            //     CreatedAt = TimeUtils.GetCurrentSEATime(),
-            // };
+            var walletTransactionForSender = new Transaction()
+            {
+                Id = Guid.NewGuid(),
+                SenderId = accountLoginId,
+                RecieveId = existedWallet.Account.Id,
+                WalletId = accountLoginWallet.Id,
+                Type = (int)WalletTransactionTypeEnums.AddWelfare,
+                Description = "Chuyển tiền cho " + existedWallet.Account.Name,
+                Total = benefit.UnitPrice,
+                CreatedAt = TimeUtils.GetCurrentSEATime(),
+                CompanyId = benefit.CompanyId,
+            };
 
             try
             {
-                await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransaction);
-                // await _unitOfWork.Repository<TransactionWalletLog>().InsertAsync(walletTransactionLog);
+                await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransactionForReceiver);
+                await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransactionForSender);
                 await _unitOfWork.Repository<Wallet>().UpdateDetached(existedWallet);
                 await _unitOfWork.Repository<Wallet>().UpdateDetached(accountLoginWallet);
                 await _unitOfWork.CommitAsync();
