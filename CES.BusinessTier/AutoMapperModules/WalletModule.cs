@@ -14,7 +14,9 @@ namespace CES.BusinessTier.AutoMapperModules
     {
         public static void ConfigWalletModule(this IMapperConfigurationExpression mc)
         {
-            mc.CreateMap<Wallet, WalletResponseModel>().ReverseMap();
+            mc.CreateMap<Wallet, WalletResponseModel>()
+                .ForMember(x => x.Limits, opt => opt.MapFrom(src => Utilities.Commons.GetLimitInCompany(src.Account)))
+                .ReverseMap();
             //mc.CreateMap<Wallet, WalletRequestModel>().ReverseMap();
             //mc.CreateMap<Wallet, WalletInfoRequestModel>().ReverseMap();
         }

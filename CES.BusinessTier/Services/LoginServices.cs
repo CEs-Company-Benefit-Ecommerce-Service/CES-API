@@ -54,7 +54,7 @@ namespace CES.BusinessTier.Services
                 companyLimits = (double)_unitOfWork.Repository<Company>().GetById(companyId).Result.Limits;
 
             }
-            var account = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Wallets).FirstOrDefaultAsync();
+            var account = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Wallets).Include(x => x.Enterprises).Include(x => x.Employees).FirstOrDefaultAsync();
 
             if (account == null)
             {
@@ -68,7 +68,7 @@ namespace CES.BusinessTier.Services
             if (account.Role.Equals(Roles.EnterpriseAdmin.GetDisplayName()))
             {
                 result.CompanyId = companyId;
-                result.Wallets.FirstOrDefault().Limits = companyLimits;
+                //result.Wallets.FirstOrDefault().Limits = companyLimits;
             }
             else if (account.Role.Equals(Roles.Employee.GetDisplayName()))
             {
