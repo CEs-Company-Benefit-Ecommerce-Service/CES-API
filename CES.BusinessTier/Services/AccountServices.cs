@@ -490,7 +490,7 @@ namespace CES.BusinessTier.Services
                             Id = Guid.NewGuid(),
                             Name = WalletTypeEnums.GeneralWallet.GetDisplayName(),
                             Status = (int)Status.Active,
-                            Balance = 0,
+                            Balance = newCompany.Limits,
                             CreatedAt = TimeUtils.GetCurrentSEATime(),
                             CreatedBy = accountLoginId,
                             AccountId = newAccount.Id
