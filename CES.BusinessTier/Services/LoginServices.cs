@@ -45,7 +45,9 @@ namespace CES.BusinessTier.Services
         public async Task<AccountResponseModel> GetCurrentLoginAccount()
         {
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
+            var companyId = Int32.Parse(_contextAccessor.HttpContext?.User.FindFirst("CompanyId").Value);
             var account = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Wallets).FirstOrDefaultAsync();
+            var companyLimits = _unitOfWork.Repository<Company>().GetById(companyId).Result.Limits;
 
             if (account == null)
             {
@@ -54,18 +56,17 @@ namespace CES.BusinessTier.Services
             }
 
             var result = _mapper.Map<AccountResponseModel>(account);
+            
             //get company id in account response for EA and Emp; SA and SupA will get companyId = 0
-            if (account.Role.Equals(Roles.EnterpriseAdmin.GetDisplayName()))
+            if (account.Role.Equals(Roles.EnterpriseAdmin.GetDisplayName()) )
             {
-                var companyId = _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.AccountId == account.Id).Select(x => x.CompanyId).FirstOrDefault();
                 result.CompanyId = companyId;
-            }
+                result.Wallets.FirstOrDefault().Limits = companyLimits;
+            } 
             else if (account.Role.Equals(Roles.Employee.GetDisplayName()))
             {
-                var companyId = _unitOfWork.Repository<Employee>().AsQueryable(x => x.AccountId == account.Id).Select(x => x.CompanyId).FirstOrDefault();
                 result.CompanyId = companyId;
             }
-
             return result;
         }
 
