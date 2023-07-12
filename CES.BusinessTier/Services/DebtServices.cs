@@ -26,6 +26,7 @@ namespace CES.BusinessTier.Services
         BaseResponseViewModel<DebtTicketResponseModel> GetById(int id);
         Task<BaseResponseViewModel<DebtTicketResponseModel>> CreateAsync(int companyId);
         Task<BaseResponseViewModel<DebtTicketResponseModel>> DeleteAsync(int debtId);
+
     }
     public class DebtServices : IDebtServices
     {
@@ -242,5 +243,6 @@ namespace CES.BusinessTier.Services
                 };
             }
         }
+
     }
 }

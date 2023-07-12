@@ -31,6 +31,8 @@ namespace CES.BusinessTier.Services
         Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletBalanceAsync(WalletUpdateBalanceModel request);
         Task ScheduleUpdateWalletBalanceForGroupAsync(WalletUpdateBalanceModel request, DateTime time);
         Task CreateWalletForAccountDontHaveEnough();
+        Task<BaseResponseViewModel<string>> ResetAllAfterEAPayment(int companyId);
+        Task<BaseResponseViewModel<string>> ResetAllAfterExpired(int companyId);
     }
 
     public class WalletServices : IWalletServices
@@ -414,7 +416,94 @@ namespace CES.BusinessTier.Services
                 };
             }
         }
+        public async Task<BaseResponseViewModel<string>> ResetAllAfterEAPayment(int companyId)
+        {   // this function will call immediately after EA use payment function
 
+            var employees = await _unitOfWork.Repository<Employee>().AsQueryable(x => x.CompanyId == companyId)
+                                                            .Include(x => x.Account).ThenInclude(x => x.Wallets).ToListAsync();
+            var enterprise = await _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.CompanyId == companyId)
+                                                            .Include(x => x.Account).ThenInclude(x => x.Wallets).FirstOrDefaultAsync();
+            var company = _unitOfWork.Repository<Company>().GetById(companyId);
+
+            try
+            {
+                // Reset balance in Emp wallet = 0
+                foreach (var emp in employees)
+                {
+                    var empWallet = emp.Account.Wallets.FirstOrDefault();
+                    empWallet.Balance = 0;
+                    await _unitOfWork.Repository<Wallet>().UpdateDetached(empWallet);
+                }
+                // update EA balance = Company limits
+                var EAWallet = enterprise.Account.Wallets.FirstOrDefault();
+                EAWallet.Balance = company.Result.Limits;
+                EAWallet.Used = 0;
+
+                await _unitOfWork.Repository<Wallet>().UpdateDetached(EAWallet);
+
+                await _unitOfWork.CommitAsync();
+
+                return new BaseResponseViewModel<string>
+                {
+                    Code = StatusCodes.Status200OK,
+                    Message = "OK",
+                    Data = "Reset done!"
+                };
+            }
+            catch (Exception ex)
+            {
+
+                return new BaseResponseViewModel<string>
+                {
+                    Code = StatusCodes.Status400BadRequest,
+                    Message = "Bad Request",
+                    Data = ex.Message
+                };
+            }
+
+
+        }
+
+        public async Task<BaseResponseViewModel<string>> ResetAllAfterExpired(int companyId)
+        { // this function use for backgroud job
+            var employees = await _unitOfWork.Repository<Employee>().AsQueryable(x => x.CompanyId == companyId)
+                                                            .Include(x => x.Account).ThenInclude(x => x.Wallets).ToListAsync();
+            var enterprise = await _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.CompanyId == companyId)
+                                                            .Include(x => x.Account).ThenInclude(x => x.Wallets).FirstOrDefaultAsync();
+            var company = _unitOfWork.Repository<Company>().GetById(companyId).Result;
+
+            if (company.ExpiredDate.Value.GetStartOfDate() == DateTime.Now.GetStartOfDate()) // không biết có thể dùng datetime.Now k?? cần test!!
+            {
+                try
+                {
+                    // Reset balance in Emp wallet = 0
+                    foreach (var emp in employees)
+                    {
+                        var empWallet = emp.Account.Wallets.FirstOrDefault();
+                        empWallet.Balance = 0;
+                        await _unitOfWork.Repository<Wallet>().UpdateDetached(empWallet);
+                    }
+                    await _unitOfWork.CommitAsync();
+                }
+                catch (Exception ex)
+                {
+
+                    return new BaseResponseViewModel<string>
+                    {
+                        Code = StatusCodes.Status400BadRequest,
+                        Message = "Bad Request",
+                        Data = ex.Message
+                    };
+                }
+            }
+
+            return new BaseResponseViewModel<string>
+            {
+                Code = StatusCodes.Status200OK,
+                Message = "OK",
+                Data = "Reset done!"
+            };
+        }
         public async Task CreateWalletForAccountDontHaveEnough()
         {
             //var activeAccounts = _unitOfWork.Repository<Account>()
