@@ -19,4 +19,10 @@ namespace CES.BusinessTier.RequestModels
         public int? CompanyId { get; set; }
         public CompanyRequestModel? Company { get; set; }
     }
+
+    public class ChangePasswordModel
+    {
+        public string? NewPassword { get; set; }
+        public string? OldPassword { get; set; }
+    }
 }
