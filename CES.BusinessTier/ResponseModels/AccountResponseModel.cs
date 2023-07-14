@@ -26,6 +26,7 @@ namespace CES.BusinessTier.ResponseModels
         public int CompanyId { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        public bool? IsReceived { get; set; }
 
         public ICollection<WalletResponseModel> Wallets { get; set; }
     }

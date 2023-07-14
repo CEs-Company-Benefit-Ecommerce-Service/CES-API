@@ -10,6 +10,7 @@ namespace CES.DataTier.Models
         public Guid GroupId { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        public bool? IsReceived { get; set; }
 
         public virtual Employee Employee { get; set; } = null!;
         public virtual Group Group { get; set; } = null!;

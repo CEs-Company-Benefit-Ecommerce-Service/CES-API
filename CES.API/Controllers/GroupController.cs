@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
+using CES.BusinessTier.ResponseModels;
 
 namespace CES.API.Controllers
 {
@@ -16,11 +17,13 @@ namespace CES.API.Controllers
     public class GroupController : ControllerBase
     {
         private IGroupServices _projectServices;
+        private IGroupAccountServices _groupAccountServices;
         private readonly IHttpContextAccessor _contextAccessor;
-        public GroupController(IGroupServices projectServices, IHttpContextAccessor contextAccessor)
+        public GroupController(IGroupServices projectServices, IHttpContextAccessor contextAccessor, IGroupAccountServices groupAccountServices)
         {
             _projectServices = projectServices;
             _contextAccessor = contextAccessor;
+            _groupAccountServices = groupAccountServices;
         }
         /// <summary>
         /// Only Enterprise can use
@@ -137,6 +140,38 @@ namespace CES.API.Controllers
             }
             var result = _projectServices.RemoveEmployee(requestModel).Result;
             return StatusCode((int)result.Code, result);
+        }
+        
+        
+        /// <summary>
+        /// Use for Enterprise get list account in group
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Authorize(Roles = "Enterprise Admin")]
+        [HttpGet("{id}/employees")]
+        public async Task<ActionResult<DynamicResponse<AccountResponseModel>>> GetAccountsByGroupId(Guid id, [FromQuery] PagingModel paging)
+        {
+            // var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value.ToString();
+            // if (role != Roles.EnterpriseAdmin.GetDisplayName())
+            // {
+            //     return StatusCode(401);
+            // }
+
+            var result = await _groupAccountServices.GetAccountsByGroupId(id, paging);
+            return StatusCode((int)result.Code, result);
+        }
+        
+        /// <summary>
+        /// Use for Enterprise transfer money for list account in group
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Authorize(Roles = "Enterprise Admin")]
+        [HttpPost("{id}/employees")]
+        public async Task UpdateBalanceForAccountsInGroup(Guid id)
+        {
+            await _groupAccountServices.UpdateBalanceForAccountsInGroup(id);
         }
     }
 }
