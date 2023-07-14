@@ -600,7 +600,9 @@ public class ExcelService : IExcelService
 
     public FileStreamResult DownloadListEmployeeByGroupId(Guid id)
     {
-        var group = _unitOfWork.Repository<Group>().AsQueryable(x => x.Id == id && x.Status == (int)Status.Active)
+        var group = _unitOfWork.Repository<Group>()
+            .AsQueryable(x => x.Id == id && x.Status == (int)Status.Active)
+            .Include(x => x.Benefit)
             .FirstOrDefault();
         if (group == null) throw new ErrorResponse(StatusCodes.Status404NotFound, 404, "");
         var companyId = _contextAccessor.HttpContext?.User.FindFirst("CompanyId").Value;
@@ -610,6 +612,11 @@ public class ExcelService : IExcelService
         var enterpriseWallet = _unitOfWork.Repository<Wallet>()
             .AsQueryable(x => x.AccountId == accountLoginId)
             .FirstOrDefault();
+        
+        var from = TimeUtils.GetLastAndFirstDateInCurrentMonth().Item1;
+        var to = TimeUtils.GetLastAndFirstDateInCurrentMonth().Item2;
+        from = ((DateTime)from).GetStartOfDate();
+        to = ((DateTime)to).GetEndOfDate();
         ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
         using (ExcelPackage package = new ExcelPackage())
         {
@@ -618,10 +625,12 @@ public class ExcelService : IExcelService
                 "Company:",
                 $"{company.Name}",
                 "From-To:",
-                // $"{from} - {to}",
-                "Benefit:",
-                $"{enterpriseWallet.Balance} VND",
+                $"{from} - {to}",
+                "Group Name:",
+                // $"{}",
                 "Limit:",
+                $"{group.Benefit.UnitPrice} VND",
+                "Enterprise Balance:",
                 $"{enterpriseWallet.Balance} VND"
             };
             List<string> listRow2Title = new List<string>()

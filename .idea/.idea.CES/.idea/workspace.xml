@@ -9,7 +9,14 @@
   <component name="ChangeListManager">
     <list default="true" id="c33e2030-59db-4d3d-a633-8e65857e01e7" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.API/Controllers/GroupController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.API/Controllers/GroupController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/AccountResponseModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/AccountResponseModel.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/ExcelService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/ExcelService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupAccountServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupAccountServices.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/CEsData_devContext.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Company.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.DataTier/Models/Company.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/EmployeeGroupMapping.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.DataTier/Models/EmployeeGroupMapping.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Wallet.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.DataTier/Models/Wallet.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
