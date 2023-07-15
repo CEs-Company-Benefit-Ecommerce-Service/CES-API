@@ -17,10 +17,12 @@ namespace CES.API.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly ITransactionService _transactionService;
+        private readonly IDebtServices _debtServices;
 
-        public PaymentController(ITransactionService transactionService)
+        public PaymentController(ITransactionService transactionService, IDebtServices debtServices)
         {
             _transactionService = transactionService;
+            _debtServices = debtServices;
         }
         /// <summary>
         /// 
@@ -37,7 +39,7 @@ namespace CES.API.Controllers
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreatePaymentUrl([FromBody] CreatePaymentRequest createPaymentRequest)
-        { 
+        {
             var url = await _transactionService.CreatePayment(createPaymentRequest);
             return Ok(url);
         }
@@ -65,6 +67,12 @@ namespace CES.API.Controllers
             {
                 return RedirectPermanent("https://firebasestorage.googleapis.com/v0/b/pos-system-47f93.appspot.com/o/files%2Fpayment-fail.png?alt=media&token=2b7e58ee-c18f-4ec3-9363-ad1ec83ffc6c");
             }
+        }
+        [HttpGet("total-order/{companyId}")]
+        public async Task<ActionResult> GetTotalOrder(int companyId)
+        {
+            var result = await _debtServices.GetValueForPayment(companyId);
+            return StatusCode((int)result.Code, result);
         }
     }
 }

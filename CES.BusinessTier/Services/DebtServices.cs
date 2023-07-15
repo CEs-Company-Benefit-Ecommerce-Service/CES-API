@@ -26,6 +26,7 @@ namespace CES.BusinessTier.Services
         BaseResponseViewModel<DebtTicketResponseModel> GetById(int id);
         Task<BaseResponseViewModel<DebtTicketResponseModel>> CreateAsync(int companyId);
         Task<BaseResponseViewModel<DebtTicketResponseModel>> DeleteAsync(int debtId);
+        Task<BaseResponseViewModel<object>> GetValueForPayment(int companyId);
 
     }
     public class DebtServices : IDebtServices
@@ -243,6 +244,29 @@ namespace CES.BusinessTier.Services
                 };
             }
         }
+        public async Task<BaseResponseViewModel<object>> GetValueForPayment(int companyId)
+        {
+            var enterprise = await _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.CompanyId == companyId)
+                                                            .Include(x => x.Account).ThenInclude(x => x.Wallets).FirstOrDefaultAsync();
+            var EAWallet = enterprise.Account.Wallets.FirstOrDefault();
+            var company = _unitOfWork.Repository<Company>().GetById(companyId).Result;
 
+            // Lấy tất cả order đã đặt mà chưa thanh toán của company
+            var orders = await _unitOfWork.Repository<Order>().AsQueryable(x => x.CompanyId == companyId && x.DebtStatus == (int)DebtStatusEnums.New && x.Status == (int)OrderStatusEnums.Complete).ToListAsync();
+
+            var bill = new
+            {
+                Total = EAWallet.Used,
+                //TimeOut = company.TimeOut,
+                Orders = orders
+            };
+
+            return new BaseResponseViewModel<object>
+            {
+                Code = StatusCodes.Status200OK,
+                Message = "OK",
+                Data = bill
+            };
+        }
     }
 }
