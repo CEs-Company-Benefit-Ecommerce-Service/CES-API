@@ -29,11 +29,13 @@ public class TransactionService : ITransactionService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly IHttpContextAccessor _contextAccessor;
-    public TransactionService(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor contextAccessor)
+    private readonly IWalletServices _walletServices;
+    public TransactionService(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor contextAccessor, IWalletServices walletServices)
     {
         _mapper = mapper;
         _unitOfWork = unitOfWork;
         _contextAccessor = contextAccessor;
+        _walletServices = walletServices;
     }
 
     public async Task<DynamicResponse<Transaction>> GetsAsync(Transaction filter, PagingModel paging)
@@ -123,17 +125,28 @@ public class TransactionService : ITransactionService
             .AsQueryable(x => x.Id == enterprise.AccountId && x.Status == (int)Status.Active)
             .Include(x => x.Wallets)
             .FirstOrDefault();
+
         if (status != 1)
         {
             paymentTransaction.Description = "Thanh toán detb ZaloPay thất bại";
+            paymentTransaction.Status = (int)DebtStatusEnums.Cancel;
+
 
             await _unitOfWork.Repository<Transaction>().UpdateDetached(paymentTransaction);
         }
         else
         {
             paymentTransaction.Description = "Thanh toán detb ZaloPay thành công";
+            paymentTransaction.Status = (int)DebtStatusEnums.Complete;
 
             await _unitOfWork.Repository<Transaction>().UpdateDetached(paymentTransaction);
+
+
+            var resetResult = _walletServices.ResetAllAfterEAPayment(enterprise.CompanyId).Result;
+            if (resetResult.Code != 200)
+            {
+                return false;
+            }
         }
         return await _unitOfWork.CommitAsync() > 0;
     }

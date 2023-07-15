@@ -22,7 +22,18 @@ namespace CES.API.Controllers
         {
             _transactionService = transactionService;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// Create payment gateway. \
+        /// "used" : Amount to paid. \
+        /// "accountId" : Id of account use this api. \
+        /// "paymentId" : Id of payment ( use get list paymentId to have this field). \
+        /// return the redirect url
+        /// </remarks>
+        /// <param name="createPaymentRequest"></param>
+        /// <returns></returns>
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreatePaymentUrl([FromBody] CreatePaymentRequest createPaymentRequest)
@@ -30,7 +41,17 @@ namespace CES.API.Controllers
             var url = await _transactionService.CreatePayment(createPaymentRequest);
             return Ok(url);
         }
-        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <remarks>
+        /// Zalo callback api. \
+        /// return redirect Url payment complete
+        /// </remarks>
+        /// <param name="amount"></param>
+        /// <param name="status"></param>
+        /// <param name="apptransid"></param>
+        /// <returns></returns>
         [HttpGet(ApiEndPointConstant.Payment.ZaloPayEndpoint)]
         public async Task<IActionResult> ZaloPayPaymentCallBack(double? amount, int? status, string? apptransid)
         {

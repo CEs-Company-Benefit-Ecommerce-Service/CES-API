@@ -41,7 +41,7 @@ public class ZaloPayPaymentStrategy : IPaymentStrategy
         param.Add("item", JsonConvert.SerializeObject(items));
         param.Add("bankcode", _zaloPayConfig.BankCode);
         param.Add("callbackurl", "https://" + _httpContextAccessor.HttpContext.Request.Host.Value + ApiEndPointConstant.Payment.ZaloPayEndpoint);
-        
+
         var data = _zaloPayConfig.AppId + "|" + param["apptransid"] + "|" + param["appuser"] + "|" + param["amount"] + "|"
                    + param["apptime"] + "|" + param["embeddata"] + "|" + param["item"];
         param.Add("mac", HmacHelper.Compute(ZaloPayHMAC.HMACSHA256, _zaloPayConfig.Key1, data));
@@ -71,6 +71,8 @@ public class ZaloPayPaymentStrategy : IPaymentStrategy
             InvoiceId = appTransid,
             WalletId = Guid.Parse(walletId),
             Description = $"Đang tiến hành thanh toán ZaloPay mã đơn {appTransid}",
+            Status = (int)DebtStatusEnums.New,
+            Type = (int)WalletTransactionTypeEnums.ZaloPay,
             Total = (double)_used,
             CreatedAt = TimeUtils.GetCurrentSEATime(),
             CompanyId = Int32.Parse(companyId),
