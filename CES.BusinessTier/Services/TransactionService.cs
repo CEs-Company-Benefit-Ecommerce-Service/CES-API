@@ -1,3 +1,4 @@
+using System.ComponentModel.Design;
 using System.Security.Claims;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
@@ -30,12 +31,14 @@ public class TransactionService : ITransactionService
     private readonly IMapper _mapper;
     private readonly IHttpContextAccessor _contextAccessor;
     private readonly IWalletServices _walletServices;
+    //private readonly IDebtServices _debtServices;
     public TransactionService(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor contextAccessor, IWalletServices walletServices)
     {
         _mapper = mapper;
         _unitOfWork = unitOfWork;
         _contextAccessor = contextAccessor;
         _walletServices = walletServices;
+        //_debtServices = debtServices;
     }
 
     public async Task<DynamicResponse<Transaction>> GetsAsync(Transaction filter, PagingModel paging)
@@ -146,6 +149,13 @@ public class TransactionService : ITransactionService
             if (resetResult.Code != 200)
             {
                 return false;
+            }
+            // Lấy tất cả order đã đặt mà chưa thanh toán của company
+            var orders = await _unitOfWork.Repository<Order>().AsQueryable(x => x.CompanyId == enterprise.CompanyId && x.DebtStatus == (int)DebtStatusEnums.New && x.Status == (int)OrderStatusEnums.Complete).ToListAsync();
+            foreach (var order in orders)
+            {
+                order.DebtStatus = (int)DebtStatusEnums.Complete;
+                await _unitOfWork.Repository<Order>().UpdateDetached(order);
             }
         }
         return await _unitOfWork.CommitAsync() > 0;

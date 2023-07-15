@@ -22,4 +22,10 @@ namespace CES.BusinessTier.ResponseModels
         public ICollection<OrderDetailsResponseModel>? OrderDetails { get; set; }
         public UserResponseModel? Employee { get; set; } = null!;
     }
+
+    public class ListOrderToPaymentResponse
+    {
+        public double? Total { get; set; }
+        public List<Order> Orders { get; set; }
+    }
 }
