@@ -13,11 +13,13 @@ namespace CES.API.Controllers
     {
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly ITransactionService _transactionService;
+        private readonly IWalletTransaction _walletTransactionService;
 
-        public TransactionController(ITransactionService transactionService, IHttpContextAccessor httpContextAccessor)
+        public TransactionController(ITransactionService transactionService, IHttpContextAccessor httpContextAccessor, IWalletTransaction walletTransactionService)
         {
             _contextAccessor = httpContextAccessor;
             _transactionService = transactionService;
+            _walletTransactionService = walletTransactionService;
         }
 
         [HttpGet]
@@ -32,6 +34,12 @@ namespace CES.API.Controllers
         {
             var result = await _transactionService.GetById(id);
             return Ok(result);
+        }
+        [HttpGet("/wallet-transaction")]
+        public async Task<ActionResult> GetsWalletTransByAccountLogin([FromQuery] TransactionResponseModel filter, [FromQuery] PagingModel paging)
+        {
+            var result = await _walletTransactionService.GetsTransOfWalletByLoginUser(filter, paging);
+            return StatusCode((int)result.Code, result);
         }
     }
 }

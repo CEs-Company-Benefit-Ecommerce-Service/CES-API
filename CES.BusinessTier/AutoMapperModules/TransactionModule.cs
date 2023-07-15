@@ -15,7 +15,7 @@ namespace CES.BusinessTier.AutoMapperModules
         public static void ConfigTransactionModule(this IMapperConfigurationExpression mc)
         {
             //mc.CreateMap<Transaction, TransactionRequestModel>().ReverseMap();
-            //mc.CreateMap<Transaction, TransactionResponseModels>().ReverseMap();
+            mc.CreateMap<Transaction, TransactionResponseModel>().ReverseMap();
         }
     }
 }

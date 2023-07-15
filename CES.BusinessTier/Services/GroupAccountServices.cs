@@ -263,6 +263,7 @@ namespace CES.BusinessTier.Services
                     {
                         account.Wallets.First().Balance += group.Benefit.UnitPrice;
                         enterpriseWalletBalance -= group.Benefit.UnitPrice;
+                        enterpriseAccount.Wallets.First().Used += group.Benefit.UnitPrice;
 
                         account.Employees.First().EmployeeGroupMappings.Where(x => x.GroupId == id).First()
                             .IsReceived = true;

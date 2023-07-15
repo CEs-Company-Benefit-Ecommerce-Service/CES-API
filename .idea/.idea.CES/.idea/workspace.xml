@@ -8,15 +8,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c33e2030-59db-4d3d-a633-8e65857e01e7" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/CreatePaymentRequest.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/CreatePaymentResponse.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/PaymentModels/OrderData.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/PaymentModels/ZaloPayConfig.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/PaymentStrategy.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/ZaloPayPaymentStrategy.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.API/Controllers/GroupController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.API/Controllers/GroupController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/AccountResponseModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/AccountResponseModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/ExcelService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/ExcelService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupAccountServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupAccountServices.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/TransactionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/TransactionService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Utilities/Constants.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Utilities/Constants.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Utilities/Enums.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Utilities/Enums.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Utilities/TimeUtils.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Utilities/TimeUtils.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/CEsData_devContext.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Company.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.DataTier/Models/Company.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/EmployeeGroupMapping.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.DataTier/Models/EmployeeGroupMapping.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Wallet.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.DataTier/Models/Wallet.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Transaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.DataTier/Models/Transaction.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,7 +34,6 @@
     <setting file="file://$PROJECT_DIR$/CES.BusinessTier/Services/ProductService.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/CES.BusinessTier/Services/TransactionService.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/CES.BusinessTier/Services/WalletServices.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/CES.DataTier/Models/CEsData_devContext.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/20e384ee21504e0888002bf172dcbbd3196200/8e/91777ef3/JobStorage.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/3bdba7ada62340e781fd6c6f28a8f8e794000/e3/9c1bf587/Enumerable.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/528dd480fcfa493785cfd91f2ba7c12b1569d0/3e/cf211f8d/SqlInternalConnectionTds.cs" root0="SKIP_HIGHLIGHTING" />
@@ -39,6 +43,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/6f2c3a317ee06bc1b0766b94d4e6a045ea25c9a3da49cb9075bcee751250d4/ControllerActionInvoker.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/7262732eee179af215faab36a7f3c3cfac93ba12af52a3888d839fe7e53420/ActionMethodExecutor.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/a8d75b28dec5e779cd4bf572bf3e5b2e7ab41689581f58caeb251b564d3cd78d/SelectExpression.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/d1f68ef86315497c7b39ddb155d5cf3ace964abca69857f9943cd58479799/ServiceProvider.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -51,27 +56,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.sourceCode.C#&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "XThreadsFramesViewSplitterKey": "0.6721311",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.sourceCode.C#",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;rider.external.source.directories&quot;: [
-      &quot;/Users/khoala/Library/Application Support/JetBrains/Rider2023.1/resharper-host/DecompilerCache&quot;,
-      &quot;/Users/khoala/Library/Application Support/JetBrains/Rider2023.1/resharper-host/SourcesCache&quot;,
-      &quot;/Users/khoala/.local/share/Symbols/src&quot;
+  "keyToStringList": {
+    "rider.external.source.directories": [
+      "/Users/khoala/Library/Application Support/JetBrains/Rider2023.1/resharper-host/DecompilerCache",
+      "/Users/khoala/Library/Application Support/JetBrains/Rider2023.1/resharper-host/SourcesCache",
+      "/Users/khoala/.local/share/Symbols/src"
     ]
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration default="true" type="DotNetProject" factoryName=".NET Project">
       <option name="EXE_PATH" value="$PROJECT_DIR$/CES.API/bin/Debug/net6.0/CES.API.dll" />
@@ -177,6 +183,86 @@
             </endOffsets>
           </properties>
           <option name="timeStamp" value="31" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/ZaloPayPaymentStrategy.cs</url>
+          <line>29</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/ZaloPayPaymentStrategy.cs" initialLine="23" containingFunctionPresentation="Method 'ExecutePayment'">
+            <startOffsets>
+              <option value="1317" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1488" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="61" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/TransactionService.cs</url>
+          <line>78</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/TransactionService.cs" initialLine="75" containingFunctionPresentation="Method 'CreatePayment'">
+            <startOffsets>
+              <option value="3011" />
+            </startOffsets>
+            <endOffsets>
+              <option value="3145" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="62" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/ZaloPayPaymentStrategy.cs</url>
+          <line>48</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/ZaloPayPaymentStrategy.cs" initialLine="40" containingFunctionPresentation="Method 'ExecutePayment'">
+            <startOffsets>
+              <option value="2722" />
+            </startOffsets>
+            <endOffsets>
+              <option value="2797" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="63" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CES.API/Controllers/PaymentController.cs</url>
+          <line>36</line>
+          <properties documentPath="$PROJECT_DIR$/CES.API/Controllers/PaymentController.cs" initialLine="36" containingFunctionPresentation="Method 'ZaloPayPaymentCallBack'">
+            <startOffsets>
+              <option value="1198" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1294" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="64" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/TransactionService.cs</url>
+          <line>119</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/TransactionService.cs" initialLine="113" containingFunctionPresentation="Method 'ExecuteZaloPayCallBack'">
+            <startOffsets>
+              <option value="5763" />
+              <option value="5831" />
+            </startOffsets>
+            <endOffsets>
+              <option value="5912" />
+              <option value="5873" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="65" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/ZaloPayPaymentStrategy.cs</url>
+          <line>79</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/ZaloPayPaymentStrategy.cs" initialLine="79" containingFunctionPresentation="Method 'ExecutePayment'">
+            <startOffsets>
+              <option value="3925" />
+            </startOffsets>
+            <endOffsets>
+              <option value="3994" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="67" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

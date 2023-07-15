@@ -247,8 +247,8 @@ namespace CES.BusinessTier.Services
                 SenderId = accountLoginId,
                 RecieveId = existedWallet.Account.Id,
                 WalletId = accountLoginWallet.Id,
-                Type = (int)WalletTransactionTypeEnums.AddWelfare,
-                Description = "Chuyển tiền cho " + existedWallet.Account.Name,
+                Type = (int)WalletTransactionTypeEnums.AllocateWelfare,
+                Description = "Chuyển tiền cho " + existedWallet.Account.Name + " - " + benefit.Name,
                 Total = benefit.UnitPrice,
                 CreatedAt = TimeUtils.GetCurrentSEATime(),
                 CompanyId = benefit.CompanyId,
@@ -441,7 +441,7 @@ namespace CES.BusinessTier.Services
 
                 await _unitOfWork.Repository<Wallet>().UpdateDetached(EAWallet);
 
-                await _unitOfWork.CommitAsync();
+                //await _unitOfWork.CommitAsync();
 
                 return new BaseResponseViewModel<string>
                 {

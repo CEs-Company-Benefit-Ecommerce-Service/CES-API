@@ -23,7 +23,7 @@ namespace CES.BusinessTier.Services
     {
         //bool CreateNew(WalletTransaction walletTransaction);
         //Task<DynamicResponse<WalletResponseModel>> Gets(PagingModel paging);
-        //Task<DynamicResponse<WalletResponseModel>> GetsByLoginUser(PagingModel paging);
+        Task<DynamicResponse<TransactionResponseModel>> GetsTransOfWalletByLoginUser(TransactionResponseModel filter, PagingModel paging);
     }
     public class WalletTransactionServices : IWalletTransaction
     {
@@ -39,67 +39,77 @@ namespace CES.BusinessTier.Services
             _configuration = configuration;
         }
 
-        //public async Task<DynamicResponse<WalletResponseModel>> Gets(PagingModel paging)
-        //{
-        //    var walletTrans = _unitOfWork.Repository<WalletTransaction>().GetAll()
-        //    .ProjectTo<WalletResponseModel>(_mapper.ConfigurationProvider)
-        //    .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging)
-        //    ;
+        public async Task<DynamicResponse<TransactionResponseModel>> Gets(TransactionResponseModel filter, PagingModel paging)
+        {
+            var walletTrans = _unitOfWork.Repository<Transaction>().GetAll()
+            .ProjectTo<TransactionResponseModel>(_mapper.ConfigurationProvider)
+            .DynamicFilter<TransactionResponseModel>(filter)
+            .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging)
+            ;
 
-        //    return new DynamicResponse<WalletResponseModel>
-        //    {
-        //        Code = 200,
-        //        Message = "OK",
-        //        MetaData = new PagingMetaData()
-        //        {
-        //            Total = walletTrans.Item1
-        //        },
-        //        Data = walletTrans.Item2.ToList()
-        //    };
-        //}
-        //public async Task<DynamicResponse<WalletResponseModel>> GetsByLoginUser(PagingModel paging)
-        //{
-        //    Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
-        //    var accountLogin = await _unitOfWork.Repository<Account>().GetAll().Include(x => x.Wallet).ThenInclude(x => x.WalletTransaction).Where(x => x.Id == accountLoginId).FirstOrDefaultAsync();
-        //    var walletTransction = new List<WalletTransaction>();
-        //    foreach (var wallet in accountLogin.Wallet)
-        //    {
-        //        foreach (var transaction in wallet.WalletTransaction)
-        //        {
-        //            walletTransction.Add(transaction);
-        //        }
-        //    }
-        //    //var walletTrans = _unitOfWork.Repository<WalletTransaction>().GetAll().Where(x => x.Wallet.AccountId == accountLoginId)
-        //    //.ProjectTo<WalletResponseModel>(_mapper.ConfigurationProvider)
-        //    //.PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging)
-        //    //;
+            return new DynamicResponse<TransactionResponseModel>
+            {
+                Code = 200,
+                Message = "OK",
+                MetaData = new PagingMetaData()
+                {
+                    Total = walletTrans.Item1
+                },
+                Data = walletTrans.Item2.ToList()
+            };
+        }
+        public async Task<DynamicResponse<TransactionResponseModel>> GetsTransOfWalletByLoginUser(TransactionResponseModel filter, PagingModel paging)
+        {
+            Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
+            var accountLogin = await _unitOfWork.Repository<Account>().GetAll().Include(x => x.Wallets).Include(x => x.Enterprises).Include(x => x.Employees).Where(x => x.Id == accountLoginId).FirstOrDefaultAsync();
 
-        //    var result = walletTransction.AsQueryable().ProjectTo<WalletResponseModel>(_mapper.ConfigurationProvider)
-        //    .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging);
+            if (accountLogin.Role.Equals(Roles.SystemAdmin.GetDisplayName()))
+            {
+                var transactions = _unitOfWork.Repository<Transaction>().AsQueryable(x => x.RecieveId == accountLoginId)
+                                .ProjectTo<TransactionResponseModel>(_mapper.ConfigurationProvider)
+                                .DynamicFilter<TransactionResponseModel>(filter)
+                                .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging);
+                return new DynamicResponse<TransactionResponseModel>
+                {
+                    Code = StatusCodes.Status200OK,
+                    Message = "Ok",
+                    Data = await transactions.Item2.ToListAsync()
+                };
+            }
+            else if (accountLogin.Role.Equals(Roles.EnterpriseAdmin.GetDisplayName()))
+            {
+                var transactions = _unitOfWork.Repository<Transaction>().AsQueryable(x => x.SenderId == accountLoginId && x.Type == (int)WalletTransactionTypeEnums.AllocateWelfare)
+                        .ProjectTo<TransactionResponseModel>(_mapper.ConfigurationProvider)
+                        .DynamicFilter<TransactionResponseModel>(filter)
+                        .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging);
+                return new DynamicResponse<TransactionResponseModel>
+                {
+                    Code = StatusCodes.Status200OK,
+                    Message = "Ok",
+                    Data = await transactions.Item2.ToListAsync()
+                };
+            }
+            else if (accountLogin.Role.Equals(Roles.Employee.GetDisplayName()))
+            {
+                var transactions = _unitOfWork.Repository<Transaction>().AsQueryable(x => x.RecieveId == accountLoginId && (x.Type == (int)WalletTransactionTypeEnums.AddWelfare || x.Type == (int)WalletTransactionTypeEnums.Order))
+                       .ProjectTo<TransactionResponseModel>(_mapper.ConfigurationProvider)
+                       .DynamicFilter<TransactionResponseModel>(filter)
+                       .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging);
+                return new DynamicResponse<TransactionResponseModel>
+                {
+                    Code = StatusCodes.Status200OK,
+                    Message = "Ok",
+                    Data = await transactions.Item2.ToListAsync()
+                };
+            }
+            return new DynamicResponse<TransactionResponseModel>
+            {
+                Code = StatusCodes.Status400BadRequest,
+                Message = "Bad reuqest",
+            };
+        }
 
-        //    return new DynamicResponse<WalletResponseModel>
-        //    {
-        //        Code = 200,
-        //        Message = "OK",
-        //        MetaData = new PagingMetaData()
-        //        {
-        //            Total = result.Item1
-        //        },
-        //        Data = result.Item2.ToList()
-        //    };
-        //}
-        //public bool CreateNew(WalletTransaction walletTransaction)
-        //{
-        //    try
-        //    {
-        //        _unitOfWork.Repository<WalletTransaction>().Insert(walletTransaction);
-        //        _unitOfWork.Commit();
-        //        return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return false;
-        //    }
-        //}
     }
+
 }
+

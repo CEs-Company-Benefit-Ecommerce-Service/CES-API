@@ -201,11 +201,13 @@ namespace CES.BusinessTier.Services
                 var walletTransaction = new Transaction()
                 {
                     Id = Guid.NewGuid(),
-                    // WalletId = wallet.Id,
+                    WalletId = wallet.Id,
                     Type = (int)WalletTransactionTypeEnums.Order,
                     Description = "Mua đồ ",
                     OrderId = newOrder.Id,
+                    RecieveId = accountLoginId,
                     Total = (double)total,
+                    CompanyId = companyId,
                     CreatedAt = TimeUtils.GetCurrentSEATime(),
                 };
                 foreach (var orderDetail in orderDetails)
