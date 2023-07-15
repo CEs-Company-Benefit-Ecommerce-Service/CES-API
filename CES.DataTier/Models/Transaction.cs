@@ -15,5 +15,9 @@ namespace CES.DataTier.Models
         public Guid? OrderId { get; set; }
         public Guid? WalletId { get; set; }
         public int? CompanyId { get; set; }
+        public Guid? PaymentProviderId { get; set; }
+        public string? InvoiceId { get; set; }
+
+        public virtual PaymentProvider? PaymentProvider { get; set; }
     }
 }

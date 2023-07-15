@@ -1,9 +1,12 @@
+using System.Security.Claims;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using CES.BusinessTier.RequestModels;
 using CES.BusinessTier.ResponseModels;
 using CES.BusinessTier.ResponseModels.BaseResponseModels;
+using CES.BusinessTier.ResponseModels.PaymentModels;
 using CES.BusinessTier.UnitOfWork;
+using CES.BusinessTier.Utilities;
 using CES.DataTier.Models;
 using LAK.Sdk.Core.Utilities;
 using Microsoft.AspNetCore.Http;
@@ -17,16 +20,20 @@ public interface ITransactionService
     Task<bool> CreateTransaction(Transaction request);
     Task<DynamicResponse<Transaction>> GetsAsync(Transaction filter, PagingModel paging);
     Task<BaseResponseViewModel<Transaction>> GetById(Guid id);
+    Task<CreatePaymentResponse> CreatePayment(CreatePaymentRequest createPaymentRequest);
+    Task<bool> ExecuteZaloPayCallBack(double? used, int? status, string? apptransid);
 }
 
 public class TransactionService : ITransactionService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
-    public TransactionService(IUnitOfWork unitOfWork, IMapper mapper)
+    private readonly IHttpContextAccessor _contextAccessor;
+    public TransactionService(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor contextAccessor)
     {
         _mapper = mapper;
         _unitOfWork = unitOfWork;
+        _contextAccessor = contextAccessor;
     }
 
     public async Task<DynamicResponse<Transaction>> GetsAsync(Transaction filter, PagingModel paging)
@@ -63,6 +70,74 @@ public class TransactionService : ITransactionService
             Data = transaction
         };
     }
+
+    public async Task<CreatePaymentResponse> CreatePayment(CreatePaymentRequest createPaymentRequest)
+    {
+        var systemAccount = _unitOfWork.Repository<Account>()
+            .AsQueryable(x => x.Role == (Roles.SystemAdmin.GetDisplayName()))
+            .FirstOrDefault();
+        Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value
+            .ToString());
+        var enterprise = _unitOfWork.Repository<Enterprise>().GetWhere(x => x.AccountId == accountLoginId).Result
+            .FirstOrDefault();
+        var enterpriseAccount = _unitOfWork.Repository<Account>()
+            .AsQueryable(x => x.Id == enterprise.AccountId && x.Status == (int)Status.Active)
+            .Include(x => x.Wallets)
+            .FirstOrDefault();
+        var enterpriseWallet = enterpriseAccount.Wallets.First();
+        var paymentProvider = _unitOfWork.Repository<PaymentProvider>()
+            .AsQueryable(x => x.Id == createPaymentRequest.PaymentId).FirstOrDefault();
+        if (paymentProvider == null) throw new ErrorResponse(StatusCodes.Status404NotFound, 404, "");
+        IPaymentStrategy paymentStrategy;
+        PaymentType paymentType = Enum.Parse<PaymentType>(paymentProvider.Type);
+        switch (paymentType)
+        {
+            // case PaymentType.VNPAY:
+            //     paymentStrategy = new VnPayPaymentStrategy(brandPaymentConfig, _httpContextAccessor.HttpContext,
+            //         createPaymentRequest.OrderId, createPaymentRequest.OrderDescription, createPaymentRequest.Amount,
+            //         _configuration["VnPayPaymentCallBack:ReturnUrl"], _configuration["Vnpay:HashSecret"]);
+            //     return await paymentStrategy.ExecutePayment();
+            case PaymentType.ZALOPAY:
+                paymentStrategy = new ZaloPayPaymentStrategy(paymentProvider.Config, (double)enterpriseWallet.Used, accountLoginId, _contextAccessor, _unitOfWork);
+                return await paymentStrategy.ExecutePayment(systemAccount.Id.ToString(), accountLoginId.ToString(), enterpriseWallet.Id.ToString(), enterprise.CompanyId.ToString());
+            // case PaymentType.VIETQR:
+            //     paymentStrategy = new VietQRPaymentStrategy(brandPaymentConfig, createPaymentRequest.OrderDescription, createPaymentRequest.Amount);
+            //     return await paymentStrategy.ExecutePayment();
+            // case PaymentType.CASH:
+            //     paymentStrategy = new CashPaymentStrategy(updatedTransaction, _unitOfWork, _distributedCache);
+            //     return await paymentStrategy.ExecutePayment();
+            default:
+                throw new BadHttpRequestException("Không tìm thấy payment provider");
+        }
+        throw new NotImplementedException();
+    }
+
+    public async Task<bool> ExecuteZaloPayCallBack(double? amount, int? status, string? apptransid)
+    {
+        var paymentTransaction = _unitOfWork.Repository<Transaction>()
+            .AsQueryable(x => x.InvoiceId == apptransid)
+            .FirstOrDefault();
+        var enterprise = _unitOfWork.Repository<Enterprise>().GetWhere(x => x.AccountId == paymentTransaction.SenderId).Result
+            .FirstOrDefault();
+        var enterpriseAccount = _unitOfWork.Repository<Account>()
+            .AsQueryable(x => x.Id == enterprise.AccountId && x.Status == (int)Status.Active)
+            .Include(x => x.Wallets)
+            .FirstOrDefault();
+        if (status != 1)
+        {
+            paymentTransaction.Description = "Thanh toán detb ZaloPay thất bại";
+
+            await _unitOfWork.Repository<Transaction>().UpdateDetached(paymentTransaction);
+        }
+        else
+        {
+            paymentTransaction.Description = "Thanh toán detb ZaloPay thành công";
+
+            await _unitOfWork.Repository<Transaction>().UpdateDetached(paymentTransaction);
+        }
+        return await _unitOfWork.CommitAsync() > 0;
+    }
+
     public async Task<bool> CreateTransaction(Transaction request)
     {
         try

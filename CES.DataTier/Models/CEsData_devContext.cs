@@ -29,6 +29,7 @@ namespace CES.DataTier.Models
         public virtual DbSet<Group> Groups { get; set; } = null!;
         public virtual DbSet<Order> Orders { get; set; } = null!;
         public virtual DbSet<OrderDetail> OrderDetails { get; set; } = null!;
+        public virtual DbSet<PaymentProvider> PaymentProviders { get; set; } = null!;
         public virtual DbSet<Product> Products { get; set; } = null!;
         public virtual DbSet<Supplier> Suppliers { get; set; } = null!;
         public virtual DbSet<Transaction> Transactions { get; set; } = null!;
@@ -297,6 +298,25 @@ namespace CES.DataTier.Models
                     .HasConstraintName("FK_OrderDetail_Product");
             });
 
+            modelBuilder.Entity<PaymentProvider>(entity =>
+            {
+                entity.ToTable("PaymentProvider");
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.Address).HasMaxLength(50);
+
+                entity.Property(e => e.Description).HasMaxLength(50);
+
+                entity.Property(e => e.ImageUrl).HasMaxLength(250);
+
+                entity.Property(e => e.Name).HasMaxLength(50);
+
+                entity.Property(e => e.Phone).HasMaxLength(50);
+
+                entity.Property(e => e.Type).HasMaxLength(10);
+            });
+
             modelBuilder.Entity<Product>(entity =>
             {
                 entity.ToTable("Product");
@@ -327,7 +347,7 @@ namespace CES.DataTier.Models
                     .HasForeignKey(d => d.SupplierId)
                     .HasConstraintName("FK_Product_Supplier");
             });
-            
+
             modelBuilder.Entity<Supplier>(entity =>
             {
                 entity.ToTable("Supplier");
@@ -356,6 +376,13 @@ namespace CES.DataTier.Models
                 entity.Property(e => e.CreatedAt).HasColumnType("datetime");
 
                 entity.Property(e => e.Description).HasMaxLength(50);
+
+                entity.Property(e => e.InvoiceId).HasMaxLength(100);
+
+                entity.HasOne(d => d.PaymentProvider)
+                    .WithMany(p => p.Transactions)
+                    .HasForeignKey(d => d.PaymentProviderId)
+                    .HasConstraintName("FK_Transaction_PaymentProvider");
             });
 
             modelBuilder.Entity<Wallet>(entity =>

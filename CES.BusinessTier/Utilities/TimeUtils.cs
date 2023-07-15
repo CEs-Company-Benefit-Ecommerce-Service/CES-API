@@ -81,5 +81,23 @@ namespace CES.BusinessTier.Utilities
 
             return cronExpression;
         }
+        
+        public static long GetTimeStamp(DateTime date)
+        {
+            return (long)(date.ToUniversalTime() - new DateTime(1970, 1, 1, 0, 0, 0)).TotalMilliseconds;
+        }
+
+        public static long GetTimeStamp()
+        {
+            return GetTimeStamp(DateTime.Now);
+        }
+        
+        public static DateTime ConvertDateTimeToVietNamTimeZone()
+        {
+            TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            DateTime localTime = DateTime.Now;
+            DateTime utcTime = TimeZoneInfo.ConvertTime(localTime, TimeZoneInfo.Local, tz);
+            return utcTime;
+        }
     }
 }
