@@ -20,6 +20,20 @@ namespace CES.API.Controllers
             _orderServices = orderServices;
         }
 
+        /// <summary>
+        /// Get orders
+        /// </summary>
+        /// <remarks>
+        /// Status: \
+        /// 1 - New \
+        /// 2 - Ready \
+        /// 3 - Shipping \
+        /// 4 - Complete \
+        /// 5 - Cancel
+        /// </remarks>
+        /// <param name="filter"></param>
+        /// <param name="paging"></param>
+        /// <returns></returns>
         [HttpGet]
         public async Task<ActionResult> Gets([FromQuery] OrderResponseModel filter, [FromQuery] PagingModel paging)
         {
@@ -42,7 +56,7 @@ namespace CES.API.Controllers
         }
 
         [HttpPut("{id}")]
-        [SwaggerOperation(summary: "Order status", description: "0 - New, 1 - Confirm, 2 - Waiting for ship, 3 - Complete, 4 - Cancel ")]
+        [SwaggerOperation(summary: "Order status", description: "1 - New, 2 - Confirm, 3 - Waiting for ship, 4 - Complete, 5 - Cancel ")]
         public async Task<ActionResult> Put(Guid id, [FromQuery] int status)
         {
             var result = _orderServices.UpdateOrderStatus(id, status).Result;

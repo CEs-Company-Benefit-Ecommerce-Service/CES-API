@@ -78,7 +78,7 @@ namespace CES.API.Controllers
         /// <param name="requestModel"></param>
         /// <returns></returns>
         [Authorize]
-        [SwaggerOperation(summary: "Create account", description: "Role: System Admin, Supplier Admin, Enterprise Admin, Employee")]
+        [SwaggerOperation(summary: "Create account", description: "Role: 1-System Admin, 2-Supplier Admin, 3-Enterprise Admin, 4-Employee, 5-Shipper")]
         [HttpPost]
         public async Task<ActionResult> Create([FromBody] AccountRequestModel requestModel)
         {

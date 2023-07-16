@@ -21,8 +21,10 @@ public static class Commons
             return (int)Roles.EnterpriseAdmin;
         else if (role == Roles.Employee.GetDisplayName())
             return (int)Roles.Employee;
-        else
+        else if (role == Roles.SupplierAdmin.GetDisplayName())
             return (int)Roles.SupplierAdmin;
+        else
+            return (int)Roles.Shipper;
     }
     public static string ConvertIntRoleToString(int role)
     {
@@ -32,8 +34,10 @@ public static class Commons
             return Roles.EnterpriseAdmin.GetDisplayName();
         else if (role == (int)Roles.Employee)
             return Roles.Employee.GetDisplayName();
-        else
+        else if (role == (int)Roles.Employee)
             return Roles.SupplierAdmin.GetDisplayName();
+        else
+            return Roles.Shipper.GetDisplayName();
     }
     public static double GetLimitInCompany(Account account)
     {

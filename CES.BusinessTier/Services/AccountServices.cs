@@ -201,6 +201,8 @@ namespace CES.BusinessTier.Services
             {
                 case "Employee":
                     throw new ErrorResponse(StatusCodes.Status403Forbidden, (int)AccountErrorEnums.NOT_HAVE_PERMISSION, AccountErrorEnums.NOT_HAVE_PERMISSION.GetDisplayName());
+                case "Shipper":
+                    throw new ErrorResponse(StatusCodes.Status403Forbidden, (int)AccountErrorEnums.NOT_HAVE_PERMISSION, AccountErrorEnums.NOT_HAVE_PERMISSION.GetDisplayName());
                 case "Enterprise Admin":
                     if (Commons.RemoveSpaces(stringRole).ToLower() != Commons.RemoveSpaces(Roles.Employee.GetDisplayName()).ToLower())
                     {
@@ -521,6 +523,12 @@ namespace CES.BusinessTier.Services
                     CreatedAt = TimeUtils.GetCurrentSEATime()
                 };
                 await _unitOfWork.Repository<Supplier>().InsertAsync(user);
+            }
+            
+            if (Commons.RemoveSpaces(newAccount.Role).ToLower() ==
+                Commons.RemoveSpaces(Roles.Shipper.GetDisplayName()).ToLower())
+            {
+                newAccount.Role = Roles.Shipper.GetDisplayName();
             }
         }
     }
