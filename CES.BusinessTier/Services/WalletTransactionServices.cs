@@ -78,9 +78,10 @@ namespace CES.BusinessTier.Services
             }
             else if (accountLogin.Role.Equals(Roles.EnterpriseAdmin.GetDisplayName()))
             {
-                var transactions = _unitOfWork.Repository<Transaction>().AsQueryable(x => x.SenderId == accountLoginId && x.Type == (int)WalletTransactionTypeEnums.AllocateWelfare)
+                var transactions = _unitOfWork.Repository<Transaction>().AsQueryable(x => x.SenderId == accountLoginId)
                         .ProjectTo<TransactionResponseModel>(_mapper.ConfigurationProvider)
                         .DynamicFilter<TransactionResponseModel>(filter)
+                        .DynamicSort<TransactionResponseModel>(paging.Sort, paging.Order)
                         .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging);
                 return new DynamicResponse<TransactionResponseModel>
                 {
@@ -94,6 +95,7 @@ namespace CES.BusinessTier.Services
                 var transactions = _unitOfWork.Repository<Transaction>().AsQueryable(x => x.RecieveId == accountLoginId && (x.Type == (int)WalletTransactionTypeEnums.AddWelfare || x.Type == (int)WalletTransactionTypeEnums.Order))
                        .ProjectTo<TransactionResponseModel>(_mapper.ConfigurationProvider)
                        .DynamicFilter<TransactionResponseModel>(filter)
+                       .DynamicSort<TransactionResponseModel>(paging.Sort, paging.Order)
                        .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging);
                 return new DynamicResponse<TransactionResponseModel>
                 {
