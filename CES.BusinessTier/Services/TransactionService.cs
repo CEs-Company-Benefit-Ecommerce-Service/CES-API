@@ -20,7 +20,7 @@ public interface ITransactionService
     Task<bool> CreateTransaction(Transaction request);
     Task<DynamicResponse<Transaction>> GetsAsync(Transaction filter, PagingModel paging);
     Task<BaseResponseViewModel<Transaction>> GetById(Guid id);
-    Task<CreatePaymentResponse> CreatePayment(CreatePaymentRequest createPaymentRequest);
+    Task<BaseResponseViewModel<CreatePaymentResponse>> CreatePayment(CreatePaymentRequest createPaymentRequest);
     Task<bool> ExecuteZaloPayCallBack(double? used, int? status, string? apptransid);
 }
 
@@ -73,7 +73,7 @@ public class TransactionService : ITransactionService
         };
     }
 
-    public async Task<CreatePaymentResponse> CreatePayment(CreatePaymentRequest createPaymentRequest)
+    public async Task<BaseResponseViewModel<CreatePaymentResponse>> CreatePayment(CreatePaymentRequest createPaymentRequest)
     {
         var systemAccount = _unitOfWork.Repository<Account>()
             .AsQueryable(x => x.Role == (Roles.SystemAdmin.GetDisplayName()))
@@ -101,7 +101,13 @@ public class TransactionService : ITransactionService
             //     return await paymentStrategy.ExecutePayment();
             case PaymentType.ZALOPAY:
                 paymentStrategy = new ZaloPayPaymentStrategy(paymentProvider.Config, (double)enterpriseWallet.Used, accountLoginId, _contextAccessor, _unitOfWork);
-                return await paymentStrategy.ExecutePayment(systemAccount.Id.ToString(), accountLoginId.ToString(), enterpriseWallet.Id.ToString(), enterprise.CompanyId.ToString());
+                var result = await paymentStrategy.ExecutePayment(systemAccount.Id.ToString(), accountLoginId.ToString(), enterpriseWallet.Id.ToString(), enterprise.CompanyId.ToString());
+                return new BaseResponseViewModel<CreatePaymentResponse>
+                {
+                    Code = StatusCodes.Status200OK,
+                    Message = "Ok",
+                    Data = result
+                };
             // case PaymentType.VIETQR:
             //     paymentStrategy = new VietQRPaymentStrategy(brandPaymentConfig, createPaymentRequest.OrderDescription, createPaymentRequest.Amount);
             //     return await paymentStrategy.ExecutePayment();
