@@ -32,7 +32,8 @@ namespace CES.BusinessTier.Utilities
         [Display(Name = "System Admin")] SystemAdmin = 1,
         [Display(Name = "Supplier Admin")] SupplierAdmin = 2,
         [Display(Name = "Enterprise Admin")] EnterpriseAdmin = 3,
-        [Display(Name = "Employee")] Employee = 4
+        [Display(Name = "Employee")] Employee = 4,
+        [Display(Name = "Shipper")] Shipper = 5
     }
     //Status for account
     public enum Status
