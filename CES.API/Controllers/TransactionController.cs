@@ -35,7 +35,7 @@ namespace CES.API.Controllers
             var result = await _transactionService.GetById(id);
             return Ok(result);
         }
-        [HttpGet("/wallet-transaction")]
+        [HttpGet("wallet-transaction")]
         public async Task<ActionResult> GetsWalletTransByAccountLogin([FromQuery] TransactionResponseModel filter, [FromQuery] PagingModel paging)
         {
             var result = await _walletTransactionService.GetsTransOfWalletByLoginUser(filter, paging);
