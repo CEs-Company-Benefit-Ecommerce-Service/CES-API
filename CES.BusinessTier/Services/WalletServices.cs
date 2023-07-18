@@ -18,6 +18,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Hangfire;
+using System.ComponentModel.Design;
 
 namespace CES.BusinessTier.Services
 {
@@ -32,7 +33,7 @@ namespace CES.BusinessTier.Services
         Task ScheduleUpdateWalletBalanceForGroupAsync(WalletUpdateBalanceModel request, DateTime time);
         Task CreateWalletForAccountDontHaveEnough();
         Task<BaseResponseViewModel<string>> ResetAllAfterEAPayment(int companyId);
-        Task<BaseResponseViewModel<string>> ResetAllAfterExpired(int companyId);
+        Task<BaseResponseViewModel<string>> ResetAllAfterExpired();
     }
 
     public class WalletServices : IWalletServices
@@ -464,42 +465,45 @@ namespace CES.BusinessTier.Services
 
         }
 
-        public async Task<BaseResponseViewModel<string>> ResetAllAfterExpired(int companyId)
+        public async Task<BaseResponseViewModel<string>> ResetAllAfterExpired()
         { // this function use for backgroud job
-            var employees = await _unitOfWork.Repository<Employee>().AsQueryable(x => x.CompanyId == companyId)
-                                                            .Include(x => x.Account).ThenInclude(x => x.Wallets).ToListAsync();
-            var enterprise = await _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.CompanyId == companyId)
-                                                            .Include(x => x.Account).ThenInclude(x => x.Wallets).FirstOrDefaultAsync();
-            var company = _unitOfWork.Repository<Company>().GetById(companyId).Result;
-
-            if (company.ExpiredDate.Value.GetStartOfDate() == TimeUtils.GetCurrentSEATime().GetStartOfDate())
+            var companies = await _unitOfWork.Repository<Company>().AsQueryable(x => x.Status == (int)Status.Active).ToListAsync();
+            foreach (var company in companies)
             {
-                try
+                var employees = await _unitOfWork.Repository<Employee>().AsQueryable(x => x.CompanyId == company.Id)
+                                                                            .Include(x => x.Account).ThenInclude(x => x.Wallets).ToListAsync();
+                var enterprise = await _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.CompanyId == company.Id)
+                                                                .Include(x => x.Account).ThenInclude(x => x.Wallets).FirstOrDefaultAsync();
+
+                if (company.ExpiredDate.Value.GetStartOfDate() == TimeUtils.GetCurrentSEATime().GetStartOfDate())
                 {
-                    // Reset balance in Emp wallet = 0
-                    foreach (var emp in employees)
+                    try
                     {
-                        var empWallet = emp.Account.Wallets.FirstOrDefault();
-                        empWallet.Balance = 0;
-                        empWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
-                        await _unitOfWork.Repository<Wallet>().UpdateDetached(empWallet);
+                        // Reset balance in Emp wallet = 0
+                        foreach (var emp in employees)
+                        {
+                            var empWallet = emp.Account.Wallets.FirstOrDefault();
+                            empWallet.Balance = 0;
+                            empWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
+                            await _unitOfWork.Repository<Wallet>().UpdateDetached(empWallet);
+                        }
+                        var EAWallet = enterprise.Account.Wallets.FirstOrDefault();
+                        EAWallet.Balance = 0;
+                        EAWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
+                        await _unitOfWork.Repository<Wallet>().UpdateDetached(EAWallet);
+
+                        await _unitOfWork.CommitAsync();
                     }
-                    var EAWallet = enterprise.Account.Wallets.FirstOrDefault();
-                    EAWallet.Balance = 0;
-                    EAWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
-                    await _unitOfWork.Repository<Wallet>().UpdateDetached(EAWallet);
-
-                    await _unitOfWork.CommitAsync();
-                }
-                catch (Exception ex)
-                {
-
-                    return new BaseResponseViewModel<string>
+                    catch (Exception ex)
                     {
-                        Code = StatusCodes.Status400BadRequest,
-                        Message = "Bad Request",
-                        Data = ex.Message
-                    };
+
+                        return new BaseResponseViewModel<string>
+                        {
+                            Code = StatusCodes.Status400BadRequest,
+                            Message = "Bad Request",
+                            Data = ex.Message
+                        };
+                    }
                 }
             }
 
