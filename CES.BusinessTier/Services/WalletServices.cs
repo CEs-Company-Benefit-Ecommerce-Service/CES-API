@@ -33,7 +33,7 @@ namespace CES.BusinessTier.Services
         Task ScheduleUpdateWalletBalanceForGroupAsync(WalletUpdateBalanceModel request, DateTime time);
         Task CreateWalletForAccountDontHaveEnough();
         Task<BaseResponseViewModel<string>> ResetAllAfterEAPayment(int companyId);
-        Task<BaseResponseViewModel<string>> ResetAllAfterExpired(int companyId);
+        Task<BaseResponseViewModel<string>> ResetAllAfterExpired();
     }
 
     public class WalletServices : IWalletServices

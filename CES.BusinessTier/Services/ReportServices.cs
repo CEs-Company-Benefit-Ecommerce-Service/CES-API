@@ -6,7 +6,6 @@ using CES.BusinessTier.UnitOfWork;
 using CES.BusinessTier.Utilities;
 using CES.DataTier.Models;
 using LAK.Sdk.Core.Utilities;
-using Lucene.Net.Support;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
