@@ -21,7 +21,7 @@ namespace CES.API.AppStarts
             {
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
             });
-            
+
             // Add Hangfire services.
             services.AddHangfire(config => config
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
@@ -66,6 +66,8 @@ namespace CES.API.AppStarts
             services.AddScoped<IInvokeServices, InvokeServices>();
 
             services.AddScoped<IBenefitServices, BenefitServices>();
+
+            services.AddScoped<IReportServices, ReportServices>();
         }
     }
 }
