@@ -8,11 +8,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c33e2030-59db-4d3d-a633-8e65857e01e7" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/AutoMapperModules/GroupModule.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/EmployeeGroupResponse.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.API/Controllers/OrderController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.API/Controllers/OrderController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/AccountServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/AccountServices.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Utilities/Commons.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Utilities/Commons.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Utilities/Enums.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Utilities/Enums.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.API/AppStarts/AutoMapperConfig.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.API/AppStarts/AutoMapperConfig.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupServices.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -190,7 +190,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/TransactionService.cs</url>
-          <line>124</line>
+          <line>130</line>
           <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/TransactionService.cs" initialLine="113" containingFunctionPresentation="Method 'ExecuteZaloPayCallBack'">
             <startOffsets>
               <option value="5763" />
@@ -241,6 +241,19 @@
             </endOffsets>
           </properties>
           <option name="timeStamp" value="69" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/GroupServices.cs</url>
+          <line>73</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupServices.cs" initialLine="73" containingFunctionPresentation="Method 'Get'">
+            <startOffsets>
+              <option value="3380" />
+            </startOffsets>
+            <endOffsets>
+              <option value="3501" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="71" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -74,10 +74,9 @@ namespace CES.BusinessTier.Services
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
             var account = _accountServices.Get(accountLoginId);
             var enterprise = _unitOfWork.Repository<Enterprise>().GetWhere(x => x.AccountId == accountLoginId).Result.FirstOrDefault();
-            var group = await _unitOfWork.Repository<Group>().GetAll()
+            var group = await _unitOfWork.Repository<Group>().AsQueryable(x => x.Id == id)
                 .Include(x => x.EmployeeGroupMappings)
                 .ThenInclude(y => y.Employee)
-                // .Where(x => x.Id == id && x.BenefitId == enterprise.CompanyId)
                 .FirstOrDefaultAsync();
             //var project = await _unitOfWork.Repository<Group>().GetAll()
             //    .FirstOrDefaultAsync();
