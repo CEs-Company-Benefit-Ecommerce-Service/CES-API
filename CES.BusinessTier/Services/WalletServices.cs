@@ -254,13 +254,28 @@ namespace CES.BusinessTier.Services
                 CreatedAt = TimeUtils.GetCurrentSEATime(),
                 CompanyId = benefit.CompanyId,
             };
-
+            var empNotification = new Notification()
+            {
+                Id = Guid.NewGuid(),
+                AccountId = existedWallet.AccountId,
+                TransactionId = walletTransactionForReceiver.Id,
+                Title = "Bạn đã nhận được tiền từ " + benefit.Name,
+                Description = "Số tiền nhận được: " + benefit.UnitPrice + " VNĐ",
+                IsRead = false,
+                CreatedAt = TimeUtils.GetCurrentSEATime(),
+            };
             try
             {
                 await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransactionForReceiver);
+
                 await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransactionForSender);
+
+                await _unitOfWork.Repository<Notification>().InsertAsync(empNotification);
+
                 await _unitOfWork.Repository<Wallet>().UpdateDetached(existedWallet);
+
                 await _unitOfWork.Repository<Wallet>().UpdateDetached(accountLoginWallet);
+
                 await _unitOfWork.CommitAsync();
 
                 return new BaseResponseViewModel<WalletResponseModel>

@@ -39,6 +39,20 @@ public static class Commons
         else
             return Roles.Shipper.GetDisplayName();
     }
+    public static string ConvertIntOrderStatusToString(int status)
+    {
+        if (status == (int)OrderStatusEnums.Ready)
+            return OrderStatusEnums.Ready.GetDisplayName();
+
+        else if (status == (int)OrderStatusEnums.Shipping)
+            return OrderStatusEnums.Shipping.GetDisplayName();
+
+        else if (status == (int)OrderStatusEnums.Complete)
+            return OrderStatusEnums.Complete.GetDisplayName();
+
+        else
+            return OrderStatusEnums.Cancel.GetDisplayName();
+    }
     public static double GetLimitInCompany(Account account)
     {
         if (account.Enterprises.Count > 0)

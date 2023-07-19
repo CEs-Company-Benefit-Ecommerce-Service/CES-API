@@ -15,5 +15,8 @@ public static class BackgroundJobs
         //
         // var corn3 = Cron.Daily(23,55);  // "55 23 * * *"
         // RecurringJob.AddOrUpdate<IAccountServices>(x => x.GetAccountByEmail("asdasdasd"), "* 9 * * *");
+
+        var corn = Cron.Daily();
+        RecurringJob.AddOrUpdate<IWalletServices>(x => x.ResetAllAfterExpired(), corn);
     }
 }

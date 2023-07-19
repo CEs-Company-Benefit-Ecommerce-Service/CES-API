@@ -2,6 +2,7 @@ using CES.API.AppStarts;
 using CES.BusinessTier.Middlewares;
 using Hangfire;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Swashbuckle.AspNetCore.SwaggerUI;
 
 var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -43,6 +44,7 @@ if (app.Environment.IsDevelopment() || app.Environment.IsStaging() || app.Enviro
             options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json",
                 description.GroupName.ToUpperInvariant());
         }
+        options.DocExpansion(DocExpansion.None);
     });
 }
 

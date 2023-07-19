@@ -20,6 +20,7 @@ namespace CES.API.AppStarts
                 mc.ConfigTransactionModule();
                 mc.ConfigDebtModule();
                 mc.ConfigBenefitModule();
+                mc.ConfigNotificationModule();
             });
             IMapper mapper = mapperConfiguration.CreateMapper();
             services.AddSingleton(mapper);

@@ -20,5 +20,6 @@ namespace CES.DataTier.Models
         public int? Status { get; set; } // 0 = đang thanh toán || 1 = complete || 2 = false
 
         public virtual PaymentProvider? PaymentProvider { get; set; }
+        public virtual ICollection<Notification>? Notifications { get; set; }
     }
 }
