@@ -57,7 +57,7 @@ namespace CES.BusinessTier.Services
             var wallets = _unitOfWork.Repository<Wallet>().AsQueryable()
                 .ProjectTo<WalletResponseModel>(_mapper.ConfigurationProvider)
                 .PagingQueryable(pagingModel.Page, pagingModel.Size, Constants.LimitPaging, Constants.DefaultPaging);
-            var wa = _unitOfWork.Repository<Wallet>().AsQueryable();
+            //var wa = _unitOfWork.Repository<Wallet>().AsQueryable();
             return new DynamicResponse<WalletResponseModel>
             {
                 Code = 200,
@@ -454,7 +454,13 @@ namespace CES.BusinessTier.Services
                 var EAWallet = enterprise.Account.Wallets.FirstOrDefault();
                 EAWallet.Balance = company.Result.Limits;
                 EAWallet.Used = 0;
-
+                var dateCheck = company.Result.ExpiredDate.Value.AddDays(-5);
+                if (TimeUtils.GetCurrentSEATime().GetStartOfDate() >= dateCheck.GetStartOfDate())
+                {
+                    company.Result.ExpiredDate = company.Result.ExpiredDate.Value.AddMonths(1);
+                    company.Result.UpdatedAt = TimeUtils.GetCurrentSEATime();
+                }
+                await _unitOfWork.Repository<Company>().UpdateDetached(company.Result);
                 await _unitOfWork.Repository<Wallet>().UpdateDetached(EAWallet);
 
                 //await _unitOfWork.CommitAsync();
