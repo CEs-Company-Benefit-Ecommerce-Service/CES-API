@@ -43,8 +43,8 @@ namespace CES.BusinessTier.Services
         public async Task<DynamicResponse<BenefitResponseModel>> GetAllAsync(BenefitResponseModel filter, PagingModel paging)
         {
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
-
-            var benefits = _unitOfWork.Repository<Benefit>().AsQueryable(x => x.Status == (int)Status.Active)
+            var companyId = _contextAccessor.HttpContext?.User.FindFirst("CompanyId").Value.ToString();
+            var benefits = _unitOfWork.Repository<Benefit>().AsQueryable(x => x.CompanyId == Int32.Parse(companyId))
                 .ProjectTo<BenefitResponseModel>(_mapper.ConfigurationProvider)
                 .DynamicFilter(filter)
                 .DynamicSort(paging.Sort, paging.Order)
@@ -97,7 +97,7 @@ namespace CES.BusinessTier.Services
                 CreatedBy = accountLoginId,
                 BenefitId = newBenefit.Id
             };
-            
+
             try
             {
                 await _unitOfWork.Repository<Benefit>().InsertAsync(newBenefit);

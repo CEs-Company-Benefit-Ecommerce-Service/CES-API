@@ -55,6 +55,24 @@ namespace CES.BusinessTier.Services
                            .DynamicSort(paging.Sort, paging.Order)
                            .PagingQueryable(paging.Page, paging.Size);
 
+            Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
+            var account = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Employees).FirstOrDefaultAsync();
+            if(account.Role == Roles.Employee.GetDisplayName())
+            {
+                var result = order.Item2.Where(x => x.EmployeeId == account.Employees.FirstOrDefault().Id);
+                return new DynamicResponse<OrderResponseModel>
+                {
+                    Code = StatusCodes.Status200OK,
+                    Message = "OK",
+                    MetaData = new PagingMetaData
+                    {
+                        Page = paging.Page,
+                        Size = paging.Size,
+                        Total = result.Count()
+                    },
+                    Data = await result.ToListAsync(),
+                };
+            }
             return new DynamicResponse<OrderResponseModel>
             {
                 Code = StatusCodes.Status200OK,
