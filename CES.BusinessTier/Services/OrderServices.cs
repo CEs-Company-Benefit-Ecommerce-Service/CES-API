@@ -101,6 +101,37 @@ namespace CES.BusinessTier.Services
                 }
                 existedOrder.Status = status;
 
+                var stringStatus = Commons.ConvertIntOrderStatusToString(existedOrder.Status);
+
+                var employee = await _unitOfWork.Repository<Employee>().AsQueryable(x => x.Id == existedOrder.EmployeeId).FirstOrDefaultAsync();
+
+                var accountEmp = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == employee.AccountId).FirstOrDefaultAsync();
+
+                var empNotification = new Notification()
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Cập nhật trạng thái đơn hàng",
+                    Description = "Đơn hàng của bạn đã chuyển sang trạng thái: " + stringStatus,
+                    OrderId = existedOrder.Id,
+                    IsRead = false,
+                    CreatedAt = TimeUtils.GetCurrentSEATime(),
+                    AccountId = accountEmp.Id
+                };
+                //if(existedOrder.Status == (int)OrderStatusEnums.Cancel)
+                //{
+                //   var eaAccount = await _unitOfWork.Repository<Account>().AsQueryable().Include(x => x.Enterprises).Where(x => x.Enterprises.Select(x => x.CompanyId).FirstOrDefault() == existedOrder.CompanyId).FirstOrDefaultAsync();
+                //    var eaNotification = new Notification()
+                //    {
+                //        Id = Guid.NewGuid(),
+                //        Title = ",
+                //        Description = "Đơn hàng của " + accountEmp.Name + "đã bị hủy",
+                //        OrderId = existedOrder.Id,
+                //        IsRead = false,
+                //        CreatedAt = TimeUtils.GetCurrentSEATime(),
+                //        AccountId = eaAccount.Id
+                //    };
+                //}
+                await _unitOfWork.Repository<Notification>().InsertAsync(empNotification);
                 await _unitOfWork.Repository<Order>().UpdateDetached(existedOrder);
                 await _unitOfWork.CommitAsync();
 
@@ -216,9 +247,26 @@ namespace CES.BusinessTier.Services
                     product.Result.Quantity = product.Result.Quantity - (int)orderDetail.Quantity;
                     await _unitOfWork.Repository<Product>().UpdateDetached(product.Result);
                 }
+                // create notification for employee
+                var empNotification = new Notification()
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Mua hàng",
+                    Description = "Bạn đã đặt thành công 1 đơn hàng",
+                    AccountId = accountLoginId,
+                    OrderId = newOrder.Id,
+                    IsRead = false,
+                    CreatedAt = TimeUtils.GetCurrentSEATime(),
+                };
+
+                await _unitOfWork.Repository<Notification>().InsertAsync(empNotification);
+
                 await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransaction);
+
                 await _unitOfWork.Repository<Wallet>().UpdateDetached(wallet);
+
                 await _unitOfWork.Repository<Wallet>().UpdateDetached(enterpriseWallet);
+
                 await _unitOfWork.CommitAsync();
 
                 return new BaseResponseViewModel<OrderResponseModel>

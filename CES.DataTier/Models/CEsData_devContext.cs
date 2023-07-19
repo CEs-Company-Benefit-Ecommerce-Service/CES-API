@@ -34,13 +34,14 @@ namespace CES.DataTier.Models
         public virtual DbSet<Supplier> Suppliers { get; set; } = null!;
         public virtual DbSet<Transaction> Transactions { get; set; } = null!;
         public virtual DbSet<Wallet> Wallets { get; set; } = null!;
+        public virtual DbSet<Notification> Notifications { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-// #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-//                 optionsBuilder.UseSqlServer("Server=35.187.237.212;Database=CEsData_dev_v3;uid=sa;pwd=zaQ@1234");
+                // #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                //                 optionsBuilder.UseSqlServer("Server=35.187.237.212;Database=CEsData_dev_v3;uid=sa;pwd=zaQ@1234");
             }
         }
 
@@ -401,6 +402,32 @@ namespace CES.DataTier.Models
                     .WithMany(p => p.Wallets)
                     .HasForeignKey(d => d.AccountId)
                     .HasConstraintName("FK_Wallet_Account");
+            });
+
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.ToTable("Notification");
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+
+                entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+                entity.HasOne(d => d.Account)
+                    .WithMany(p => p.Notifications)
+                    .HasForeignKey(d => d.AccountId)
+                    .HasConstraintName("FK_Notification_Account");
+
+                entity.HasOne(d => d.Order)
+                    .WithMany(p => p.Notifications)
+                    .HasForeignKey(d => d.OrderId)
+                    .HasConstraintName("FK_Notification_Order");
+
+                entity.HasOne(d => d.Transaction)
+                    .WithMany(p => p.Notifications)
+                    .HasForeignKey(d => d.TransactionId)
+                    .HasConstraintName("FK_Notification_Transaction");
             });
 
             OnModelCreatingPartial(modelBuilder);

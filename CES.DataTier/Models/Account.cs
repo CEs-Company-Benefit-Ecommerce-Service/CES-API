@@ -29,5 +29,6 @@ namespace CES.DataTier.Models
         public virtual ICollection<Enterprise> Enterprises { get; set; }
         public virtual ICollection<Supplier> Suppliers { get; set; }
         public virtual ICollection<Wallet> Wallets { get; set; }
+        public virtual ICollection<Notification> Notifications { get; set; }
     }
 }

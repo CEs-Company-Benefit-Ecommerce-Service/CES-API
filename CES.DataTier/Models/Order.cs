@@ -23,5 +23,6 @@ namespace CES.DataTier.Models
 
         public virtual Employee Employee { get; set; } = null!;
         public virtual ICollection<OrderDetail> OrderDetails { get; set; }
+        public virtual ICollection<Notification> Notifications { get; set; }
     }
 }
