@@ -49,13 +49,24 @@ namespace CES.BusinessTier.Services
         {
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
             var account = _accountServices.Get(accountLoginId);
+            var companyId = _contextAccessor.HttpContext?.User.FindFirst("CompanyId").Value.ToString();
+            //var projects = _unitOfWork.Repository<Group>().AsQueryable().Include(x => x.Benefit)
+            //    // .Include(x => x.GroupAccount).ThenInclude(y => y.Account)
+            //    .ProjectTo<GroupResponseModel>(_mapper.ConfigurationProvider)
+            //    .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging);
+            //// var result = projects.Item2.Where(x => x.CompanyId == account.Data.CompanyId);
+            ////var result = projects.Item2;
 
-            var projects = _unitOfWork.Repository<Group>().GetAll()
-                // .Include(x => x.GroupAccount).ThenInclude(y => y.Account)
-                .ProjectTo<GroupResponseModel>(_mapper.ConfigurationProvider)
-                .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging);
-            // var result = projects.Item2.Where(x => x.CompanyId == account.Data.CompanyId);
-            //var result = projects.Item2;
+            var groups = _unitOfWork.Repository<Benefit>().AsQueryable(x => x.CompanyId == Int32.Parse(companyId)).Include(x => x.Groups).Select(x => x.Groups).ToList();
+            var result = new List<GroupResponseModel>();
+            foreach (var group in groups)
+            {
+                foreach (var item in group)
+                {
+                    result.Add(_mapper.Map<GroupResponseModel>(item));
+                }
+            }
+
             return new DynamicResponse<GroupResponseModel>
             {
                 Code = 200,
@@ -64,9 +75,9 @@ namespace CES.BusinessTier.Services
                 {
                     Page = paging.Page,
                     Size = paging.Size,
-                    Total = projects.Item1
+                    Total = result.Count()
                 },
-                Data = projects.Item2.ToList()
+                Data = result
             };
         }
         public async Task<BaseResponseViewModel<GroupResponseModel>> Get(Guid id)
