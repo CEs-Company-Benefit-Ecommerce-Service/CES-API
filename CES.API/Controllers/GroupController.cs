@@ -31,14 +31,14 @@ namespace CES.API.Controllers
         /// <param name="pagingModel"></param>
         /// <returns></returns>
         [HttpGet]
-        public IActionResult Gets([FromQuery] PagingModel pagingModel)
+        public IActionResult Gets([FromQuery] GroupResponseModel filter, [FromQuery] PagingModel pagingModel)
         {
             var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value.ToString();
             if (role != Roles.EnterpriseAdmin.GetDisplayName())
             {
                 return StatusCode(401);
             }
-            var result = _projectServices.Gets(pagingModel);
+            var result = _projectServices.Gets(filter, pagingModel);
             return StatusCode((int)result.Code, result);
         }
         /// <summary>
