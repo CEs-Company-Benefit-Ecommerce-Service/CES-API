@@ -57,7 +57,7 @@ namespace CES.BusinessTier.Services
 
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
             var account = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Employees).FirstOrDefaultAsync();
-            if(account.Role == Roles.Employee.GetDisplayName())
+            if (account.Role == Roles.Employee.GetDisplayName())
             {
                 var result = order.Item2.Where(x => x.EmployeeId == account.Employees.FirstOrDefault().Id);
                 return new DynamicResponse<OrderResponseModel>
@@ -176,7 +176,7 @@ namespace CES.BusinessTier.Services
             var accountLogin = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Wallets).FirstOrDefaultAsync();
 
             var companyId = await GetCompany(accountLoginId);
-            var companyAddress = _unitOfWork.Repository<Company>().GetWhere(x => x.Id == companyId).Result.Select(x => x.Address).FirstOrDefault();
+            var company = _unitOfWork.Repository<Company>().GetWhere(x => x.Id == companyId).Result.FirstOrDefault();
 
             var enterprise = await _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.CompanyId == companyId)
                                                                         .Include(x => x.Account).ThenInclude(x => x.Wallets)
@@ -214,6 +214,8 @@ namespace CES.BusinessTier.Services
             try
             {
                 var employee = _unitOfWork.Repository<Employee>().GetWhere(x => x.AccountId == accountLoginId).Result.FirstOrDefault();
+                var orderCountCurrentDay = _unitOfWork.Repository<Order>().AsQueryable(x => x.CreatedAt.Date == TimeUtils.GetCurrentSEATime().Date).Count();
+                var orderCode = "CES-" + TimeUtils.GetCurrentSEATime().ToString("ddMMyy") + orderCountCurrentDay;
                 // create order
                 var newOrder = new Order()
                 {
@@ -222,10 +224,12 @@ namespace CES.BusinessTier.Services
                     EmployeeId = employee.Id,
                     Status = (int)OrderStatusEnums.New,
                     Total = (double)total,
-                    Address = companyAddress,
+                    Address = company.Address,
+                    CompanyName = company.Name,
                     Notes = note,
                     DebtStatus = (int)DebtStatusEnums.New,
-                    CompanyId = companyId
+                    CompanyId = companyId,
+                    OrderCode = orderCode
                 };
                 await _unitOfWork.Repository<Order>().InsertAsync(newOrder);
 

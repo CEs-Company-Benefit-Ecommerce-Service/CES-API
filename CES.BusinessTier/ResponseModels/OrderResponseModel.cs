@@ -15,6 +15,8 @@ namespace CES.BusinessTier.ResponseModels
         public string? Address { get; set; }
         public int? Status { get; set; }
         public int? DebtStatus { get; set; }
+        public string? OrderCode { get; set; }
+        public string? CompanyName { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public Guid? EmployeeId { get; set; }

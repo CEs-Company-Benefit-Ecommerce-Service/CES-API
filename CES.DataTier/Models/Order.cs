@@ -15,6 +15,8 @@ namespace CES.DataTier.Models
         public string? Notes { get; set; }
         public string? Address { get; set; }
         public int Status { get; set; }
+        public string? OrderCode { get; set; }
+        public string? CompanyName { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public int? DebtStatus { get; set; }
