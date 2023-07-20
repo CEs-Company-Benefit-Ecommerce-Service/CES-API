@@ -71,7 +71,7 @@ namespace CES.API.Controllers
             if (isSuccessful && status == 1)
             {
                 //return RedirectPermanent("https://firebasestorage.googleapis.com/v0/b/pos-system-47f93.appspot.com/o/files%2Fpayment-done.png?alt=media&token=284c1b35-e4f2-417e-90e4-a339c4cd7a4e");
-                return RedirectPermanent("http://localhost:8081/payment-success/");
+                return RedirectPermanent("https://ces-web.vercel.app/payment-success/");
             }
             else
             {
@@ -87,7 +87,7 @@ namespace CES.API.Controllers
             if (isSuccessful && vnp_ResponseCode == "00")
             {
                 //return RedirectPermanent("https://firebasestorage.googleapis.com/v0/b/pos-system-47f93.appspot.com/o/files%2Fpayment-done.png?alt=media&token=284c1b35-e4f2-417e-90e4-a339c4cd7a4e");
-                return RedirectPermanent("http://localhost:8081/payment-success/");
+                return RedirectPermanent("https://ces-web.vercel.app/payment-success/");
             }
             else
             {
