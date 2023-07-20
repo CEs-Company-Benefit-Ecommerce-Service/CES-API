@@ -9,7 +9,7 @@ namespace CES.BusinessTier.ResponseModels
 {
     public class GroupResponseModel
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
         public string? Name { get; set; }
         public int? Status { get; set; }
         public string? ImageUrl { get; set; }
@@ -20,8 +20,8 @@ namespace CES.BusinessTier.ResponseModels
         public Guid? UpdatedBy { get; set; }
         public Guid? BenefitId { get; set; }
 
-        public BenefitResponseModel Benefit { get; set; } = null!;
-        public List<EmployeeGroupMapping> EmployeeGroupMappings { get; set; }
+        public BenefitResponseModel? Benefit { get; set; } = null!;
+        public List<EmployeeGroupMapping>? EmployeeGroupMappings { get; set; }
     }
 
     public partial class GroupAccountResponse
