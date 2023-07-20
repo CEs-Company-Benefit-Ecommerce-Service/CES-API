@@ -6,12 +6,14 @@ using CES.BusinessTier.RequestModels;
 using CES.BusinessTier.ResponseModels;
 using CES.BusinessTier.ResponseModels.BaseResponseModels;
 using CES.BusinessTier.ResponseModels.PaymentModels;
+using CES.BusinessTier.Services.VnPayServices;
 using CES.BusinessTier.UnitOfWork;
 using CES.BusinessTier.Utilities;
 using CES.DataTier.Models;
 using LAK.Sdk.Core.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace CES.BusinessTier.Services;
 
@@ -23,6 +25,7 @@ public interface ITransactionService
     Task<BaseResponseViewModel<Transaction>> GetById(Guid id);
     Task<BaseResponseViewModel<CreatePaymentResponse>> CreatePayment(CreatePaymentRequest createPaymentRequest);
     Task<bool> ExecuteZaloPayCallBack(double? used, int? status, string? apptransid);
+    Task<bool> ExecuteVnPayCallBack(double? used, string? status, string? apptransid);
 }
 
 public class TransactionService : ITransactionService
@@ -30,15 +33,17 @@ public class TransactionService : ITransactionService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly IHttpContextAccessor _contextAccessor;
+    private readonly IConfiguration _configuration;
     private readonly IWalletServices _walletServices;
     //private readonly IDebtServices _debtServices;
-    public TransactionService(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor contextAccessor, IWalletServices walletServices)
+    public TransactionService(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor contextAccessor, IWalletServices walletServices, IConfiguration configuration)
     {
         _mapper = mapper;
         _unitOfWork = unitOfWork;
         _contextAccessor = contextAccessor;
         _walletServices = walletServices;
         //_debtServices = debtServices;
+        _configuration = configuration;
     }
 
     public async Task<DynamicResponse<Transaction>> GetsAsync(Transaction filter, PagingModel paging)
@@ -94,14 +99,19 @@ public class TransactionService : ITransactionService
             .AsQueryable(x => x.Id == createPaymentRequest.PaymentId).FirstOrDefault();
         if (paymentProvider == null) throw new ErrorResponse(StatusCodes.Status404NotFound, 404, "");
         IPaymentStrategy paymentStrategy;
+        IVnPayPaymentStrategy vnPayPaymentStrategy;
         PaymentType paymentType = Enum.Parse<PaymentType>(paymentProvider.Type);
         switch (paymentType)
         {
-            // case PaymentType.VNPAY:
-            //     paymentStrategy = new VnPayPaymentStrategy(brandPaymentConfig, _httpContextAccessor.HttpContext,
-            //         createPaymentRequest.OrderId, createPaymentRequest.OrderDescription, createPaymentRequest.Amount,
-            //         _configuration["VnPayPaymentCallBack:ReturnUrl"], _configuration["Vnpay:HashSecret"]);
-            //     return await paymentStrategy.ExecutePayment();
+             case PaymentType.VNPAY:
+                vnPayPaymentStrategy = new VnPayPaymentStrategy((double)enterpriseWallet.Used, accountLoginId, _contextAccessor, _unitOfWork, _configuration);
+                var resultVnPay = await vnPayPaymentStrategy.ExecutePayment(systemAccount.Id.ToString(), accountLoginId.ToString(), enterpriseWallet.Id.ToString(), enterprise.CompanyId.ToString());
+                return new BaseResponseViewModel<CreatePaymentResponse>
+                {
+                    Code = StatusCodes.Status200OK,
+                    Message = "Ok",
+                    Data = resultVnPay
+                };
             case PaymentType.ZALOPAY:
                 paymentStrategy = new ZaloPayPaymentStrategy(paymentProvider.Config, (double)enterpriseWallet.Used, accountLoginId, _contextAccessor, _unitOfWork);
                 var result = await paymentStrategy.ExecutePayment(systemAccount.Id.ToString(), accountLoginId.ToString(), enterpriseWallet.Id.ToString(), enterprise.CompanyId.ToString());
@@ -178,5 +188,49 @@ public class TransactionService : ITransactionService
         {
             return false;
         }
+    }
+
+    public async Task<bool> ExecuteVnPayCallBack(double? used, string? status, string? apptransid)
+    {
+        var paymentTransaction = _unitOfWork.Repository<Transaction>()
+            .AsQueryable(x => x.InvoiceId == apptransid)
+            .FirstOrDefault();
+        var enterprise = _unitOfWork.Repository<Enterprise>().GetWhere(x => x.AccountId == paymentTransaction.SenderId).Result
+            .FirstOrDefault();
+        var enterpriseAccount = _unitOfWork.Repository<Account>()
+            .AsQueryable(x => x.Id == enterprise.AccountId && x.Status == (int)Status.Active)
+            .Include(x => x.Wallets)
+            .FirstOrDefault();
+
+        if (!status.Equals("00"))
+        {
+            paymentTransaction.Description = "Thanh toán detb VnPay thất bại";
+            paymentTransaction.Status = (int)DebtStatusEnums.Cancel;
+
+
+            await _unitOfWork.Repository<Transaction>().UpdateDetached(paymentTransaction);
+        }
+        else
+        {
+            paymentTransaction.Description = "Thanh toán detb VnPay thành công";
+            paymentTransaction.Status = (int)DebtStatusEnums.Complete;
+
+            await _unitOfWork.Repository<Transaction>().UpdateDetached(paymentTransaction);
+
+
+            var resetResult = _walletServices.ResetAllAfterEAPayment(enterprise.CompanyId).Result;
+            if (resetResult.Code != 200)
+            {
+                return false;
+            }
+            // Lấy tất cả order đã đặt mà chưa thanh toán của company
+            var orders = await _unitOfWork.Repository<Order>().AsQueryable(x => x.CompanyId == enterprise.CompanyId && x.DebtStatus == (int)DebtStatusEnums.New && x.Status == (int)OrderStatusEnums.Complete).ToListAsync();
+            foreach (var order in orders)
+            {
+                order.DebtStatus = (int)DebtStatusEnums.Complete;
+                await _unitOfWork.Repository<Order>().UpdateDetached(order);
+            }
+        }
+        return await _unitOfWork.CommitAsync() > 0;
     }
 }
