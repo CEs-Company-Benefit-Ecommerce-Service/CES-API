@@ -43,6 +43,15 @@ namespace CES.API.Controllers
             var url = await _transactionService.CreatePayment(createPaymentRequest);
             return Ok(url);
         }
+
+        [Authorize]
+        [HttpPost("vnpay")]
+        public async Task<IActionResult> CreateVnPayPaymentUrl([FromBody] CreatePaymentRequest createPaymentRequest)
+        {
+            var url = await _transactionService.CreatePayment(createPaymentRequest);
+            return Ok(url);
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -69,6 +78,23 @@ namespace CES.API.Controllers
                 return RedirectPermanent("https://firebasestorage.googleapis.com/v0/b/pos-system-47f93.appspot.com/o/files%2Fpayment-fail.png?alt=media&token=2b7e58ee-c18f-4ec3-9363-ad1ec83ffc6c");
             }
         }
+
+        [HttpGet(ApiEndPointConstant.Payment.VnPayEndpoint)]
+        public async Task<IActionResult> VnPayPaymentCallBack(double? vnp_Amount, string? vnp_ResponseCode, string? vnp_TxnRef)
+        {
+            var isSuccessful = await _transactionService.ExecuteVnPayCallBack(vnp_Amount, vnp_ResponseCode, vnp_TxnRef);
+
+            if (isSuccessful && vnp_ResponseCode == "00")
+            {
+                //return RedirectPermanent("https://firebasestorage.googleapis.com/v0/b/pos-system-47f93.appspot.com/o/files%2Fpayment-done.png?alt=media&token=284c1b35-e4f2-417e-90e4-a339c4cd7a4e");
+                return RedirectPermanent("http://localhost:8081/payment-success/");
+            }
+            else
+            {
+                return RedirectPermanent("https://firebasestorage.googleapis.com/v0/b/pos-system-47f93.appspot.com/o/files%2Fpayment-fail.png?alt=media&token=2b7e58ee-c18f-4ec3-9363-ad1ec83ffc6c");
+            }
+        }
+
         [HttpGet("total-order/{companyId}")]
         public async Task<ActionResult> GetTotalOrder(int companyId)
         {

@@ -60,6 +60,7 @@ namespace CES.BusinessTier.Utilities
         [Display(Name = "Order")] Order = 2,
         [Display(Name = "ZaloPay")] ZaloPay = 3,
         [Display(Name = "Allocate Welfare")] AllocateWelfare = 4,
+        [Display(Name = "VnPay")] VnPay = 5,
     }
 
     public enum TransactionTypeEnums
