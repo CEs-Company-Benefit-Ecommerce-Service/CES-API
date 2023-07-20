@@ -22,7 +22,7 @@ namespace CES.BusinessTier.Services
 {
     public interface IGroupServices
     {
-        DynamicResponse<GroupResponseModel> Gets(PagingModel paging);
+        DynamicResponse<GroupResponseModel> Gets(GroupResponseModel filter, PagingModel paging);
         Task<BaseResponseViewModel<GroupResponseModel>> Get(Guid id);
         Task<BaseResponseViewModel<GroupResponseModel>> AddEmployee(GroupMemberRequestModel requestModel);
         Task<BaseResponseViewModel<GroupResponseModel>> RemoveEmployee(GroupMemberRequestModel requestModel);
@@ -45,7 +45,7 @@ namespace CES.BusinessTier.Services
             _contextAccessor = contextAccessor;
             _accountServices = accountServices;
         }
-        public DynamicResponse<GroupResponseModel> Gets(PagingModel paging)
+        public DynamicResponse<GroupResponseModel> Gets(GroupResponseModel filter, PagingModel paging)
         {
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
             var account = _accountServices.Get(accountLoginId);
@@ -66,7 +66,10 @@ namespace CES.BusinessTier.Services
                     result.Add(_mapper.Map<GroupResponseModel>(item));
                 }
             }
-
+            var resultReturn = result.AsQueryable()
+                                               .DynamicFilter<GroupResponseModel>(filter)
+                                               .DynamicSort<GroupResponseModel>(paging.Sort, paging.Order)
+                                               .PagingQueryable(paging.Page, paging.Size);
             return new DynamicResponse<GroupResponseModel>
             {
                 Code = 200,
@@ -75,9 +78,9 @@ namespace CES.BusinessTier.Services
                 {
                     Page = paging.Page,
                     Size = paging.Size,
-                    Total = result.Count()
+                    Total = resultReturn.Item1
                 },
-                Data = result
+                Data = resultReturn.Item2.ToList()
             };
         }
         public async Task<BaseResponseViewModel<GroupResponseModel>> Get(Guid id)

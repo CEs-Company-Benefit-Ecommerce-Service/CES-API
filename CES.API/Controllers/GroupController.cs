@@ -31,14 +31,14 @@ namespace CES.API.Controllers
         /// <param name="pagingModel"></param>
         /// <returns></returns>
         [HttpGet]
-        public IActionResult Gets([FromQuery] PagingModel pagingModel)
+        public IActionResult Gets([FromQuery] GroupResponseModel filter, [FromQuery] PagingModel pagingModel)
         {
             var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value.ToString();
             if (role != Roles.EnterpriseAdmin.GetDisplayName())
             {
                 return StatusCode(401);
             }
-            var result = _projectServices.Gets(pagingModel);
+            var result = _projectServices.Gets(filter, pagingModel);
             return StatusCode((int)result.Code, result);
         }
         /// <summary>
@@ -141,8 +141,8 @@ namespace CES.API.Controllers
             var result = _projectServices.RemoveEmployee(requestModel).Result;
             return StatusCode((int)result.Code, result);
         }
-        
-        
+
+
         /// <summary>
         /// Use for Enterprise get list account in group
         /// </summary>
@@ -161,7 +161,7 @@ namespace CES.API.Controllers
             var result = await _groupAccountServices.GetAccountsByGroupId(id, paging);
             return StatusCode((int)result.Code, result);
         }
-        
+
         /// <summary>
         /// Use for Enterprise transfer money for list account in group
         /// </summary>
