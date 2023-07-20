@@ -35,9 +35,9 @@ namespace CES.API.Controllers
         /// <param name="paging"></param>
         /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult> Gets([FromQuery] OrderResponseModel filter, [FromQuery] PagingModel paging)
+        public async Task<ActionResult> Gets([FromQuery] OrderResponseModel filter, [FromQuery] PagingModel paging, [FromQuery] int type)
         {
-            var result = await _orderServices.GetsAsync(filter, paging);
+            var result = await _orderServices.GetsAsync(filter, paging, type);
             return Ok(result);
         }
         [HttpGet("{id}")]

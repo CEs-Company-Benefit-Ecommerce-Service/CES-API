@@ -48,6 +48,12 @@ namespace CES.BusinessTier.Utilities
         [Display(Name = "Login Success!")] Success = (int)StatusCodes.Status200OK,
         [Display(Name = "Login Failed!")] Failed = (int)StatusCodes.Status400BadRequest,
     }
+
+    public enum TypeOfGetAllOrder
+    {
+        [Display(Name = "Incoming")] InComing = 1,
+        [Display(Name = "History")] History = 2,
+    }
     public enum WalletTypeEnums
     {
         [Display(Name = "General Wallet")] GeneralWallet = 1,
@@ -56,11 +62,11 @@ namespace CES.BusinessTier.Utilities
     }
     public enum WalletTransactionTypeEnums
     {
-        [Display(Name = "Add Welfare")] AddWelfare = 1,
-        [Display(Name = "Order")] Order = 2,
-        [Display(Name = "ZaloPay")] ZaloPay = 3,
-        [Display(Name = "Allocate Welfare")] AllocateWelfare = 4,
-        [Display(Name = "VnPay")] VnPay = 5,
+        [Display(Name = "Add Welfare")] AddWelfare = 1, // employ
+        [Display(Name = "Order")] Order = 2, //employ
+        [Display(Name = "ZaloPay")] ZaloPay = 3, // EA
+        [Display(Name = "Allocate Welfare")] AllocateWelfare = 4, // EA
+        [Display(Name = "VnPay")] VnPay = 5, // EA
     }
 
     public enum TransactionTypeEnums
@@ -96,7 +102,7 @@ namespace CES.BusinessTier.Utilities
     {
         [Display(Name = "Thưởng")] Welfare = 1,
     }
-    
+
     public enum PaymentType
     {
         CASH,
@@ -105,14 +111,14 @@ namespace CES.BusinessTier.Utilities
         VNPAY,
         ZALOPAY
     }
-    
+
     public enum CreatePaymentReturnType
     {
         Url,
         Qr,
         Message
     }
-    
+
     public enum ZaloPayHMAC
     {
         HMACMD5,
@@ -147,18 +153,18 @@ namespace CES.BusinessTier.Utilities
                     hashMessage = new HMACSHA256(keyByte).ComputeHash(messageBytes);
                     break;
             }
-            
+
             return BitConverter.ToString(hashMessage).Replace("-", "").ToLower();
         }
     }
-    
+
     public class HttpHelper
     {
         private static readonly HttpClient httpClient = new HttpClient();
 
         public static async Task<T> PostAsync<T>(string uri, HttpContent content)
-        {  
-            var response = await httpClient.PostAsync(uri, content);          
+        {
+            var response = await httpClient.PostAsync(uri, content);
             var responseString = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<T>(responseString);
         }
@@ -190,7 +196,7 @@ namespace CES.BusinessTier.Utilities
             return GetJson<Dictionary<string, object>>(uri);
         }
     }
-    
+
     public enum TransactionStatus
     {
         Pending,

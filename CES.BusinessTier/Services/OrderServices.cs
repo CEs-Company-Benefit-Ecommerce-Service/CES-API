@@ -20,7 +20,7 @@ namespace CES.BusinessTier.Services
 {
     public interface IOrderServices
     {
-        Task<DynamicResponse<OrderResponseModel>> GetsAsync(OrderResponseModel filter, PagingModel paging);
+        Task<DynamicResponse<OrderResponseModel>> GetsAsync(OrderResponseModel filter, PagingModel paging, int? type);
         Task<BaseResponseViewModel<OrderResponseModel>> UpdateOrderStatus(Guid orderId, int status);
         Task<BaseResponseViewModel<OrderResponseModel>> CreateOrder(List<OrderDetailsRequestModel> orderDetails, string? note);
         Task<BaseResponseViewModel<OrderResponseModel>> GetById(Guid id);
@@ -47,7 +47,7 @@ namespace CES.BusinessTier.Services
             _walletServices = walletServices;
         }
 
-        public async Task<DynamicResponse<OrderResponseModel>> GetsAsync(OrderResponseModel filter, PagingModel paging)
+        public async Task<DynamicResponse<OrderResponseModel>> GetsAsync(OrderResponseModel filter, PagingModel paging, int? type)
         {
             var order = _unitOfWork.Repository<Order>().AsQueryable()
                            .ProjectTo<OrderResponseModel>(_mapper.ConfigurationProvider)
@@ -60,6 +60,14 @@ namespace CES.BusinessTier.Services
             if (account.Role == Roles.Employee.GetDisplayName())
             {
                 var result = order.Item2.Where(x => x.EmployeeId == account.Employees.FirstOrDefault().Id);
+                if (type == (int)TypeOfGetAllOrder.InComing)
+                {
+                    result = result.Where(x => x.Status == (int)OrderStatusEnums.New || x.Status == (int)OrderStatusEnums.Ready || x.Status == (int)OrderStatusEnums.Shipping);
+                }
+                else if (type == (int)TypeOfGetAllOrder.History)
+                {
+                    result = result.Where(x => x.Status == (int)OrderStatusEnums.Complete || x.Status == (int)OrderStatusEnums.Cancel);
+                }
                 return new DynamicResponse<OrderResponseModel>
                 {
                     Code = StatusCodes.Status200OK,
