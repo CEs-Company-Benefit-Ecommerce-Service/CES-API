@@ -17,12 +17,16 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper.QueryableExtensions;
+using FirebaseAdmin.Messaging;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
+using FirebaseAdmin.Auth;
 
 namespace CES.BusinessTier.Services
 {
     public interface ILoginServices
     {
-        BaseResponseViewModel<LoginResponseModel> Login(LoginModel loginModel);
+        Task<BaseResponseViewModel<LoginResponseModel>> Login(LoginModel loginModel);
         Task<AccountResponseModel> GetCurrentLoginAccount();
     }
     public class LoginServices : ILoginServices
@@ -77,7 +81,7 @@ namespace CES.BusinessTier.Services
             return result;
         }
 
-        public BaseResponseViewModel<LoginResponseModel> Login(LoginModel loginModel)
+        public async Task<BaseResponseViewModel<LoginResponseModel>> Login(LoginModel loginModel)
         {
             var account = _accountServices.GetAccountByEmail(loginModel.Email);
             if (account == null)
@@ -88,9 +92,25 @@ namespace CES.BusinessTier.Services
             {
                 throw new ErrorResponse(StatusCodes.Status400BadRequest, StatusCodes.Status400BadRequest, "Login failed");
             }
-
+            // check on firebase đã có hay không
+            // nếu có thì bỏ qua, không thì tạo data trên firebase + lấy fcm lưu về local db
+            account.FcmToken = loginModel.FcmToken;
+            try
+            {
+                await _unitOfWork.Repository<Account>().UpdateDetached(account);
+                await _unitOfWork.CommitAsync();
+            }
+            catch (Exception)
+            {
+                return new BaseResponseViewModel<LoginResponseModel>
+                {
+                    Code = StatusCodes.Status400BadRequest,
+                    Message = LoginEnums.Failed.GetDisplayName(),
+                };
+            }
             var user = GetUserInfo(account);
             var newToken = Authen.GenerateToken(account, user, _configuration);
+
             var result = new LoginResponseModel()
             {
                 Account = _mapper.Map<AccountResponseModel>(account),

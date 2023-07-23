@@ -19,6 +19,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Hangfire;
 using System.ComponentModel.Design;
+using FirebaseAdmin.Messaging;
+using Notification = CES.DataTier.Models.Notification;
 
 namespace CES.BusinessTier.Services
 {
@@ -264,6 +266,23 @@ namespace CES.BusinessTier.Services
                 IsRead = false,
                 CreatedAt = TimeUtils.GetCurrentSEATime(),
             };
+
+            // send noti
+            var messaging = FirebaseMessaging.DefaultInstance;
+            var response = messaging.SendAsync(new Message
+            {
+                Token = existedWallet.Account.FcmToken,
+                Notification = new FirebaseAdmin.Messaging.Notification
+                {
+                    Title = "Ting Ting",
+                    Body = "Bạn vừa nhận được số tiền: " + benefit.UnitPrice + " VNĐ",
+                },
+            });
+
+            if (response.Result == null)
+            {
+                System.Console.WriteLine("Send noti failed");
+            }
             try
             {
                 await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransactionForReceiver);
@@ -322,6 +341,10 @@ namespace CES.BusinessTier.Services
                 .Include(x => x.Employee)
                 .ThenInclude(x => x.Account)
                 .ThenInclude(x => x.Wallets);
+
+            var accountLogin = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Wallets).FirstOrDefaultAsync();
+            var accountLoginWallet = accountLogin.Wallets.FirstOrDefault();
+
             if (request.BenefitId == null)
             {
                 request.BenefitId = Guid.Empty;
@@ -354,8 +377,31 @@ namespace CES.BusinessTier.Services
                     {
                         foreach (var wallet in employeeGroup.Employee.Account.Wallets)
                         {
-                            wallet.Balance += request.Balance;
+                            if (accountLoginWallet.Balance < benefit.UnitPrice)
+                            {
+                                return new BaseResponseViewModel<WalletResponseModel>
+                                {
+                                    Code = (int)StatusCodes.Status400BadRequest,
+                                    Message = "Not have enough balance in your wallet",
+                                };
+                            }
+                            accountLoginWallet.Balance -= benefit.UnitPrice;
+                            accountLoginWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
+                            wallet.Balance += benefit.UnitPrice;
                             wallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
+
+                            var walletTransactionForSender = new Transaction()
+                            {
+                                Id = Guid.NewGuid(),
+                                SenderId = accountLoginId,
+                                RecieveId = wallet.Account.Id,
+                                WalletId = wallet.Id,
+                                Type = (int)WalletTransactionTypeEnums.AllocateWelfare,
+                                Description = "Chuyển tiền cho " + wallet.Account.Name + " - " + benefit.Name,
+                                Total = benefit.UnitPrice,
+                                CreatedAt = TimeUtils.GetCurrentSEATime(),
+                                CompanyId = benefit.CompanyId,
+                            };
                             var walletTransaction = new Transaction()
                             {
                                 Id = Guid.NewGuid(),
@@ -368,11 +414,35 @@ namespace CES.BusinessTier.Services
                                 CreatedAt = TimeUtils.GetCurrentSEATime(),
                                 CompanyId = benefit.CompanyId,
                             };
+                            var empNotification = new Notification()
+                            {
+                                Id = Guid.NewGuid(),
+                                AccountId = wallet.AccountId,
+                                TransactionId = walletTransaction.Id,
+                                Title = "Bạn đã nhận được tiền từ " + benefit.Name,
+                                Description = "Số tiền nhận được: " + benefit.UnitPrice + " VNĐ",
+                                IsRead = false,
+                                CreatedAt = TimeUtils.GetCurrentSEATime(),
+                            };
+                            // send noti
+                            var messaging = FirebaseMessaging.DefaultInstance;
+                            var response = messaging.SendAsync(new Message
+                            {
+                                Token = wallet.Account.FcmToken,
+                                Notification = new FirebaseAdmin.Messaging.Notification
+                                {
+                                    Title = "Ting Ting",
+                                    Body = "Bạn vừa nhận được số tiền: " + benefit.UnitPrice + " VNĐ",
+                                },
+                            });
+
                             await _unitOfWork.Repository<Wallet>().UpdateDetached(wallet);
+                            await _unitOfWork.Repository<Wallet>().UpdateDetached(accountLoginWallet);
+                            await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransactionForSender);
                             await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransaction);
+                            await _unitOfWork.Repository<Notification>().InsertAsync(empNotification);
                         }
                     }
-
                     break;
                 case 2:
 
