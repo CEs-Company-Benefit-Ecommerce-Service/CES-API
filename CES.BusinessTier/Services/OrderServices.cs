@@ -6,6 +6,9 @@ using CES.BusinessTier.ResponseModels.BaseResponseModels;
 using CES.BusinessTier.UnitOfWork;
 using CES.BusinessTier.Utilities;
 using CES.DataTier.Models;
+using FirebaseAdmin.Messaging;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using LAK.Sdk.Core.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -133,7 +136,7 @@ namespace CES.BusinessTier.Services
 
                 var accountEmp = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == employee.AccountId).FirstOrDefaultAsync();
 
-                var empNotification = new Notification()
+                var empNotification = new DataTier.Models.Notification()
                 {
                     Id = Guid.NewGuid(),
                     Title = "Cập nhật trạng thái đơn hàng",
@@ -143,6 +146,23 @@ namespace CES.BusinessTier.Services
                     CreatedAt = TimeUtils.GetCurrentSEATime(),
                     AccountId = accountEmp.Id
                 };
+
+                // send noti
+                var messaging = FirebaseMessaging.DefaultInstance;
+                var response = messaging.SendAsync(new Message
+                {
+                    Token = accountEmp.FcmToken,
+                    Notification = new FirebaseAdmin.Messaging.Notification
+                    {
+                        Title = "Cập nhật trạng thái đơn hàng",
+                        Body = "Đơn hàng của bạn đã chuyển sang trạng thái: " + stringStatus,
+                    },
+                });
+
+                if (response.Result == null)
+                {
+                    System.Console.WriteLine("Send noti failed");
+                }
                 //if(existedOrder.Status == (int)OrderStatusEnums.Cancel)
                 //{
                 //   var eaAccount = await _unitOfWork.Repository<Account>().AsQueryable().Include(x => x.Enterprises).Where(x => x.Enterprises.Select(x => x.CompanyId).FirstOrDefault() == existedOrder.CompanyId).FirstOrDefaultAsync();
@@ -157,7 +177,7 @@ namespace CES.BusinessTier.Services
                 //        AccountId = eaAccount.Id
                 //    };
                 //}
-                await _unitOfWork.Repository<Notification>().InsertAsync(empNotification);
+                await _unitOfWork.Repository<DataTier.Models.Notification>().InsertAsync(empNotification);
                 await _unitOfWork.Repository<Order>().UpdateDetached(existedOrder);
                 await _unitOfWork.CommitAsync();
 
@@ -278,7 +298,7 @@ namespace CES.BusinessTier.Services
                     await _unitOfWork.Repository<Product>().UpdateDetached(product.Result);
                 }
                 // create notification for employee
-                var empNotification = new Notification()
+                var empNotification = new DataTier.Models.Notification()
                 {
                     Id = Guid.NewGuid(),
                     Title = "Mua hàng",
@@ -289,7 +309,7 @@ namespace CES.BusinessTier.Services
                     CreatedAt = TimeUtils.GetCurrentSEATime(),
                 };
 
-                await _unitOfWork.Repository<Notification>().InsertAsync(empNotification);
+                await _unitOfWork.Repository<DataTier.Models.Notification>().InsertAsync(empNotification);
 
                 await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransaction);
 

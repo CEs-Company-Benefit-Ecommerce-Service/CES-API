@@ -22,6 +22,7 @@ namespace CES.DataTier.Models
         public string? ImageUrl { get; set; }
         public string? Role { get; set; }
         public int? Status { get; set; }
+        public string? FcmToken { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
 

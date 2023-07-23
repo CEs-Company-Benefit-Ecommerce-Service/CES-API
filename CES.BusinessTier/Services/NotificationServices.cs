@@ -5,13 +5,19 @@ using CES.BusinessTier.ResponseModels.BaseResponseModels;
 using CES.BusinessTier.UnitOfWork;
 using CES.BusinessTier.Utilities;
 using CES.DataTier.Models;
+using FirebaseAdmin;
+//using FirebaseAdmin.Messaging;
+using FirebaseAdmin.Auth;
+using Google.Apis.Auth.OAuth2;
 using LAK.Sdk.Core.Utilities;
+using Microsoft.AspNetCore.Builder.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -39,7 +45,7 @@ namespace CES.BusinessTier.Services
         {
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
 
-            var notifications = _unitOfWork.Repository<Notification>().AsQueryable(x => x.AccountId == accountLoginId)
+            var notifications = _unitOfWork.Repository<DataTier.Models.Notification>().AsQueryable(x => x.AccountId == accountLoginId)
                                 .ProjectTo<NotificationResponseModel>(_mapper.ConfigurationProvider)
                                 .DynamicFilter<NotificationResponseModel>(filter)
                                 .DynamicSort<NotificationResponseModel>(paging.Sort, paging.Order)
@@ -68,7 +74,7 @@ namespace CES.BusinessTier.Services
 
             var accountLoginName = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Select(x => x.Name).FirstOrDefaultAsync();
 
-            var notification = await _unitOfWork.Repository<Notification>().AsQueryable(x => x.Id == id).Include(x => x.Transaction).Include(x => x.Order).FirstOrDefaultAsync();
+            var notification = await _unitOfWork.Repository<DataTier.Models.Notification>().AsQueryable(x => x.Id == id).Include(x => x.Transaction).Include(x => x.Order).FirstOrDefaultAsync();
 
             var result = _mapper.Map<NotificationResponseModel>(notification);
             result.AccountName = accountLoginName;
@@ -77,8 +83,8 @@ namespace CES.BusinessTier.Services
             notification.UpdatedAt = TimeUtils.GetCurrentSEATime();
             try
             {
-                await _unitOfWork.Repository<Notification>().UpdateDetached(notification);
-                await _unitOfWork.CommitAsync();    
+                await _unitOfWork.Repository<DataTier.Models.Notification>().UpdateDetached(notification);
+                await _unitOfWork.CommitAsync();
             }
             catch (Exception ex)
             {

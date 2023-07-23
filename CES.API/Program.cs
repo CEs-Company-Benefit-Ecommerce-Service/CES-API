@@ -1,5 +1,7 @@
 using CES.API.AppStarts;
 using CES.BusinessTier.Middlewares;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Hangfire;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Swashbuckle.AspNetCore.SwaggerUI;
@@ -47,6 +49,11 @@ if (app.Environment.IsDevelopment() || app.Environment.IsStaging() || app.Enviro
         options.DocExpansion(DocExpansion.None);
     });
 }
+var pathToKey = Path.Combine(Directory.GetCurrentDirectory(), "Keys", "firebaseConfig.json");
+FirebaseApp.Create(new AppOptions
+{
+    Credential = GoogleCredential.FromFile(pathToKey)
+});
 
 app.UseMiddleware<ExceptionMiddleware>();
 
@@ -59,7 +66,7 @@ app.UseAuthorization();
 app.UseCors(MyAllowSpecificOrigins);
 
 app.UseHangfireDashboard();
-app.MapHangfireDashboard(); 
+app.MapHangfireDashboard();
 
 BackgroundJobs.RecurringJobs();
 

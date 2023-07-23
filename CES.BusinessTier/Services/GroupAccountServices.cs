@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 using AutoMapper.QueryableExtensions;
 using CES.BusinessTier.ResponseModels;
 using Microsoft.AspNetCore.Http;
+using FirebaseAdmin.Messaging;
+using Notification = CES.DataTier.Models.Notification;
 
 namespace CES.BusinessTier.Services
 {
@@ -263,7 +265,7 @@ namespace CES.BusinessTier.Services
                     {
                         account.Wallets.First().Balance += group.Benefit.UnitPrice;
                         enterpriseWalletBalance -= group.Benefit.UnitPrice;
-                        enterpriseAccount.Wallets.First().Used += group.Benefit.UnitPrice;
+                        //enterpriseAccount.Wallets.First().Used += group.Benefit.UnitPrice;
 
                         account.Employees.First().EmployeeGroupMappings.Where(x => x.GroupId == id).First()
                             .IsReceived = true;
@@ -293,12 +295,35 @@ namespace CES.BusinessTier.Services
                             CreatedAt = TimeUtils.GetCurrentSEATime(),
                             CompanyId = group.Benefit.CompanyId,
                         };
+                        var empNotification = new Notification()
+                        {
+                            Id = Guid.NewGuid(),
+                            AccountId = account.Id,
+                            TransactionId = walletTransactionForReceiver.Id,
+                            Title = "Bạn đã nhận được tiền từ " + group.Benefit.Name,
+                            Description = "Số tiền nhận được: " + group.Benefit.UnitPrice + " VNĐ",
+                            IsRead = false,
+                            CreatedAt = TimeUtils.GetCurrentSEATime(),
+                        };
 
+                        // send noti
+                        var messaging = FirebaseMessaging.DefaultInstance;
+                        var response = messaging.SendAsync(new Message
+                        {
+                            Token = account.FcmToken,
+                            Notification = new FirebaseAdmin.Messaging.Notification
+                            {
+                                Title = "Ting Ting",
+                                Body = "Bạn vừa nhận được số tiền: " + group.Benefit.UnitPrice + " VNĐ",
+                            },
+                        });
                         try
                         {
                             await _unitOfWork.Repository<Account>().UpdateDetached(account);
+
                             await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransactionForReceiver);
                             await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransactionForSender);
+                            await _unitOfWork.Repository<Notification>().InsertAsync(empNotification);
                         }
                         catch (Exception e)
                         {
@@ -308,7 +333,6 @@ namespace CES.BusinessTier.Services
                     }
                 }
             }
-
             enterpriseAccount.Wallets.First().Balance = enterpriseWalletBalance;
             await _unitOfWork.Repository<Account>().UpdateDetached(enterpriseAccount);
             await _unitOfWork.CommitAsync();
