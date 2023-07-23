@@ -26,7 +26,7 @@ namespace CES.API.Controllers
         [HttpPost]
         public IActionResult Login([FromBody] LoginModel loginModel)
         {
-            var result = _loginServices.Login(loginModel);
+            var result = _loginServices.Login(loginModel).Result;
             return StatusCode((int)result.Code, result);
         }
 

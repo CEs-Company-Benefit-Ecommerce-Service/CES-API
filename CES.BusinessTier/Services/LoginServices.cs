@@ -26,7 +26,7 @@ namespace CES.BusinessTier.Services
 {
     public interface ILoginServices
     {
-        BaseResponseViewModel<LoginResponseModel> Login(LoginModel loginModel);
+        Task<BaseResponseViewModel<LoginResponseModel>> Login(LoginModel loginModel);
         Task<AccountResponseModel> GetCurrentLoginAccount();
     }
     public class LoginServices : ILoginServices
