@@ -107,7 +107,6 @@ namespace CES.BusinessTier.Services
             //     .Where(x => x.Id == id).FirstOrDefaultAsync();
             var orderDetail = await _unitOfWork.Repository<Order>().AsQueryable(x => x.Id == id).Include(x => x.Employee).ThenInclude(x => x.Account).ThenInclude(x => x.Wallets).Include(x => x.OrderDetails).ThenInclude(x => x.Product).ThenInclude(x => x.Supplier).ThenInclude(x => x.Account)
                 .FirstOrDefaultAsync();
-
             return new BaseResponseViewModel<OrderResponseModel>
             {
                 Code = StatusCodes.Status200OK,
@@ -129,6 +128,7 @@ namespace CES.BusinessTier.Services
                     };
                 }
                 existedOrder.Status = status;
+                existedOrder.UpdatedAt = TimeUtils.GetCurrentSEATime();
 
                 var stringStatus = Commons.ConvertIntOrderStatusToString(existedOrder.Status);
 
