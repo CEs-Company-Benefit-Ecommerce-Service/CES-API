@@ -16,6 +16,7 @@ using CES.BusinessTier.ResponseModels;
 using Microsoft.AspNetCore.Http;
 using FirebaseAdmin.Messaging;
 using Notification = CES.DataTier.Models.Notification;
+using System.Globalization;
 
 namespace CES.BusinessTier.Services
 {
@@ -249,6 +250,7 @@ namespace CES.BusinessTier.Services
                 throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "");
 
             //transfer money to employee
+            CultureInfo cul = CultureInfo.GetCultureInfo("vi-VN");
             foreach (var accountId in listAccountId)
             {
                 var account = _unitOfWork.Repository<Account>()
@@ -301,7 +303,7 @@ namespace CES.BusinessTier.Services
                             AccountId = account.Id,
                             TransactionId = walletTransactionForReceiver.Id,
                             Title = "Bạn đã nhận được tiền từ " + group.Benefit.Name,
-                            Description = "Số tiền nhận được: " + group.Benefit.UnitPrice + " VNĐ",
+                            Description = "Số tiền nhận được: " + String.Format(cul, "{0:c}", group.Benefit.UnitPrice),
                             IsRead = false,
                             CreatedAt = TimeUtils.GetCurrentSEATime(),
                         };
@@ -314,7 +316,7 @@ namespace CES.BusinessTier.Services
                             Notification = new FirebaseAdmin.Messaging.Notification
                             {
                                 Title = "Ting Ting",
-                                Body = "Bạn vừa nhận được số tiền: " + group.Benefit.UnitPrice + " VNĐ",
+                                Body = "Bạn vừa nhận được số tiền: " + String.Format(cul, "{0:c}", group.Benefit.UnitPrice),
                             },
                         });
                         try

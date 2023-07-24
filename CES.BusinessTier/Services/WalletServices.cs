@@ -21,6 +21,7 @@ using Hangfire;
 using System.ComponentModel.Design;
 using FirebaseAdmin.Messaging;
 using Notification = CES.DataTier.Models.Notification;
+using System.Globalization;
 
 namespace CES.BusinessTier.Services
 {
@@ -232,6 +233,7 @@ namespace CES.BusinessTier.Services
             }
 
             existedWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
+            CultureInfo cul = CultureInfo.GetCultureInfo("vi-VN");
             var walletTransactionForReceiver = new Transaction()
             {
                 Id = Guid.NewGuid(),
@@ -262,7 +264,7 @@ namespace CES.BusinessTier.Services
                 AccountId = existedWallet.AccountId,
                 TransactionId = walletTransactionForReceiver.Id,
                 Title = "Bạn đã nhận được tiền từ " + benefit.Name,
-                Description = "Số tiền nhận được: " + benefit.UnitPrice + " VNĐ",
+                Description = "Số tiền nhận được: " + String.Format(cul, "{0:c}", benefit.UnitPrice),
                 IsRead = false,
                 CreatedAt = TimeUtils.GetCurrentSEATime(),
             };
@@ -275,7 +277,7 @@ namespace CES.BusinessTier.Services
                 Notification = new FirebaseAdmin.Messaging.Notification
                 {
                     Title = "Ting Ting",
-                    Body = "Bạn vừa nhận được số tiền: " + benefit.UnitPrice + " VNĐ",
+                    Body = "Bạn vừa nhận được số tiền: " + String.Format(cul, "{0:c}", benefit.UnitPrice),
                 },
             });
 
