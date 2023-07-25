@@ -8,6 +8,7 @@ using CES.DataTier.Models;
 using FirebaseAdmin;
 //using FirebaseAdmin.Messaging;
 using FirebaseAdmin.Auth;
+using FirebaseAdmin.Messaging;
 using Google.Apis.Auth.OAuth2;
 using LAK.Sdk.Core.Utilities;
 using Microsoft.AspNetCore.Builder.Extensions;
@@ -27,6 +28,7 @@ namespace CES.BusinessTier.Services
     {
         Task<DynamicResponse<NotificationResponseModel>> GetsAsync(NotificationResponseModel filter, PagingModel paging);
         Task<BaseResponseViewModel<NotificationResponseModel>> GetAsync(Guid id);
+        Task CreateNotificationForEmployeesInActive();
     }
     public class NotificationServices : INotificationServices
     {
@@ -101,6 +103,62 @@ namespace CES.BusinessTier.Services
                 Message = "OK",
                 Data = result
             };
+        }
+
+        public async Task CreateNotificationForEmployeesInActive()
+        {
+            var messaging = FirebaseMessaging.DefaultInstance;
+            var employees = await _unitOfWork.Repository<Employee>().AsQueryable(x => x.Status == (int)Status.Active).ToListAsync();
+            foreach (var employee in employees)
+            {
+                var order = await _unitOfWork.Repository<Order>().AsQueryable(x => x.EmployeeId == employee.Id).OrderByDescending(x => x.CreatedAt).FirstOrDefaultAsync();
+                if (order == null)
+                {
+                    var account = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == employee.AccountId).FirstOrDefaultAsync();
+                    if(account.FcmToken != null)
+                    {
+                        var response = messaging.SendAsync(new Message
+                        {
+                            Token = account.FcmToken,
+                            Notification = new FirebaseAdmin.Messaging.Notification
+                            {
+                                Title = "Trở lại mua hàng nào bạn ơi",
+                                Body = "Bạn đã không mua hàng đã lâu, nhiều món hàng đang chờ bạn"
+                            },
+                        });
+                        if (response.Result == null)
+                        {
+                            System.Console.WriteLine("Send noti failed");
+                        }
+                    }
+                } else if (order.CreatedAt < TimeUtils.GetCurrentSEATime().AddDays(-5))
+                {
+                    //var empNotification = new DataTier.Models.Notification()
+                    //{
+                    //    Id = Guid.NewGuid(),
+                    //    Title = "Quay lại mu",
+                    //    Description = "Đơn hàng của bạn đã chuyển sang trạng thái: " + stringStatus,
+                    //    OrderId = existedOrder.Id,
+                    //    IsRead = false,
+                    //    CreatedAt = TimeUtils.GetCurrentSEATime(),
+                    //    AccountId = accountEmp.Id
+                    //};
+                    var account = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == employee.AccountId).FirstOrDefaultAsync();
+                    var response = messaging.SendAsync(new Message
+                    {
+                        Token = account.FcmToken,
+                        Notification = new FirebaseAdmin.Messaging.Notification
+                        {
+                            Title = "Trở lại mua hàng nào bạn ơi",
+                            Body = "Bạn đã không mua hàng đã lâu, nhiều món hàng đang chờ bạn"
+                        },
+                    });
+                    if (response.Result == null)
+                    {
+                        System.Console.WriteLine("Send noti failed");
+                    }
+                }
+            }
         }
     }
 }

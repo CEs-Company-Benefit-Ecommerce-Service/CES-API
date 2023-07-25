@@ -2,6 +2,7 @@ using AutoMapper;
 using CES.BusinessTier.Services;
 using CES.BusinessTier.UnitOfWork;
 using CES.DataTier.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CES.BusinessTier.Utilities;
@@ -61,5 +62,12 @@ public static class Commons
         }
         else
             return 0;
+    }
+
+    public static bool ValidateAmount(double amount)
+    {
+        if (amount < 0) return false;
+        return true;
+
     }
 }
