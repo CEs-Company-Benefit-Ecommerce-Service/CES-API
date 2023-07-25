@@ -44,6 +44,13 @@ namespace CES.BusinessTier.Services
         }
         public async Task<BaseResponseViewModel<ProductResponseModel>> CreateProductAsync(ProductRequestModel product)
         {
+            #region Validate amount
+            if (!Commons.ValidateAmount(product.Price) || !Commons.ValidateAmount(product.Quantity))
+            {
+                throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "Số tiền không hợp lệ");
+            }
+            #endregion
+
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
             var supplier = await _unitOfWork.Repository<Supplier>().AsQueryable(x => x.AccountId == accountLoginId).FirstOrDefaultAsync();
             if (supplier == null)

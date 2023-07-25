@@ -9,6 +9,7 @@ namespace CES.DataTier.Models
         {
             Employees = new HashSet<Employee>();
             Enterprises = new HashSet<Enterprise>();
+            Notifications = new HashSet<Notification>();
             Suppliers = new HashSet<Supplier>();
             Wallets = new HashSet<Wallet>();
         }
@@ -22,14 +23,15 @@ namespace CES.DataTier.Models
         public string? ImageUrl { get; set; }
         public string? Role { get; set; }
         public int? Status { get; set; }
-        public string? FcmToken { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        public string? FcmToken { get; set; }
+        public string? RefreshToken { get; set; }
 
         public virtual ICollection<Employee> Employees { get; set; }
         public virtual ICollection<Enterprise> Enterprises { get; set; }
+        public virtual ICollection<Notification> Notifications { get; set; }
         public virtual ICollection<Supplier> Suppliers { get; set; }
         public virtual ICollection<Wallet> Wallets { get; set; }
-        public virtual ICollection<Notification> Notifications { get; set; }
     }
 }

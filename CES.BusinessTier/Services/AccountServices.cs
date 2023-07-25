@@ -399,6 +399,12 @@ namespace CES.BusinessTier.Services
                 Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value);
                 int enterpriseCompanyId = Int32.Parse(_contextAccessor.HttpContext?.User.FindFirst("CompanyId").Value);
                 newAccount.Role = Roles.Employee.GetDisplayName();
+                UserResponseModel userResponse = new UserResponseModel
+                {
+                    CompanyId = enterpriseCompanyId
+                };
+                var userToken = Authen.GenerateToken(newAccount, userResponse, _configuration);
+                newAccount.RefreshToken = userToken.RefreshToken;
                 var user = new Employee()
                 {
                     Id = Guid.NewGuid(),
@@ -484,6 +490,13 @@ namespace CES.BusinessTier.Services
                         Status = (int)Status.Active,
                         CreatedAt = TimeUtils.GetCurrentSEATime()
                     };
+
+                    UserResponseModel userResponse = new UserResponseModel
+                    {
+                        CompanyId = company.Id
+                    };
+                    var userToken = Authen.GenerateToken(newAccount, userResponse, _configuration);
+                    newAccount.RefreshToken = userToken.RefreshToken;
 
                     List<Wallet> wallets = new List<Wallet>()
                     {

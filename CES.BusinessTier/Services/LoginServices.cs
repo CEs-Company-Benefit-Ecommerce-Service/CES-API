@@ -83,6 +83,16 @@ namespace CES.BusinessTier.Services
 
         public async Task<BaseResponseViewModel<LoginResponseModel>> Login(LoginModel loginModel)
         {
+            if (loginModel.RefreshToken != null)
+            {
+                var existedUser = RefreshToken(loginModel);
+                return new BaseResponseViewModel<LoginResponseModel>
+                {
+                    Code = StatusCodes.Status200OK,
+                    Message = LoginEnums.Success.GetDisplayName(),
+                    Data = existedUser.Result
+                };
+            }
             var account = _accountServices.GetAccountByEmail(loginModel.Email);
             if (account == null)
             {
@@ -95,6 +105,9 @@ namespace CES.BusinessTier.Services
             // check on firebase đã có hay không
             // nếu có thì bỏ qua, không thì tạo data trên firebase + lấy fcm lưu về local db
             account.FcmToken = loginModel.FcmToken;
+            var user = GetUserInfo(account);
+            var newToken = Authen.GenerateToken(account, user, _configuration);
+            account.RefreshToken = newToken.RefreshToken;
             try
             {
                 await _unitOfWork.Repository<Account>().UpdateDetached(account);
@@ -108,12 +121,12 @@ namespace CES.BusinessTier.Services
                     Message = LoginEnums.Failed.GetDisplayName(),
                 };
             }
-            var user = GetUserInfo(account);
-            var newToken = Authen.GenerateToken(account, user, _configuration);
 
+            var responseAccount = _mapper.Map<AccountResponseModel>(account);
+            responseAccount.CompanyId = (int)user.CompanyId;
             var result = new LoginResponseModel()
             {
-                Account = _mapper.Map<AccountResponseModel>(account),
+                Account = responseAccount,
                 Token = newToken,
             };
             return new BaseResponseViewModel<LoginResponseModel>
@@ -149,6 +162,47 @@ namespace CES.BusinessTier.Services
             }
 
             return user;
+        }
+
+        private async Task<LoginResponseModel> RefreshToken(LoginModel login)
+        {
+            var account = _unitOfWork.Repository<Account>().Find(x => x.RefreshToken == login.RefreshToken).FirstOrDefault();
+            if (account == null)
+            {
+                throw new ErrorResponse(StatusCodes.Status404NotFound, StatusCodes.Status404NotFound, "Refresh Token does not exist");
+            }
+
+            TokenModel token = new TokenModel();
+            var enterprise = _unitOfWork.Repository<Enterprise>().Find(x => x.AccountId == account.Id).FirstOrDefault();
+            if (enterprise == null)
+            {
+                var employee = _unitOfWork.Repository<Employee>().Find(x => x.AccountId == account.Id).FirstOrDefault();
+                if (employee == null) throw new ErrorResponse(StatusCodes.Status404NotFound, StatusCodes.Status404NotFound, "User does not exist");
+                UserResponseModel userResponse = new UserResponseModel
+                {
+                    CompanyId = employee.CompanyId
+                };
+                token = Authen.GenerateToken(account, userResponse, _configuration);
+            }
+            else
+            {
+                UserResponseModel userResponse = new UserResponseModel
+                {
+                    CompanyId = enterprise.CompanyId
+                };
+                token = Authen.GenerateToken(account, userResponse, _configuration);
+            }
+            if (account.RefreshToken != token.RefreshToken)
+            {
+                account.RefreshToken = token.RefreshToken;
+                await _unitOfWork.Repository<Account>().UpdateDetached(account);
+                await _unitOfWork.CommitAsync();
+            }
+            return new LoginResponseModel()
+            {
+                Account = _mapper.Map<AccountResponseModel>(account),
+                Token = token,
+            };
         }
     }
 }

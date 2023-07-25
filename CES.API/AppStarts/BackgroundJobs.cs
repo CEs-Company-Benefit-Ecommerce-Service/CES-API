@@ -18,5 +18,6 @@ public static class BackgroundJobs
 
         var corn = Cron.Daily();
         RecurringJob.AddOrUpdate<IWalletServices>(x => x.ResetAllAfterExpired(), corn);
+        RecurringJob.AddOrUpdate<INotificationServices>(x => x.CreateNotificationForEmployeesInActive(), corn);
     }
 }

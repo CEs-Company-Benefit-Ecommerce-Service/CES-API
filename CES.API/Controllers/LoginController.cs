@@ -55,5 +55,11 @@ namespace CES.API.Controllers
             var result = _notificationServices.GetAsync(notificationId).Result;
             return StatusCode((int)result.Code, result);
         }
+
+        [HttpPost("testnotification")]
+        public async Task CreateNotificationForEmployeesInActive()
+        {
+            await _notificationServices.CreateNotificationForEmployeesInActive();
+        }
     }
 }

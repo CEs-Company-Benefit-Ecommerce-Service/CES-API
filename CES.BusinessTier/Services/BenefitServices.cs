@@ -79,6 +79,12 @@ namespace CES.BusinessTier.Services
 
         public async Task<BaseResponseViewModel<BenefitResponseModel>> CreateAsync(BenefitRequestModel request)
         {
+            #region Validate amount
+            if (!Commons.ValidateAmount(request.UnitPrice))
+            {
+                throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "Số tiền không hợp lệ");
+            }
+            #endregion
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
             var user = _unitOfWork.Repository<Enterprise>().FindAsync(x => x.AccountId == accountLoginId).Result;
 
