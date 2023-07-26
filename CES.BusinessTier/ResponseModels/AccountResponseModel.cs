@@ -23,7 +23,8 @@ namespace CES.BusinessTier.ResponseModels
         public string? ImageUrl { get; set; }
         public int? Role { get; set; }
         public int? Status { get; set; }
-        public int CompanyId { get; set; }
+        public int? CompanyId { get; set; }
+        public DateTime? ExpiredDate { get;set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public bool? IsReceived { get; set; }
