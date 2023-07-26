@@ -28,6 +28,24 @@ namespace CES.BusinessTier.ResponseModels
     public class ListOrderToPaymentResponse
     {
         public double? Total { get; set; }
-        public List<Order> Orders { get; set; }
+        public List<OrderToPaymentResponse> Orders { get; set; }
+    }
+
+    public class OrderToPaymentResponse
+    {
+        public Guid? Id { get; set; }
+        public double? Total { get; set; }
+        public string? Notes { get; set; }
+        public string? Address { get; set; }
+        public int? Status { get; set; }
+        public int? DebtStatus { get; set; }
+        public string? OrderCode { get; set; }
+        public string? CompanyName { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public Guid? EmployeeId { get; set; }
+        public int? CompanyId { get; set; }
+        public ICollection<OrderDetailsResponseModel>? OrderDetails { get; set; }
+        public string? EmployeeName { get; set; }
     }
 }

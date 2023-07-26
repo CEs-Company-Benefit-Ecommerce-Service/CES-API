@@ -252,13 +252,27 @@ namespace CES.BusinessTier.Services
             var company = _unitOfWork.Repository<Company>().GetById(companyId).Result;
 
             // Lấy tất cả order đã đặt mà chưa thanh toán của company
-            var orders = await _unitOfWork.Repository<Order>().AsQueryable(x => x.CompanyId == companyId && x.DebtStatus == (int)DebtStatusEnums.New && x.Status == (int)OrderStatusEnums.Complete).ToListAsync();
+            var orders = await _unitOfWork.Repository<Order>()
+                .AsQueryable(x => x.CompanyId == companyId && x.DebtStatus == (int)DebtStatusEnums.New && x.Status == (int)OrderStatusEnums.Complete)
+                .Include(x => x.Employee)
+                .ThenInclude(x => x.Account)
+                .ToListAsync();
+
+            List<OrderToPaymentResponse> orderToPayment = new List<OrderToPaymentResponse>();
+
+            foreach (var order in orders)
+            {
+                var orderPayment = _mapper.Map<OrderToPaymentResponse>(order);
+                orderPayment.EmployeeName = order.Employee.Account.Name;
+                orderToPayment.Add(orderPayment);
+            }
+            
 
             var bill = new ListOrderToPaymentResponse
             {
                 Total = EAWallet.Used,
                 //TimeOut = company.TimeOut,
-                Orders = orders
+                Orders = orderToPayment
             };
 
             return new BaseResponseViewModel<ListOrderToPaymentResponse>

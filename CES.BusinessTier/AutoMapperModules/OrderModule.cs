@@ -16,6 +16,7 @@ namespace CES.BusinessTier.AutoMapperModules
         {
             mc.CreateMap<Order, OrderResponseModel>().ReverseMap();
             mc.CreateMap<Order, OrderRequestModel>().ReverseMap();
+            mc.CreateMap<Order, OrderToPaymentResponse>().ReverseMap();
         }
     }
 }
