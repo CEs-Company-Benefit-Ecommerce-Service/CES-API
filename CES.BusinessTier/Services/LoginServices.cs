@@ -52,10 +52,11 @@ namespace CES.BusinessTier.Services
             var companyStringId = _contextAccessor.HttpContext?.User.FindFirst("CompanyId").Value;
             int companyId = 0;
             double companyLimits = 0;
+            var company = new Company();
             if (!String.IsNullOrEmpty(companyStringId))
             {
                 companyId = Int32.Parse(companyStringId);
-                companyLimits = (double)_unitOfWork.Repository<Company>().GetById(companyId).Result.Limits;
+                company = _unitOfWork.Repository<Company>().GetById(companyId).Result;
 
             }
             var account = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Wallets).Include(x => x.Enterprises).Include(x => x.Employees).FirstOrDefaultAsync();
@@ -72,7 +73,8 @@ namespace CES.BusinessTier.Services
             if (account.Role.Equals(Roles.EnterpriseAdmin.GetDisplayName()))
             {
                 result.CompanyId = companyId;
-                //result.Wallets.FirstOrDefault().Limits = companyLimits;
+                result.ExpiredDate = company.ExpiredDate;
+                //result.Wallets.FirstOrDefault().Limits = company.Limits;
             }
             else if (account.Role.Equals(Roles.Employee.GetDisplayName()))
             {
@@ -123,7 +125,10 @@ namespace CES.BusinessTier.Services
             }
 
             var responseAccount = _mapper.Map<AccountResponseModel>(account);
-            responseAccount.CompanyId = (int)user.CompanyId;
+            if (user.CompanyId != null)
+            {
+                responseAccount.CompanyId = (int)user.CompanyId;
+            }
             var result = new LoginResponseModel()
             {
                 Account = responseAccount,
