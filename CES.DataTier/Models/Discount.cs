@@ -5,11 +5,6 @@ namespace CES.DataTier.Models
 {
     public partial class Discount
     {
-        public Discount()
-        {
-            Products = new HashSet<Product>();
-        }
-
         public int Id { get; set; }
         public int? Type { get; set; }
         public double? Amount { get; set; }
@@ -18,7 +13,8 @@ namespace CES.DataTier.Models
         public int Status { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        public Guid? ProductId { get; set; }
 
-        public virtual ICollection<Product> Products { get; set; }
+        public virtual Product? Product { get; set; }
     }
 }
