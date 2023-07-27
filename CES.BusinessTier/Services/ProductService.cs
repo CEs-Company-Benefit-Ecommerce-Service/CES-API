@@ -45,7 +45,7 @@ namespace CES.BusinessTier.Services
         public async Task<BaseResponseViewModel<ProductResponseModel>> CreateProductAsync(ProductRequestModel product)
         {
             #region Validate amount
-            if (!Commons.ValidateAmount(product.Price) || !Commons.ValidateAmount(product.Quantity))
+            if (!Commons.ValidateAmount(product.Price) || !Commons.ValidateAmount(product.Quantity) || !Commons.ValidateAmount((double)product.UnitPrice))
             {
                 throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "Số tiền không hợp lệ");
             }
@@ -109,6 +109,40 @@ namespace CES.BusinessTier.Services
                .DynamicFilter(filter)
                .DynamicSort(paging.Sort, paging.Order)
                .PagingQueryable(paging.Page, paging.Size);
+
+                var products = await result.Item2.ToListAsync();
+                foreach (var product in products)
+                {
+                    var discount = await _unitOfWork.Repository<Discount>()
+                        .AsQueryable(x =>
+                            x.ProductId == product.Id && x.Status == (int)Status.Active &&
+                            x.ExpiredDate >= TimeUtils.GetCurrentSEATime())
+                        .FirstOrDefaultAsync();
+                    if (discount != null && product.PreDiscount == null)
+                    {
+                        var entityProduct = await _unitOfWork.Repository<Product>()
+                            .AsQueryable(x => x.Status == (int)Status.Active && x.Id == product.Id)
+                            .FirstOrDefaultAsync();
+                        entityProduct.PreDiscount = product.Price;
+                        entityProduct.Price -= (double)discount.Amount;
+                        product.PreDiscount = entityProduct.PreDiscount;
+                        product.Price = entityProduct.Price;
+                        await _unitOfWork.Repository<Product>().UpdateDetached(entityProduct);
+                    }
+                    else if(discount == null && product.PreDiscount != null)
+                    {
+                        var entityProduct = await _unitOfWork.Repository<Product>()
+                            .AsQueryable(x => x.Status == (int)Status.Active && x.Id == product.Id)
+                            .FirstOrDefaultAsync();
+                        entityProduct.Price = (double)entityProduct.PreDiscount;
+                        entityProduct.PreDiscount = null;
+                        product.PreDiscount = entityProduct.PreDiscount;
+                        product.Price = entityProduct.Price;
+                        await _unitOfWork.Repository<Product>().UpdateDetached(entityProduct);
+                    }
+                }
+
+                await _unitOfWork.CommitAsync();
 
                 return new DynamicResponse<ProductResponseModel>
                 {

@@ -40,8 +40,8 @@ namespace CES.DataTier.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-//                optionsBuilder.UseSqlServer("Server=35.187.237.212;Database=CEsData_dev_v3;uid=sa;pwd=zaQ@1234");
+// #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+//                 optionsBuilder.UseSqlServer("Server=35.187.237.212;Database=CEsData_dev_v3;uid=sa;pwd=zaQ@1234");
             }
         }
 
@@ -169,6 +169,11 @@ namespace CES.DataTier.Models
                 entity.Property(e => e.ExpiredDate).HasColumnType("datetime");
 
                 entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+                entity.HasOne(d => d.Product)
+                    .WithMany(p => p.Discounts)
+                    .HasForeignKey(d => d.ProductId)
+                    .HasConstraintName("FK_Discount_Product");
             });
 
             modelBuilder.Entity<Employee>(entity =>
@@ -365,11 +370,6 @@ namespace CES.DataTier.Models
                     .HasForeignKey(d => d.CategoryId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Product_Category");
-
-                entity.HasOne(d => d.Discount)
-                    .WithMany(p => p.Products)
-                    .HasForeignKey(d => d.DiscountId)
-                    .HasConstraintName("FK_Product_Discount");
 
                 entity.HasOne(d => d.Supplier)
                     .WithMany(p => p.Products)

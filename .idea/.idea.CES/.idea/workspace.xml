@@ -8,10 +8,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c33e2030-59db-4d3d-a633-8e65857e01e7" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/AutoMapperModules/DiscountModule.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/DiscountRequest.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/DiscountResponse.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/DiscountServices.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/AutoMapperModules/OrderModule.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/AutoMapperModules/OrderModule.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/OrderResponseModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/OrderResponseModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/DebtServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/DebtServices.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.API/AppStarts/AutoMapperConfig.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.API/AppStarts/AutoMapperConfig.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.API/AppStarts/Installers.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.API/AppStarts/Installers.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/ProductRequestModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/ProductRequestModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/ProductResponseModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/ProductResponseModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/ProductService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/ProductService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/CEsData_devContext.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Discount.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.DataTier/Models/Discount.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Product.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.DataTier/Models/Product.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -150,6 +159,9 @@
       <workItem from="1686987307084" duration="21583000" />
       <workItem from="1687100814979" duration="6210000" />
       <workItem from="1688874554341" duration="5125000" />
+      <workItem from="1690472308408" duration="1080000" />
+      <workItem from="1690473407242" duration="1594000" />
+      <workItem from="1690475033288" duration="3487000" />
     </task>
     <servers />
   </component>
@@ -267,17 +279,58 @@
           <option name="timeStamp" value="71" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/DebtServices.cs</url>
-          <line>254</line>
-          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/DebtServices.cs" initialLine="254" containingFunctionPresentation="Method 'GetValueForPayment'">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/DiscountServices.cs</url>
+          <line>85</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/DiscountServices.cs" initialLine="73" containingFunctionPresentation="Method 'CreateDiscountAsync'">
             <startOffsets>
-              <option value="10803" />
+              <option value="3518" />
             </startOffsets>
             <endOffsets>
-              <option value="11122" />
+              <option value="3568" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="72" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/ProductService.cs</url>
+          <line>47</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/ProductService.cs" initialLine="47" containingFunctionPresentation="Method 'CreateProductAsync'">
+            <startOffsets>
+              <option value="2001" />
+            </startOffsets>
+            <endOffsets>
+              <option value="2143" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="73" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/DiscountServices.cs</url>
+          <line>74</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/DiscountServices.cs" initialLine="73" containingFunctionPresentation="Method 'CreateDiscountAsync'">
+            <startOffsets>
+              <option value="2988" />
+            </startOffsets>
+            <endOffsets>
+              <option value="3207" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="74" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/ProductService.cs</url>
+          <line>106</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/ProductService.cs" initialLine="106" containingFunctionPresentation="Method 'GetAllProductAsync'">
+            <startOffsets>
+              <option value="5192" />
+              <option value="5256" />
+            </startOffsets>
+            <endOffsets>
+              <option value="5518" />
+              <option value="5286" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="75" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

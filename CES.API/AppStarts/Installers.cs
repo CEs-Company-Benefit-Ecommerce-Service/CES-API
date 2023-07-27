@@ -70,6 +70,8 @@ namespace CES.API.AppStarts
             services.AddScoped<IReportServices, ReportServices>();
 
             services.AddScoped<INotificationServices, NotificationServices>();
+            
+            services.AddScoped<IDiscountServices, DiscountServices>();
         }
     }
 }
