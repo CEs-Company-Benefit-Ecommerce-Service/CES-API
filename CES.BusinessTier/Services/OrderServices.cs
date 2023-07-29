@@ -23,7 +23,7 @@ namespace CES.BusinessTier.Services
 {
     public interface IOrderServices
     {
-        Task<DynamicResponse<OrderResponseModel>> GetsAsync(OrderResponseModel filter, PagingModel paging, int? type);
+        Task<DynamicResponse<OrderResponseModel>> GetsAsync(OrderResponseModel filter, PagingModel paging, int? type, FilterFromTo filterFromTo);
         Task<BaseResponseViewModel<OrderResponseModel>> UpdateOrderStatus(Guid orderId, int status);
         Task<BaseResponseViewModel<OrderResponseModel>> CreateOrder(List<OrderDetailsRequestModel> orderDetails, string? note);
         Task<BaseResponseViewModel<OrderResponseModel>> GetById(Guid id);
@@ -50,16 +50,20 @@ namespace CES.BusinessTier.Services
             _walletServices = walletServices;
         }
 
-        public async Task<DynamicResponse<OrderResponseModel>> GetsAsync(OrderResponseModel filter, PagingModel paging, int? type)
+        public async Task<DynamicResponse<OrderResponseModel>> GetsAsync(OrderResponseModel filter, PagingModel paging, int? type, FilterFromTo filterFromTo)
         {
+            Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
+            var account = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Employees).FirstOrDefaultAsync();
+
             var order = _unitOfWork.Repository<Order>().AsQueryable()
                            .ProjectTo<OrderResponseModel>(_mapper.ConfigurationProvider)
                            .DynamicFilter(filter)
                            .DynamicSort(paging.Sort, paging.Order)
                            .PagingQueryable(paging.Page, paging.Size);
-
-            Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
-            var account = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Employees).FirstOrDefaultAsync();
+            if (filterFromTo.To != null && filterFromTo.From != null && (filterFromTo.From < filterFromTo.To))
+            {
+                order.Item2 = order.Item2.Where(x => x.CreatedAt.Value >= filterFromTo.From && x.CreatedAt.Value <= filterFromTo.To);
+            }
             if (account.Role == Roles.Employee.GetDisplayName())
             {
                 var result = order.Item2.Where(x => x.EmployeeId == account.Employees.FirstOrDefault().Id);
