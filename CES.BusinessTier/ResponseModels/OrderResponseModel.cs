@@ -48,4 +48,9 @@ namespace CES.BusinessTier.ResponseModels
         public ICollection<OrderDetailsResponseModel>? OrderDetails { get; set; }
         public string? EmployeeName { get; set; }
     }
+    public class FilterFromTo
+    {
+        public DateTime? From { get; set; }
+        public DateTime? To { get; set; }
+    }
 }
