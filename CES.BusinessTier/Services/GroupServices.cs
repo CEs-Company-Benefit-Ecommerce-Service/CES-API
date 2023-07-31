@@ -29,6 +29,7 @@ namespace CES.BusinessTier.Services
         Task<BaseResponseViewModel<GroupResponseModel>> Update(Guid id, GroupRequestModel request);
         Task<BaseResponseViewModel<GroupResponseModel>> Create(GroupRequestModel request);
         Task<BaseResponseViewModel<GroupResponseModel>> Delete(Guid id);
+        Task<DynamicResponse<GroupResponseModel>> GetGroupsByEmployeeId(Guid empId);
     }
     public class GroupServices : IGroupServices
     {
@@ -266,6 +267,23 @@ namespace CES.BusinessTier.Services
                     Message = "Bad request",
                 };
             }
+        }
+        public async Task<DynamicResponse<GroupResponseModel>> GetGroupsByEmployeeId(Guid empId)
+        {
+            var groups = _unitOfWork.Repository<EmployeeGroupMapping>().AsQueryable(x => x.EmployeeId == empId).Include(x => x.Group).Select(x => x.Group);
+            var result = _mapper.Map<List<GroupResponseModel>>(groups);
+            return new DynamicResponse<GroupResponseModel>
+            {
+                Code = StatusCodes.Status200OK,
+                Message = "Ok",
+                MetaData = new PagingMetaData
+                {
+                    Page = 1,
+                    Size = 5,
+                    Total = groups.Count()
+                },
+                Data = result
+            };
         }
     }
 }
