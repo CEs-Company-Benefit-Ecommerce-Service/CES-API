@@ -29,7 +29,7 @@ namespace CES.API.Controllers
         /// <param name="pagingModel"></param>
         /// <returns></returns>
         [HttpGet]
-        public IActionResult Gets([FromQuery] PagingModel pagingModel)
+        public async Task<ActionResult> Gets([FromQuery] PagingModel pagingModel)
         {
             var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value.ToString();
             if (role == Roles.Employee.GetDisplayName())
@@ -37,7 +37,7 @@ namespace CES.API.Controllers
                 return StatusCode(401);
             }
 
-            var result = _walletServices.GetsAsync(pagingModel).Result;
+            var result = await _walletServices.GetsAsync(pagingModel);
             return StatusCode((int)result.Code, result);
         }
         /// <summary>
@@ -63,14 +63,14 @@ namespace CES.API.Controllers
         /// <returns></returns>
         [HttpGet("account/{accountId}")]
         [Authorize(Roles = "Enterprise Admin, Employee")]
-        public IActionResult GetWalletAccount(Guid accountId)
+        public async Task<ActionResult> GetWalletAccount(Guid accountId)
         {
             //var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value.ToString();
             //if (role == Roles.SystemAdmin.GetDisplayName())
             //{
             //    return StatusCode(401);
             //}
-            var result = _walletServices.GetWalletsAccount(accountId);
+            var result = await _walletServices.GetWalletsAccount(accountId);
             return StatusCode((int)result.Code, result);
         }
         /// <summary>
