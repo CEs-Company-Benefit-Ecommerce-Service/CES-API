@@ -8,19 +8,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c33e2030-59db-4d3d-a633-8e65857e01e7" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/AutoMapperModules/DiscountModule.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/DiscountRequest.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/DiscountResponse.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/DiscountServices.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.API/AppStarts/AutoMapperConfig.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.API/AppStarts/AutoMapperConfig.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.API/AppStarts/Installers.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.API/AppStarts/Installers.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/ProductRequestModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/ProductRequestModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/ProductResponseModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/ProductResponseModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/ProductService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/ProductService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/CEsData_devContext.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Discount.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.DataTier/Models/Discount.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Product.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.DataTier/Models/Product.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -267,7 +255,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/GroupServices.cs</url>
-          <line>73</line>
+          <line>74</line>
           <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupServices.cs" initialLine="73" containingFunctionPresentation="Method 'Get'">
             <startOffsets>
               <option value="3380" />
@@ -331,6 +319,19 @@
             </endOffsets>
           </properties>
           <option name="timeStamp" value="75" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs</url>
+          <line>207</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs" initialLine="207" containingFunctionPresentation="Method 'CreateOrder'">
+            <startOffsets>
+              <option value="9986" />
+            </startOffsets>
+            <endOffsets>
+              <option value="10030" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="77" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

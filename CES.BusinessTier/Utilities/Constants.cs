@@ -11,6 +11,7 @@ namespace CES.BusinessTier.Utilities
         public const int DefaultPaging = 50;
         public const int LimitPaging = 500;
         public const int LimitWallet = 5000; // 1 point = 1000VND
+        public const int ServiceFee = 5000;
     }
     
     public static class ApiEndPointConstant

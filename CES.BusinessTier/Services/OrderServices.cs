@@ -152,21 +152,24 @@ namespace CES.BusinessTier.Services
                 };
 
                 // send noti
-                var messaging = FirebaseMessaging.DefaultInstance;
-                var response = messaging.SendAsync(new Message
+                if (accountEmp.FcmToken != null)
                 {
-                    Token = accountEmp.FcmToken,
-                    Notification = new FirebaseAdmin.Messaging.Notification
+                    var messaging = FirebaseMessaging.DefaultInstance;
+                    var response = messaging.SendAsync(new Message
                     {
-                        Title = "Cập nhật trạng thái đơn hàng",
-                        Body = "Đơn hàng của bạn đã chuyển sang trạng thái: " + stringStatus,
-                    },
-                });
-
-                if (response.Result == null)
-                {
-                    System.Console.WriteLine("Send noti failed");
+                        Token = accountEmp.FcmToken,
+                        Notification = new FirebaseAdmin.Messaging.Notification
+                        {
+                            Title = "Cập nhật trạng thái đơn hàng",
+                            Body = "Đơn hàng của bạn đã chuyển sang trạng thái: " + stringStatus,
+                        },
+                    });
+                    if (response.Result == null)
+                    {
+                        System.Console.WriteLine("Send noti failed");
+                    }
                 }
+
                 //if(existedOrder.Status == (int)OrderStatusEnums.Cancel)
                 //{
                 //   var eaAccount = await _unitOfWork.Repository<Account>().AsQueryable().Include(x => x.Enterprises).Where(x => x.Enterprises.Select(x => x.CompanyId).FirstOrDefault() == existedOrder.CompanyId).FirstOrDefaultAsync();
@@ -203,6 +206,18 @@ namespace CES.BusinessTier.Services
 
         public async Task<BaseResponseViewModel<OrderResponseModel>> CreateOrder(List<OrderDetailsRequestModel> orderDetails, string? note)
         {
+            #region valid order datetime
+
+            var current = TimeUtils.GetCurrentSEATime();
+            var startOfDate = new DateTime(current.Year, current.Month, current.Day, 6, 0, 0);
+            var endOfDate = new DateTime(current.Year, current.Month, current.Day, 18, 0, 0);
+            if (current < startOfDate || current > endOfDate)
+            {
+                throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "Can not order at this time");
+            }
+
+            #endregion
+            
             #region get logined account + company +  EA account + EA wallet
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
             var accountLogin = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Wallets).FirstOrDefaultAsync();
