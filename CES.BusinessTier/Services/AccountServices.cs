@@ -106,7 +106,7 @@ namespace CES.BusinessTier.Services
                 };
             }
             var accounts = _unitOfWork.Repository<Account>().GetAll()
-                    .Where(x => x.Role == Roles.EnterpriseAdmin.GetDisplayName() || x.Role == Roles.SupplierAdmin.GetDisplayName())
+                    .Where(x => x.Role == Roles.EnterpriseAdmin.GetDisplayName() || x.Role == Roles.SupplierAdmin.GetDisplayName() || x.Role == Roles.Shipper.GetDisplayName())
                     .ProjectTo<AccountAllResponseModel>(_mapper.ConfigurationProvider)
                     .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging);
 
