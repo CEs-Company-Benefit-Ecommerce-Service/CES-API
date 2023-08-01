@@ -64,7 +64,7 @@ namespace CES.BusinessTier.Services
             {
                 order.Item2 = order.Item2.Where(x => x.CreatedAt.Value >= filterFromTo.From && x.CreatedAt.Value <= TimeUtils.GetEndOfDate((DateTime)filterFromTo.To));
             }
-            if (account.Role == Roles.Employee.GetDisplayName())
+            if (account.Role == Roles.Employee.GetDisplayName() || account.Role == Roles.Shipper.GetDisplayName())
             {
                 var result = order.Item2.Where(x => x.EmployeeId == account.Employees.FirstOrDefault().Id);
                 if (type == (int)TypeOfGetAllOrder.InComing)
