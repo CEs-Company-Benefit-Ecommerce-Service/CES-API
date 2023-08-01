@@ -60,9 +60,9 @@ namespace CES.BusinessTier.Services
                            .DynamicFilter(filter)
                            .DynamicSort(paging.Sort, paging.Order)
                            .PagingQueryable(paging.Page, paging.Size);
-            if (filterFromTo.To != null && filterFromTo.From != null && (filterFromTo.From < filterFromTo.To))
+            if (filterFromTo.To != null && filterFromTo.From != null && (filterFromTo.From < TimeUtils.GetEndOfDate((DateTime)filterFromTo.To)))
             {
-                order.Item2 = order.Item2.Where(x => x.CreatedAt.Value >= filterFromTo.From && x.CreatedAt.Value <= filterFromTo.To);
+                order.Item2 = order.Item2.Where(x => x.CreatedAt.Value >= filterFromTo.From && x.CreatedAt.Value <= TimeUtils.GetEndOfDate((DateTime)filterFromTo.To));
             }
             if (account.Role == Roles.Employee.GetDisplayName())
             {
