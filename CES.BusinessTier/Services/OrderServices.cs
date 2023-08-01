@@ -145,7 +145,7 @@ namespace CES.BusinessTier.Services
         {
             try
             {
-                var existedOrder = _unitOfWork.Repository<Order>().FindAsync(x => x.Id == orderId).Result;
+                var existedOrder = await _unitOfWork.Repository<Order>().AsQueryable(x => x.Id == orderId).FirstOrDefaultAsync();
                 if (existedOrder == null)
                 {
                     return new BaseResponseViewModel<OrderResponseModel>
@@ -175,7 +175,7 @@ namespace CES.BusinessTier.Services
                 };
 
                 // send noti
-                if (accountEmp.FcmToken != null)
+                if (accountEmp.FcmToken != null && !String.IsNullOrWhiteSpace(accountEmp.FcmToken))
                 {
                     var messaging = FirebaseMessaging.DefaultInstance;
                     var response = messaging.SendAsync(new Message
