@@ -21,7 +21,7 @@ public interface ITransactionService
 {
     //Task<BaseResponseViewModel<Transaction>> CreateTransaction(TransactionRequestModel transactionRequest);
     Task<bool> CreateTransaction(Transaction request);
-    Task<DynamicResponse<Transaction>> GetsAsync(Transaction filter, PagingModel paging);
+    Task<DynamicResponse<Transaction>> GetsAsync(TransactionResponseModel filter, PagingModel paging, int? paymentType);
     Task<BaseResponseViewModel<Transaction>> GetById(Guid id);
     Task<BaseResponseViewModel<CreatePaymentResponse>> CreatePayment(CreatePaymentRequest createPaymentRequest);
     Task<bool> ExecuteZaloPayCallBack(double? used, int? status, string? apptransid);
@@ -46,12 +46,32 @@ public class TransactionService : ITransactionService
         _configuration = configuration;
     }
 
-    public async Task<DynamicResponse<Transaction>> GetsAsync(Transaction filter, PagingModel paging)
+    public async Task<DynamicResponse<Transaction>> GetsAsync(TransactionResponseModel filter, PagingModel paging, int? paymentType)
     {
         var transactions = _unitOfWork.Repository<Transaction>().AsQueryable()
+                            .ProjectTo<TransactionResponseModel>(_mapper.ConfigurationProvider)
                            .DynamicFilter(filter)
                            .DynamicSort(paging.Sort, paging.Order)
                            .PagingQueryable(paging.Page, paging.Size);
+        
+        if (paymentType == (int)TypeOfGetAllOrder.InComing)
+        {
+            var result = transactions.Item2;
+            result = result.Where(x => x.Type == (int)WalletTransactionTypeEnums.VnPay || x.Type == (int)WalletTransactionTypeEnums.ZaloPay);
+            var a = await result.ToListAsync();
+            return new DynamicResponse<Transaction>
+            {
+                Code = StatusCodes.Status200OK,
+                Message = "OK",
+                MetaData = new PagingMetaData
+                {
+                    Page = paging.Page,
+                    Size = paging.Size,
+                    Total = transactions.Item1
+                },
+                Data = _mapper.Map<List<Transaction>>(await result.ToListAsync()),
+            };
+        }
 
         return new DynamicResponse<Transaction>
         {
@@ -63,7 +83,7 @@ public class TransactionService : ITransactionService
                 Size = paging.Size,
                 Total = transactions.Item1
             },
-            Data = await transactions.Item2.ToListAsync(),
+            Data = _mapper.Map<List<Transaction>>(await transactions.Item2.ToListAsync()),
         };
     }
 

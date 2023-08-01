@@ -23,9 +23,9 @@ namespace CES.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> Gets([FromQuery] Transaction filter, [FromQuery] PagingModel pagingModel)
+        public async Task<ActionResult> Gets([FromQuery] TransactionResponseModel filter, [FromQuery] PagingModel pagingModel, [FromQuery] int? paymentType)
         {
-            var result = await _transactionService.GetsAsync(filter, pagingModel);
+            var result = await _transactionService.GetsAsync(filter, pagingModel, paymentType);
             return Ok(result);
         }
 
