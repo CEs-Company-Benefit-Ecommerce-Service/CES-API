@@ -64,9 +64,32 @@ namespace CES.BusinessTier.Services
             {
                 order.Item2 = order.Item2.Where(x => x.CreatedAt.Value >= filterFromTo.From && x.CreatedAt.Value <= TimeUtils.GetEndOfDate((DateTime)filterFromTo.To));
             }
-            if (account.Role == Roles.Employee.GetDisplayName() || account.Role == Roles.Shipper.GetDisplayName())
+            if (account.Role == Roles.Employee.GetDisplayName())
             {
                 var result = order.Item2.Where(x => x.EmployeeId == account.Employees.FirstOrDefault().Id);
+                if (type == (int)TypeOfGetAllOrder.InComing)
+                {
+                    result = result.Where(x => x.Status == (int)OrderStatusEnums.New || x.Status == (int)OrderStatusEnums.Ready || x.Status == (int)OrderStatusEnums.Shipping);
+                }
+                else if (type == (int)TypeOfGetAllOrder.History)
+                {
+                    result = result.Where(x => x.Status == (int)OrderStatusEnums.Complete || x.Status == (int)OrderStatusEnums.Cancel);
+                }
+                return new DynamicResponse<OrderResponseModel>
+                {
+                    Code = StatusCodes.Status200OK,
+                    Message = "OK",
+                    MetaData = new PagingMetaData
+                    {
+                        Page = paging.Page,
+                        Size = paging.Size,
+                        Total = result.Count()
+                    },
+                    Data = await result.ToListAsync(),
+                };
+            } else if (account.Role == Roles.Shipper.GetDisplayName())
+            {
+                var result = order.Item2;
                 if (type == (int)TypeOfGetAllOrder.InComing)
                 {
                     result = result.Where(x => x.Status == (int)OrderStatusEnums.New || x.Status == (int)OrderStatusEnums.Ready || x.Status == (int)OrderStatusEnums.Shipping);
