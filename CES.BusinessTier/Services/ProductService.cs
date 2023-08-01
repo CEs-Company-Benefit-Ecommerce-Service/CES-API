@@ -45,7 +45,7 @@ namespace CES.BusinessTier.Services
         public async Task<BaseResponseViewModel<ProductResponseModel>> CreateProductAsync(ProductRequestModel product)
         {
             #region Validate amount
-            if (!Commons.ValidateAmount(product.Price) || !Commons.ValidateAmount(product.Quantity) || !Commons.ValidateAmount((double)product.UnitPrice))
+            if (!Commons.ValidateAmount(product.Price) || !Commons.ValidateAmount(product.Quantity))
             {
                 throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "Số tiền không hợp lệ");
             }
