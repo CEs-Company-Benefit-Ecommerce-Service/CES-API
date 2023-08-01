@@ -15,6 +15,8 @@ namespace CES.BusinessTier.ResponseModels
         public int? Type { get; set; }
         public double? UnitPrice { get; set; }
         public int? Status { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
         public int? CompanyId { get; set; }
         public CompanyResponseModel? Company { get; set; }
     }

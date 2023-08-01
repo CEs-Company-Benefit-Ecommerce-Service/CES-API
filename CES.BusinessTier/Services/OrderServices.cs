@@ -208,13 +208,13 @@ namespace CES.BusinessTier.Services
         {
             #region valid order datetime
 
-            var current = TimeUtils.GetCurrentSEATime();
-            var startOfDate = new DateTime(current.Year, current.Month, current.Day, 6, 0, 0);
-            var endOfDate = new DateTime(current.Year, current.Month, current.Day, 18, 0, 0);
-            if (current < startOfDate || current > endOfDate)
-            {
-                throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "Can not order at this time");
-            }
+            // var current = TimeUtils.GetCurrentSEATime();
+            // var startOfDate = new DateTime(current.Year, current.Month, current.Day, 6, 0, 0);
+            // var endOfDate = new DateTime(current.Year, current.Month, current.Day, 18, 0, 0);
+            // if (current < startOfDate || current > endOfDate)
+            // {
+            //     throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "Can not order at this time");
+            // }
 
             #endregion
             
@@ -270,7 +270,7 @@ namespace CES.BusinessTier.Services
                     CreatedAt = TimeUtils.GetCurrentSEATime(),
                     EmployeeId = employee.Id,
                     Status = (int)OrderStatusEnums.New,
-                    Total = (double)total,
+                    Total = (double)total + Constants.ServiceFee,
                     Address = company.Address,
                     CompanyName = company.Name,
                     Notes = note,

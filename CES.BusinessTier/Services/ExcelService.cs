@@ -46,6 +46,9 @@ public class ExcelService : IExcelService
     public async Task<DynamicResponse<Account>> ImportEmployeeList(IFormFile file)
     {
         var companyId = _contextAccessor.HttpContext?.User.FindFirst("CompanyId").Value;
+        var company = await _unitOfWork.Repository<Company>()
+            .AsQueryable(x => x.Id == Int32.Parse(companyId) && x.Status == (int)Status.Active)
+            .FirstOrDefaultAsync();
         if (file != null && file.Length > 0)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -64,8 +67,8 @@ public class ExcelService : IExcelService
                         Id = Guid.NewGuid(),
                         Name = worksheet.Cells[row, 1].Value?.ToString(),
                         Email = worksheet.Cells[row, 2].Value?.ToString(),
-                        Address = worksheet.Cells[row, 3].Value?.ToString(),
-                        Phone = worksheet.Cells[row, 4].Value?.ToString(),
+                        Address = company.Address,
+                        Phone = worksheet.Cells[row, 3].Value?.ToString(),
                         Status = (int)Status.Active,
                         CreatedAt = TimeUtils.GetCurrentSEATime(),
                         Role = Roles.Employee.GetDisplayName(),
@@ -148,17 +151,11 @@ public class ExcelService : IExcelService
             ws.Cells["B1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["B1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
-            ws.Cells["C1"].Value = "Address";
+            ws.Cells["C1"].Value = "Phone";
             ws.Cells["C1"].Style.Font.Bold = true;
             ws.Cells["C1"].Style.Font.Size = 16;
             ws.Cells["C1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["C1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-            ws.Cells["D1"].Value = "Phone";
-            ws.Cells["D1"].Style.Font.Bold = true;
-            ws.Cells["D1"].Style.Font.Size = 16;
-            ws.Cells["D1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            ws.Cells["D1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
             ws.Cells.AutoFitColumns();
 
