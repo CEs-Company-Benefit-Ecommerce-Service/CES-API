@@ -29,7 +29,7 @@ namespace CES.BusinessTier.Services
         Task<BaseResponseViewModel<GroupResponseModel>> Update(Guid id, GroupRequestModel request);
         Task<BaseResponseViewModel<GroupResponseModel>> Create(GroupRequestModel request);
         Task<BaseResponseViewModel<GroupResponseModel>> Delete(Guid id);
-        Task<DynamicResponse<GroupResponseModel>> GetGroupsByEmployeeId(Guid empId);
+        Task<DynamicResponse<GroupResponseModel>> GetGroupsByEmployeeId(Guid accountId);
     }
     public class GroupServices : IGroupServices
     {
@@ -268,9 +268,11 @@ namespace CES.BusinessTier.Services
                 };
             }
         }
-        public async Task<DynamicResponse<GroupResponseModel>> GetGroupsByEmployeeId(Guid empId)
+        public async Task<DynamicResponse<GroupResponseModel>> GetGroupsByEmployeeId(Guid accountId)
         {
-            var groups = _unitOfWork.Repository<EmployeeGroupMapping>().AsQueryable(x => x.EmployeeId == empId).Include(x => x.Group).Select(x => x.Group);
+            var employee = await _unitOfWork.Repository<Employee>().AsQueryable(x => x.AccountId == accountId).FirstOrDefaultAsync();
+
+            var groups = _unitOfWork.Repository<EmployeeGroupMapping>().AsQueryable(x => x.EmployeeId == employee.Id).Include(x => x.Group).Select(x => x.Group);
             var result = _mapper.Map<List<GroupResponseModel>>(groups);
             return new DynamicResponse<GroupResponseModel>
             {

@@ -173,10 +173,10 @@ namespace CES.API.Controllers
         {
             await _groupAccountServices.UpdateBalanceForAccountsInGroup(id);
         }
-        [HttpGet("get-by-employee/{empId}")]
-        public async Task<ActionResult> Test(Guid empId)
+        [HttpGet("get-by-employee/{accountId}")]
+        public async Task<ActionResult> Test(Guid accountId)
         {
-            var result = await _projectServices.GetGroupsByEmployeeId(empId);
+            var result = await _projectServices.GetGroupsByEmployeeId(accountId);
             return Ok(result);
         }
     }
