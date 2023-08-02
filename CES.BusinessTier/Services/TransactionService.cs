@@ -284,8 +284,8 @@ public class TransactionService : ITransactionService
 
             // Lấy tất cả order đã đặt mà chưa thanh toán của company
             var orders = await _unitOfWork.Repository<Order>().AsQueryable(x =>
-                x.CompanyId == enterprise.CompanyId && x.DebtStatus == (int)DebtStatusEnums.New &&
-                x.Status == (int)OrderStatusEnums.Complete).ToListAsync();
+                x.CompanyId == enterprise.CompanyId && x.DebtStatus == (int)DebtStatusEnums.New /*&&
+                x.Status == (int)OrderStatusEnums.Complete*/).ToListAsync();
             foreach (var order in orders)
             {
                 order.DebtStatus = (int)DebtStatusEnums.Complete;
