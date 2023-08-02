@@ -287,13 +287,14 @@ namespace CES.BusinessTier.Services
                 var orderCountCurrentDay = _unitOfWork.Repository<Order>().AsQueryable(x => x.CreatedAt.Date == TimeUtils.GetCurrentSEATime().Date).Count();
                 var orderCode = "CES-" + TimeUtils.GetCurrentSEATime().ToString("ddMMyy") + orderCountCurrentDay;
                 // create order
+                var finalTotal = (double)total + Constants.ServiceFee;
                 var newOrder = new Order()
                 {
                     Id = Guid.NewGuid(),
                     CreatedAt = TimeUtils.GetCurrentSEATime(),
                     EmployeeId = employee.Id,
                     Status = (int)OrderStatusEnums.New,
-                    Total = (double)total + Constants.ServiceFee,
+                    Total = finalTotal,
                     Address = company.Address,
                     CompanyName = company.Name,
                     Notes = note,
@@ -314,10 +315,10 @@ namespace CES.BusinessTier.Services
                 }
 
                 // update Emp wallet balance + EA wallet used
-                wallet.Balance -= total;
+                wallet.Balance -= finalTotal;
                 wallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
 
-                enterpriseWallet.Used += total;
+                enterpriseWallet.Used += finalTotal;
                 enterpriseWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
 
                 //create new transaction
@@ -329,7 +330,7 @@ namespace CES.BusinessTier.Services
                     Description = "Mua đồ ",
                     OrderId = newOrder.Id,
                     RecieveId = accountLoginId,
-                    Total = (double)total,
+                    Total = (double)finalTotal,
                     CompanyId = companyId,
                     CreatedAt = TimeUtils.GetCurrentSEATime(),
                 };
