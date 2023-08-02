@@ -291,7 +291,7 @@ namespace CES.BusinessTier.Services
                             SenderId = accountLoginId,
                             RecieveId = account.Id,
                             WalletId = enterpriseAccount.Wallets.First().Id,
-                            Type = (int)WalletTransactionTypeEnums.AddWelfare,
+                            Type = (int)WalletTransactionTypeEnums.AllocateWelfare,
                             Description = "Chuyển tiền cho " + account.Name,
                             Total = group.Benefit.UnitPrice,
                             CreatedAt = TimeUtils.GetCurrentSEATime(),
