@@ -108,7 +108,14 @@ namespace CES.BusinessTier.Services
         {
             var existedCompany = _unitOfWork.Repository<Company>().FindAsync(x => x.Id == id).Result;
             //_mapper.Map<CompanyRequestModel, Company>(request, existedCompany);
-
+            if (request.Limits != existedCompany.Limits)
+            {
+                var ea = _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.CompanyId == existedCompany.Id && x.Status == (int)Status.Active)
+                    .Include(x => x.Account).ThenInclude(x => x.Wallets).FirstOrDefault();
+                ea.Account.Wallets.First().Balance = request.Limits;
+                await _unitOfWork.Repository<Wallet>().UpdateDetached(ea.Account.Wallets.First());
+            }
+            
             existedCompany.UpdatedAt = TimeUtils.GetCurrentSEATime();
             try
             {

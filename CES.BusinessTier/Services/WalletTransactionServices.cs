@@ -73,6 +73,12 @@ namespace CES.BusinessTier.Services
                 {
                     Code = StatusCodes.Status200OK,
                     Message = "Ok",
+                    MetaData = new PagingMetaData
+                    {
+                        Page = paging.Page,
+                        Size = paging.Size,
+                        Total = transactions.Item1
+                    },
                     Data = await transactions.Item2.ToListAsync()
                 };
             }
@@ -87,6 +93,12 @@ namespace CES.BusinessTier.Services
                 {
                     Code = StatusCodes.Status200OK,
                     Message = "Ok",
+                    MetaData = new PagingMetaData
+                    {
+                        Page = paging.Page,
+                        Size = paging.Size,
+                        Total = transactions.Item1
+                    },
                     Data = await transactions.Item2.ToListAsync()
                 };
             }
@@ -101,6 +113,12 @@ namespace CES.BusinessTier.Services
                 {
                     Code = StatusCodes.Status200OK,
                     Message = "Ok",
+                    MetaData = new PagingMetaData
+                    {
+                        Page = paging.Page,
+                        Size = paging.Size,
+                        Total = transactions.Item1
+                    },
                     Data = await transactions.Item2.ToListAsync()
                 };
             }
