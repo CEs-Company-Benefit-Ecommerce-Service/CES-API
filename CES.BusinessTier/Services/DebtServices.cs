@@ -253,7 +253,7 @@ namespace CES.BusinessTier.Services
 
             // Lấy tất cả order đã đặt mà chưa thanh toán của company
             var orders = await _unitOfWork.Repository<Order>()
-                .AsQueryable(x => x.CompanyId == companyId && x.DebtStatus == (int)DebtStatusEnums.New && x.Status == (int)OrderStatusEnums.Complete)
+                .AsQueryable(x => x.CompanyId == companyId && x.DebtStatus == (int)DebtStatusEnums.New)
                 .Include(x => x.Employee)
                 .ThenInclude(x => x.Account)
                 .ToListAsync();
@@ -266,7 +266,7 @@ namespace CES.BusinessTier.Services
                 orderPayment.EmployeeName = order.Employee.Account.Name;
                 orderToPayment.Add(orderPayment);
             }
-            
+
 
             var bill = new ListOrderToPaymentResponse
             {

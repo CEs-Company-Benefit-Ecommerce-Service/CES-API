@@ -53,14 +53,14 @@ namespace CES.BusinessTier.Services
         public async Task<DynamicResponse<OrderResponseModel>> GetsAsync(OrderResponseModel filter, PagingModel paging, int? type, FilterFromTo filterFromTo)
         {
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
-            var account = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Employees).FirstOrDefaultAsync();
-
             var order = _unitOfWork.Repository<Order>().AsQueryable()
                            .ProjectTo<OrderResponseModel>(_mapper.ConfigurationProvider)
                            .DynamicFilter(filter)
                            .DynamicSort(paging.Sort, paging.Order)
                            .PagingQueryable(paging.Page, paging.Size);
-            if (filterFromTo.To != null && filterFromTo.From != null && (filterFromTo.From < TimeUtils.GetEndOfDate((DateTime)filterFromTo.To)))
+            var account = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Employees).FirstOrDefaultAsync();
+            
+            if (filterFromTo.To != null && filterFromTo.From != null && (filterFromTo.From < filterFromTo.To))
             {
                 order.Item2 = order.Item2.Where(x => x.CreatedAt.Value >= filterFromTo.From && x.CreatedAt.Value <= TimeUtils.GetEndOfDate((DateTime)filterFromTo.To));
             }

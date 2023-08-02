@@ -20,6 +20,7 @@ namespace CES.BusinessTier.ResponseModels
     public class ReportSAResponseModel
     {
         public int? CompanyCount { get; set; }
+        public double? TotalRevenue { get; set; }
         public double? TotalCompanyUsed { get; set; }
         public int? EmployeeCount { get; set; }
     }

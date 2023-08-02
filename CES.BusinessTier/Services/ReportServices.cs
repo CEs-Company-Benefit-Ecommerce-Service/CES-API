@@ -75,6 +75,8 @@ namespace CES.BusinessTier.Services
 
             var totalCompanyUsed = 0.0;
 
+            var totalRevenue = _unitOfWork.Repository<Transaction>().AsQueryable(x => x.Status == (int)DebtStatusEnums.Complete && (x.Type == (int)WalletTransactionTypeEnums.ZaloPay || x.Type == (int)WalletTransactionTypeEnums.VnPay)).Select(x => x.Total).Sum();
+
             foreach (var company in companies)
             {
                 var enterprise = await _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.CompanyId == company.Id).FirstOrDefaultAsync();
@@ -92,6 +94,7 @@ namespace CES.BusinessTier.Services
                 CompanyCount = companyCount,
                 EmployeeCount = employeeCount,
                 TotalCompanyUsed = totalCompanyUsed,
+                TotalRevenue = totalRevenue,
             };
 
             return new BaseResponseViewModel<ReportSAResponseModel>
