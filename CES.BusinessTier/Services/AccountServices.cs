@@ -508,6 +508,7 @@ namespace CES.BusinessTier.Services
                             Name = WalletTypeEnums.GeneralWallet.GetDisplayName(),
                             Status = (int)Status.Active,
                             Balance = newCompany.Limits,
+                            Used = 0,
                             CreatedAt = TimeUtils.GetCurrentSEATime(),
                             CreatedBy = accountLoginId,
                             AccountId = newAccount.Id
@@ -539,7 +540,7 @@ namespace CES.BusinessTier.Services
                 };
                 await _unitOfWork.Repository<Supplier>().InsertAsync(user);
             }
-            
+
             if (Commons.RemoveSpaces(newAccount.Role).ToLower() ==
                 Commons.RemoveSpaces(Roles.Shipper.GetDisplayName()).ToLower())
             {
