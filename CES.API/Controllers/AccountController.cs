@@ -1,4 +1,5 @@
 ﻿using CES.BusinessTier.RequestModels;
+using CES.BusinessTier.ResponseModels;
 using CES.BusinessTier.ResponseModels.BaseResponseModels;
 using CES.BusinessTier.Services;
 using CES.BusinessTier.Utilities;
@@ -28,14 +29,14 @@ namespace CES.API.Controllers
         /// <returns></returns>
         [Authorize(Roles = "Enterprise Admin, System Admin")]
         [HttpGet]
-        public IActionResult Get([FromQuery] PagingModel pagingModel)
+        public IActionResult Get([FromQuery] AccountAllResponseModel filter, [FromQuery] PagingModel pagingModel)
         {
             //var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value.ToString();
             //if (role == Roles.Employee.GetDisplayName())
             //{
             //    return StatusCode(401);
             //}
-            var result = _accountServices.Gets(pagingModel);
+            var result = _accountServices.Gets(filter, pagingModel);
             return StatusCode((int)result.Code, result);
         }
         [HttpGet("{id}")]

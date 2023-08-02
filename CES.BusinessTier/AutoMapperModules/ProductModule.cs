@@ -17,7 +17,8 @@ namespace CES.BusinessTier.AutoMapperModules
             mc.CreateMap<Product, ProductRequestModel>().ReverseMap()
                 .ForAllMembers(opts => opts.Condition((_, _, srcMember) => srcMember != null));
             mc.CreateMap<Product, ProductResponseModel>().ReverseMap();
-
+            mc.CreateMap<Product, ProductUpdateModel>().ReverseMap()
+                .ForAllMembers(opts => opts.Condition((_, _, srcMember) => srcMember != null));
 
         }
     }

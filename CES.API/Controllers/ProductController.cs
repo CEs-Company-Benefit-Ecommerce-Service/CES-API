@@ -51,7 +51,7 @@ namespace CES.API.Controllers
         // PUT: api/Product/5
         [HttpPut("{id}")]
         [Authorize(Roles = "Supplier Admin")]
-        public async Task<ActionResult<BaseResponseViewModel<ProductResponseModel>>> UpdateProduct(Guid id, [FromBody] ProductRequestModel productUpdate)
+        public async Task<ActionResult<BaseResponseViewModel<ProductResponseModel>>> UpdateProduct(Guid id, [FromBody] ProductUpdateModel productUpdate)
         {
             return Ok(await _productService.UpdateProductAsync(id, productUpdate));
         }
