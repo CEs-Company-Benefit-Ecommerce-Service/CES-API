@@ -24,7 +24,7 @@ namespace CES.BusinessTier.Services
         Task<DynamicResponse<ProductResponseModel>> GetAllProductAsync(ProductResponseModel filter, PagingModel paging);
         Task<BaseResponseViewModel<ProductResponseModel>> GetProductAsync(Guid productId, ProductResponseModel filter);
         Task<BaseResponseViewModel<ProductResponseModel>> CreateProductAsync(ProductRequestModel product);
-        Task<BaseResponseViewModel<ProductResponseModel>> UpdateProductAsync(Guid productId, ProductRequestModel productUpdate);
+        Task<BaseResponseViewModel<ProductResponseModel>> UpdateProductAsync(Guid productId, ProductUpdateModel productUpdate);
         Task<BaseResponseViewModel<ProductResponseModel>> DeleteProductAsync(Guid productId);
     }
 
@@ -190,12 +190,12 @@ namespace CES.BusinessTier.Services
             };
         }
 
-        public async Task<BaseResponseViewModel<ProductResponseModel>> UpdateProductAsync(Guid productId, ProductRequestModel productUpdate)
+        public async Task<BaseResponseViewModel<ProductResponseModel>> UpdateProductAsync(Guid productId, ProductUpdateModel productUpdate)
         {
             var product = await _unitOfWork.Repository<Product>().AsQueryable(x => x.Id == productId && x.Status == (int)Status.Active).FirstOrDefaultAsync();
             if (product == null) throw new ErrorResponse(StatusCodes.Status404NotFound, (int)ProductErrorEnums.NOT_FOUND_PRODUCT, ProductErrorEnums.NOT_FOUND_PRODUCT.GetDisplayName());
             product.UpdatedAt = TimeUtils.GetCurrentSEATime();
-            await _unitOfWork.Repository<Product>().UpdateDetached(_mapper.Map<ProductRequestModel, Product>(productUpdate, product));
+            await _unitOfWork.Repository<Product>().UpdateDetached(_mapper.Map<ProductUpdateModel, Product>(productUpdate, product));
             await _unitOfWork.CommitAsync();
             return new BaseResponseViewModel<ProductResponseModel>
             {

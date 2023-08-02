@@ -23,7 +23,7 @@ namespace CES.BusinessTier.Services
 {
     public interface IAccountServices
     {
-        DynamicResponse<AccountAllResponseModel> Gets(PagingModel paging);
+        DynamicResponse<AccountAllResponseModel> Gets(AccountAllResponseModel filter, PagingModel paging);
         BaseResponseViewModel<AccountResponseModel> Get(Guid id);
         Task<BaseResponseViewModel<AccountResponseModel>> UpdateAccountAsync(Guid id, AccountUpdateModel updateModel);
         Task<BaseResponseViewModel<AccountResponseModel>> DeleteAccountAsync(Guid id);
@@ -68,14 +68,14 @@ namespace CES.BusinessTier.Services
             };
         }
 
-        public DynamicResponse<AccountAllResponseModel> Gets(PagingModel paging)
+        public DynamicResponse<AccountAllResponseModel> Gets(AccountAllResponseModel filter, PagingModel paging)
         {
             var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value;
             if (role == Roles.EnterpriseAdmin.GetDisplayName())
             {
                 int enterpriseCompanyId = Int32.Parse(_contextAccessor.HttpContext?.User.FindFirst("CompanyId").Value);
-                var employees = _unitOfWork.Repository<Employee>().GetAll()
-                    .Where(x => x.CompanyId == enterpriseCompanyId && x.Status == (int)Status.Active)
+                var employees = _unitOfWork.Repository<Employee>()
+                    .AsQueryable(x => x.CompanyId == enterpriseCompanyId && x.Status == (int)Status.Active)
                     .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging);
 
                 var emplAccounts = new List<AccountAllResponseModel>();
@@ -86,6 +86,7 @@ namespace CES.BusinessTier.Services
                         .GetAll()
                         .Where(x => x.Id == employee.AccountId && x.Status == (int)Status.Active)
                         .ProjectTo<AccountAllResponseModel>(_mapper.ConfigurationProvider)
+                        .DynamicFilter(filter)
                         .FirstOrDefault();
                     if (emplAccount != null)
                     {
@@ -100,7 +101,7 @@ namespace CES.BusinessTier.Services
                     Message = "OK",
                     MetaData = new PagingMetaData()
                     {
-                        Total = employees.Item1
+                        Total = emplAccounts.Count()
                     },
                     Data = emplAccounts
                 };
@@ -108,6 +109,7 @@ namespace CES.BusinessTier.Services
             var accounts = _unitOfWork.Repository<Account>().GetAll()
                     .Where(x => x.Role == Roles.EnterpriseAdmin.GetDisplayName() || x.Role == Roles.SupplierAdmin.GetDisplayName() || x.Role == Roles.Shipper.GetDisplayName())
                     .ProjectTo<AccountAllResponseModel>(_mapper.ConfigurationProvider)
+                    .DynamicFilter(filter)
                     .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging);
 
             return new DynamicResponse<AccountAllResponseModel>
@@ -506,7 +508,6 @@ namespace CES.BusinessTier.Services
                             Name = WalletTypeEnums.GeneralWallet.GetDisplayName(),
                             Status = (int)Status.Active,
                             Balance = newCompany.Limits,
-                            Used = 0,
                             CreatedAt = TimeUtils.GetCurrentSEATime(),
                             CreatedBy = accountLoginId,
                             AccountId = newAccount.Id
@@ -538,7 +539,7 @@ namespace CES.BusinessTier.Services
                 };
                 await _unitOfWork.Repository<Supplier>().InsertAsync(user);
             }
-
+            
             if (Commons.RemoveSpaces(newAccount.Role).ToLower() ==
                 Commons.RemoveSpaces(Roles.Shipper.GetDisplayName()).ToLower())
             {
