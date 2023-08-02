@@ -9,8 +9,13 @@
   <component name="ChangeListManager">
     <list default="true" id="c33e2030-59db-4d3d-a633-8e65857e01e7" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.API/Controllers/TransactionController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.API/Controllers/TransactionController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Repositories/GenericRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Repositories/GenericRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Repositories/IGenericRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Repositories/IGenericRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/TransactionResponseModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/TransactionResponseModel.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/TransactionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/TransactionService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/CEsData_devContext.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Company.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.DataTier/Models/Company.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Transaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.DataTier/Models/Transaction.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -202,15 +207,15 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/TransactionService.cs</url>
-          <line>150</line>
+          <line>181</line>
           <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/TransactionService.cs" initialLine="113" containingFunctionPresentation="Method 'ExecuteZaloPayCallBack'">
             <startOffsets>
-              <option value="6710" />
-              <option value="6778" />
+              <option value="7754" />
+              <option value="7822" />
             </startOffsets>
             <endOffsets>
-              <option value="6859" />
-              <option value="6820" />
+              <option value="7903" />
+              <option value="7864" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="65" />
@@ -230,20 +235,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/AccountServices.cs</url>
-          <line>196</line>
-          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/AccountServices.cs" initialLine="196" containingFunctionPresentation="Method 'CreateAccountAsync'">
-            <startOffsets>
-              <option value="8858" />
-            </startOffsets>
-            <endOffsets>
-              <option value="8930" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="68" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/AccountServices.cs</url>
-          <line>513</line>
+          <line>516</line>
           <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/AccountServices.cs" initialLine="513" containingFunctionPresentation="Method 'HandleAccountRole'">
             <startOffsets>
               <option value="23016" />
@@ -279,19 +271,6 @@
             </endOffsets>
           </properties>
           <option name="timeStamp" value="72" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/ProductService.cs</url>
-          <line>47</line>
-          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/ProductService.cs" initialLine="47" containingFunctionPresentation="Method 'CreateProductAsync'">
-            <startOffsets>
-              <option value="2001" />
-            </startOffsets>
-            <endOffsets>
-              <option value="2089" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="73" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/DiscountServices.cs</url>
@@ -339,10 +318,10 @@
           <line>66</line>
           <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs" initialLine="66" containingFunctionPresentation="Method 'GetsAsync'">
             <startOffsets>
-              <option value="3434" />
+              <option value="3412" />
             </startOffsets>
             <endOffsets>
-              <option value="3486" />
+              <option value="3464" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="80" />
@@ -352,12 +331,12 @@
           <line>147</line>
           <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs" initialLine="147" containingFunctionPresentation="Method 'UpdateOrderStatus'">
             <startOffsets>
-              <option value="7294" />
-              <option value="7368" />
+              <option value="7272" />
+              <option value="7346" />
             </startOffsets>
             <endOffsets>
-              <option value="7407" />
-              <option value="7383" />
+              <option value="7385" />
+              <option value="7361" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="81" />
@@ -367,26 +346,13 @@
           <line>177</line>
           <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs" initialLine="177" containingFunctionPresentation="Method 'UpdateOrderStatus'">
             <startOffsets>
-              <option value="8762" />
+              <option value="8740" />
             </startOffsets>
             <endOffsets>
-              <option value="8845" />
+              <option value="8823" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="82" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/TransactionService.cs</url>
-          <line>50</line>
-          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/TransactionService.cs" initialLine="50" containingFunctionPresentation="Method 'GetsAsync'">
-            <startOffsets>
-              <option value="2211" />
-            </startOffsets>
-            <endOffsets>
-              <option value="2565" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="83" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

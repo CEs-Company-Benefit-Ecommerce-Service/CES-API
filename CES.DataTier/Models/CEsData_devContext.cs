@@ -408,6 +408,11 @@ namespace CES.DataTier.Models
 
                 entity.Property(e => e.InvoiceId).HasMaxLength(100);
 
+                entity.HasOne(d => d.Company)
+                    .WithMany(p => p.Transactions)
+                    .HasForeignKey(d => d.CompanyId)
+                    .HasConstraintName("FK_Transaction_Company");
+
                 entity.HasOne(d => d.PaymentProvider)
                     .WithMany(p => p.Transactions)
                     .HasForeignKey(d => d.PaymentProviderId)

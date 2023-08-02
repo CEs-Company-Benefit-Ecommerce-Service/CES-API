@@ -18,6 +18,7 @@ namespace CES.BusinessTier.ResponseModels
         public Guid? OrderId { get; set; }
         public Guid? WalletId { get; set; }
         public int? CompanyId { get; set; }
+        public string? CompanyName { get; set; }
         public Guid? PaymentProviderId { get; set; }
         public string? InvoiceId { get; set; }
         public int? Status { get; set; } // 0 = đang thanh toán || 1 = complete || 2 = false

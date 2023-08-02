@@ -12,6 +12,7 @@ namespace CES.DataTier.Models
             DebtTickets = new HashSet<DebtTicket>();
             Employees = new HashSet<Employee>();
             Enterprises = new HashSet<Enterprise>();
+            Transactions = new HashSet<Transaction>();
         }
 
         public int Id { get; set; }
@@ -34,5 +35,6 @@ namespace CES.DataTier.Models
         public virtual ICollection<DebtTicket> DebtTickets { get; set; }
         public virtual ICollection<Employee> Employees { get; set; }
         public virtual ICollection<Enterprise> Enterprises { get; set; }
+        public virtual ICollection<Transaction> Transactions { get; set; }
     }
 }

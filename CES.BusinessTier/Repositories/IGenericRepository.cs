@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace CES.BusinessTier.Repositories
 {
@@ -55,5 +56,10 @@ namespace CES.BusinessTier.Repositories
         public IQueryable<TEntity> AsNoTracking();
         IQueryable<TEntity> AsQueryable();
         IQueryable<TEntity> AsQueryable(Expression<Func<TEntity, bool>> predicate);
+        
+        IQueryable<TResult?> ObjectMapper<TResult>(
+            Expression<Func<TEntity, TResult>> selector,
+            Expression<Func<TEntity, bool>> predicate = null,
+            Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>> include = null);
     }
 }

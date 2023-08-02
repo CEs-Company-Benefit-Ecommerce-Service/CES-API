@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace CES.BusinessTier.Repositories
 {
@@ -158,6 +159,16 @@ namespace CES.BusinessTier.Repositories
         public IQueryable<T> AsQueryable(Expression<Func<T, bool>> predicate)
         {
             return Context.Set<T>().AsQueryable().Where(predicate);
+        }
+        
+        public IQueryable<TResult?> ObjectMapper<TResult>(Expression<Func<T, TResult>> selector, Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
+        {
+            IQueryable<T> query = Table;
+            if (include != null) query = include(query);
+
+            if (predicate != null) query = query.Where(predicate);
+
+            return query.AsNoTracking().Select(selector);
         }
     }
 }

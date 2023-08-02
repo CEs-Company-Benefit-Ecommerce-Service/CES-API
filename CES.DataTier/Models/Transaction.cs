@@ -24,6 +24,7 @@ namespace CES.DataTier.Models
         public string? InvoiceId { get; set; }
         public int? Status { get; set; }
 
+        public virtual Company? Company { get; set; }
         public virtual PaymentProvider? PaymentProvider { get; set; }
         public virtual ICollection<Notification> Notifications { get; set; }
     }
