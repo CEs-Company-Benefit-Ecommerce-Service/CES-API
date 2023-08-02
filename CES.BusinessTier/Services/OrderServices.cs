@@ -178,7 +178,7 @@ namespace CES.BusinessTier.Services
                 if (accountEmp.FcmToken != null && !String.IsNullOrWhiteSpace(accountEmp.FcmToken))
                 {
                     var messaging = FirebaseMessaging.DefaultInstance;
-                    var response = messaging.SendAsync(new Message
+                    var response = await messaging.SendAsync(new Message
                     {
                         Token = accountEmp.FcmToken,
                         Notification = new FirebaseAdmin.Messaging.Notification
@@ -187,7 +187,7 @@ namespace CES.BusinessTier.Services
                             Body = "Đơn hàng của bạn đã chuyển sang trạng thái: " + stringStatus,
                         },
                     });
-                    if (response.Result == null)
+                    if (response == null)
                     {
                         System.Console.WriteLine("Send noti failed");
                     }

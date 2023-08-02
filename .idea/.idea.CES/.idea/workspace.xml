@@ -8,8 +8,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c33e2030-59db-4d3d-a633-8e65857e01e7" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/CompanyServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/CompanyServices.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/WalletTransactionServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/WalletTransactionServices.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -347,6 +346,21 @@
             </endOffsets>
           </properties>
           <option name="timeStamp" value="82" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/CompanyServices.cs</url>
+          <line>112</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/CompanyServices.cs" initialLine="112" containingFunctionPresentation="Method 'Update'">
+            <startOffsets>
+              <option value="4737" />
+              <option value="4800" />
+            </startOffsets>
+            <endOffsets>
+              <option value="4958" />
+              <option value="4866" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="85" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
