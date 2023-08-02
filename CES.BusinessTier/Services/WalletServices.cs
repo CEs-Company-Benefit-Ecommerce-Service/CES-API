@@ -508,7 +508,7 @@ namespace CES.BusinessTier.Services
         {   // this function will call immediately after EA use payment function
 
             var employees = await _unitOfWork.Repository<Employee>().AsQueryable(x => x.CompanyId == companyId)
-                                                            .Include(x => x.Account).ThenInclude(x => x.Wallets).ToListAsync();
+                                                            .Include(x => x.Account).ThenInclude(x => x.Wallets).Include(x => x.EmployeeGroupMappings).ToListAsync();
             var enterprise = await _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.CompanyId == companyId)
                                                             .Include(x => x.Account).ThenInclude(x => x.Wallets).FirstOrDefaultAsync();
             var company = _unitOfWork.Repository<Company>().GetById(companyId);
@@ -520,6 +520,12 @@ namespace CES.BusinessTier.Services
                 {
                     var empWallet = emp.Account.Wallets.FirstOrDefault();
                     empWallet.Balance = 0;
+                    // emp.EmployeeGroupMappings.Where(x => x.)
+                    foreach (var group in emp.EmployeeGroupMappings)
+                    {
+                        group.IsReceived = false;
+                    }
+                    await _unitOfWork.Repository<Employee>().UpdateDetached(emp);
                     await _unitOfWork.Repository<Wallet>().UpdateDetached(empWallet);
                 }
                 // update EA balance = Company limits
@@ -535,7 +541,7 @@ namespace CES.BusinessTier.Services
                 await _unitOfWork.Repository<Company>().UpdateDetached(company.Result);
                 await _unitOfWork.Repository<Wallet>().UpdateDetached(EAWallet);
 
-                //await _unitOfWork.CommitAsync();
+                await _unitOfWork.CommitAsync();
 
                 return new BaseResponseViewModel<string>
                 {
