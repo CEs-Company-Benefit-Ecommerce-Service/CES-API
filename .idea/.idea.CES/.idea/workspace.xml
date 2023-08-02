@@ -8,14 +8,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c33e2030-59db-4d3d-a633-8e65857e01e7" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Repositories/GenericRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Repositories/GenericRepository.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Repositories/IGenericRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Repositories/IGenericRepository.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/TransactionResponseModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/TransactionResponseModel.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/TransactionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/TransactionService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/CEsData_devContext.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Company.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.DataTier/Models/Company.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Transaction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.DataTier/Models/Transaction.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -210,12 +203,12 @@
           <line>181</line>
           <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/TransactionService.cs" initialLine="113" containingFunctionPresentation="Method 'ExecuteZaloPayCallBack'">
             <startOffsets>
-              <option value="7754" />
-              <option value="7822" />
+              <option value="7738" />
+              <option value="7806" />
             </startOffsets>
             <endOffsets>
-              <option value="7903" />
-              <option value="7864" />
+              <option value="7887" />
+              <option value="7848" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="65" />

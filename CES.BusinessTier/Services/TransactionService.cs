@@ -93,7 +93,7 @@ public class TransactionService : ITransactionService
                 {
                     Page = paging.Page,
                     Size = paging.Size,
-                    Total = transactions.Item1
+                    Total = result.Count()
                 },
                 Data = await result.ToListAsync(),
             };
