@@ -81,10 +81,27 @@ public class TransactionService : ITransactionService
 
         if (paymentType == (int)TypeOfGetAllOrder.InComing)
         {
-            var result = transactions.Item2;
-            result = result.Where(x =>
-                x.Type == (int)WalletTransactionTypeEnums.VnPay || x.Type == (int)WalletTransactionTypeEnums.ZaloPay);
-            var a = await result.ToListAsync();
+            var result = _unitOfWork.Repository<Transaction>()
+                .ObjectMapper(selector: x => new TransactionResponseModel()
+                {
+                    Id = x.Id,
+                    Total = x.Total,
+                    Description = x.Description,
+                    Type = x.Type,
+                    CreatedAt = x.CreatedAt,
+                    SenderId = x.SenderId,
+                    RecieveId = x.RecieveId,
+                    OrderId = x.OrderId,
+                    WalletId = x.WalletId,
+                    CompanyId = x.CompanyId,
+                    CompanyName = x.Company.Name,
+                    PaymentProviderId = x.PaymentProviderId,
+                    InvoiceId = x.InvoiceId,
+                    Status = x.Status
+                }, include: x => x.Include(x => x.Company), predicate: x => x.Type == (int)WalletTransactionTypeEnums.VnPay || x.Type == (int)WalletTransactionTypeEnums.ZaloPay)
+                .DynamicFilter(filter)
+                .DynamicSort(paging.Sort, paging.Order)
+                .PagingQueryable(paging.Page, paging.Size);
             return new DynamicResponse<TransactionResponseModel>
             {
                 Code = StatusCodes.Status200OK,
@@ -93,9 +110,9 @@ public class TransactionService : ITransactionService
                 {
                     Page = paging.Page,
                     Size = paging.Size,
-                    Total = result.Count()
+                    Total = result.Item1
                 },
-                Data = await result.ToListAsync(),
+                Data = await result.Item2.ToListAsync(),
             };
         }
 
