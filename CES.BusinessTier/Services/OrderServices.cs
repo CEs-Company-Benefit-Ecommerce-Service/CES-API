@@ -59,8 +59,8 @@ namespace CES.BusinessTier.Services
                            .DynamicSort(paging.Sort, paging.Order)
                            .PagingQueryable(paging.Page, paging.Size);
             var account = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Employees).FirstOrDefaultAsync();
-            
-            if (filterFromTo.To != null && filterFromTo.From != null && (filterFromTo.From < filterFromTo.To))
+
+            if (filterFromTo.To != null && filterFromTo.From != null)
             {
                 order.Item2 = order.Item2.Where(x => x.CreatedAt.Value >= filterFromTo.From && x.CreatedAt.Value <= TimeUtils.GetEndOfDate((DateTime)filterFromTo.To));
             }
@@ -87,7 +87,8 @@ namespace CES.BusinessTier.Services
                     },
                     Data = await result.ToListAsync(),
                 };
-            } else if (account.Role == Roles.Shipper.GetDisplayName())
+            }
+            else if (account.Role == Roles.Shipper.GetDisplayName())
             {
                 var result = order.Item2;
                 if (type == (int)TypeOfGetAllOrder.InComing)
@@ -240,7 +241,7 @@ namespace CES.BusinessTier.Services
             // }
 
             #endregion
-            
+
             #region get logined account + company +  EA account + EA wallet
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
             var accountLogin = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Wallets).FirstOrDefaultAsync();
