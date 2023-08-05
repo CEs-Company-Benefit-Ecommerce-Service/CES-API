@@ -99,7 +99,7 @@ public class TransactionService : ITransactionService
                     PaymentProviderId = x.PaymentProviderId,
                     InvoiceId = x.InvoiceId,
                     Status = x.Status
-                }, include: x => x.Include(x => x.Company), predicate: x => x.Type == (int)WalletTransactionTypeEnums.VnPay || x.Type == (int)WalletTransactionTypeEnums.ZaloPay)
+                }, include: x => x.Include(x => x.Company), predicate: x => x.Type == (int)WalletTransactionTypeEnums.VnPay || x.Type == (int)WalletTransactionTypeEnums.ZaloPay || x.Type == (int)WalletTransactionTypeEnums.Bank)
                 .DynamicFilter(filter)
                 .DynamicSort(paging.Sort, paging.Order)
                 .PagingQueryable(paging.Page, paging.Size);
