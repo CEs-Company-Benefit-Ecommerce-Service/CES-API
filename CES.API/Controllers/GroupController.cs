@@ -81,7 +81,7 @@ namespace CES.API.Controllers
         /// <param name="requestModel"></param>
         /// <returns></returns>
         [HttpPut("{id}")]
-        public IActionResult UpdateGroup(Guid id, [FromBody] GroupRequestModel requestModel)
+        public IActionResult UpdateGroup(Guid id, [FromBody] GroupUpdateModel requestModel)
         {
             var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value.ToString();
             if (role != Roles.EnterpriseAdmin.GetDisplayName())
@@ -171,7 +171,8 @@ namespace CES.API.Controllers
         [HttpPost("{id}/employees")]
         public async Task UpdateBalanceForAccountsInGroup(Guid id)
         {
-            await _groupAccountServices.UpdateBalanceForAccountsInGroup(id);
+            Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            await _groupAccountServices.UpdateBalanceForAccountsInGroup(id, accountLoginId);
         }
         [HttpGet("get-by-employee/{accountId}")]
         public async Task<ActionResult> Test(Guid accountId)

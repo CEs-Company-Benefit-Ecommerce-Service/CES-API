@@ -90,18 +90,46 @@ namespace CES.BusinessTier.Services
 
             var newBenefit = _mapper.Map<Benefit>(request);
             newBenefit.Id = Guid.NewGuid();
-            newBenefit.Status = (int)Status.Active;
+            newBenefit.Status = (int)Status.Inactive;
             newBenefit.CreatedAt = TimeUtils.GetCurrentSEATime();
             newBenefit.CompanyId = (int)user.CompanyId;
+
+            if (request.TimeFilter == null)
+            {
+                request.TimeFilter = 0;
+            }
+
+            switch (request.Type)
+            {
+                case (int)GroupTypes.Daily:
+                    break;
+                case (int)GroupTypes.Weekly:
+                    if (request.DateFilter == null)
+                    {
+                        throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "Please provide Date");
+                    }
+                    break;
+                case (int)GroupTypes.Monthly:
+                    if (request.DayFilter == null)
+                    {
+                        throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "Please provide Day");
+                    }
+                    break;
+            }
 
             var group = new Group()
             {
                 Id = Guid.NewGuid(),
                 Name = $"Group {request.Name}",
-                Status = (int)Status.Active,
+                Status = (int)Status.Inactive,
                 CreatedAt = TimeUtils.GetCurrentSEATime(),
                 CreatedBy = accountLoginId,
-                BenefitId = newBenefit.Id
+                BenefitId = newBenefit.Id,
+                Type = request.Type,
+                TimeFilter = request.TimeFilter,
+                DateFilter = request.DateFilter,
+                DayFilter = request.DayFilter,
+                EndDate = request.EndDate
             };
 
             try
@@ -136,6 +164,13 @@ namespace CES.BusinessTier.Services
             {
                 await _unitOfWork.Repository<Benefit>().UpdateDetached(temp);
                 await _unitOfWork.CommitAsync();
+                
+                var group = await _unitOfWork.Repository<Group>().AsQueryable(x => x.BenefitId == benefitId).FirstOrDefaultAsync();
+                GroupUpdateModel groupUpdate = new GroupUpdateModel()
+                {
+                    Status = existedBenefit.Status
+                };
+                _ = await _groupServices.Update(group.Id, groupUpdate);
 
                 return new BaseResponseViewModel<BenefitResponseModel>
                 {

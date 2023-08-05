@@ -10,8 +10,12 @@ namespace CES.BusinessTier.RequestModels
     {
         public string? Name { get; set; }
         public string? Description { get; set; }
-        public int? Type { get; set; }
         public double UnitPrice { get; set; }
+        public int? Type { get; set; }
+        public int? TimeFilter { get; set; }
+        public int? DateFilter { get; set; }
+        public int? DayFilter { get; set; }
+        public DateTime? EndDate { get; set; }
     }
 
     public class BenefitUpdateModel

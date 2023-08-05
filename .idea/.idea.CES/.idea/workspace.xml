@@ -7,7 +7,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c33e2030-59db-4d3d-a633-8e65857e01e7" name="Changes" comment="" />
+    <list default="true" id="c33e2030-59db-4d3d-a633-8e65857e01e7" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/GroupUpdateModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.API/Controllers/GroupController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.API/Controllers/GroupController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/AutoMapperModules/ProjectModule.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/AutoMapperModules/ProjectModule.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/BenefitRequestModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/BenefitRequestModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/GroupResponseModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/ResponseModels/GroupResponseModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/BenefitServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/BenefitServices.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupAccountServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupAccountServices.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupServices.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Utilities/Enums.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Utilities/Enums.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/CEsData_devContext.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Group.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.DataTier/Models/Group.cs" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -53,27 +66,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.sourceCode.C#",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.sourceCode.C#&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "rider.external.source.directories": [
-      "/Users/khoala/Library/Application Support/JetBrains/Rider2023.1/resharper-host/DecompilerCache",
-      "/Users/khoala/Library/Application Support/JetBrains/Rider2023.1/resharper-host/SourcesCache",
-      "/Users/khoala/.local/share/Symbols/src"
+  &quot;keyToStringList&quot;: {
+    &quot;rider.external.source.directories&quot;: [
+      &quot;/Users/khoala/Library/Application Support/JetBrains/Rider2023.1/resharper-host/DecompilerCache&quot;,
+      &quot;/Users/khoala/Library/Application Support/JetBrains/Rider2023.1/resharper-host/SourcesCache&quot;,
+      &quot;/Users/khoala/.local/share/Symbols/src&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration default="true" type="DotNetProject" factoryName=".NET Project">
       <option name="EXE_PATH" value="$PROJECT_DIR$/CES.API/bin/Debug/net6.0/CES.API.dll" />
@@ -147,6 +160,7 @@
       <workItem from="1690472308408" duration="1080000" />
       <workItem from="1690473407242" duration="1594000" />
       <workItem from="1690475033288" duration="3487000" />
+      <workItem from="1691080219788" duration="18562000" />
     </task>
     <servers />
   </component>
@@ -198,15 +212,15 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/TransactionService.cs</url>
-          <line>181</line>
+          <line>198</line>
           <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/TransactionService.cs" initialLine="113" containingFunctionPresentation="Method 'ExecuteZaloPayCallBack'">
             <startOffsets>
-              <option value="7738" />
-              <option value="7806" />
+              <option value="8589" />
+              <option value="8657" />
             </startOffsets>
             <endOffsets>
-              <option value="7887" />
-              <option value="7848" />
+              <option value="8738" />
+              <option value="8699" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="65" />
@@ -242,10 +256,10 @@
           <line>74</line>
           <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupServices.cs" initialLine="73" containingFunctionPresentation="Method 'Get'">
             <startOffsets>
-              <option value="3380" />
+              <option value="3379" />
             </startOffsets>
             <endOffsets>
-              <option value="3501" />
+              <option value="3500" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="71" />
@@ -305,19 +319,6 @@
           <option name="timeStamp" value="78" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs</url>
-          <line>66</line>
-          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs" initialLine="66" containingFunctionPresentation="Method 'GetsAsync'">
-            <startOffsets>
-              <option value="3412" />
-            </startOffsets>
-            <endOffsets>
-              <option value="3464" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="80" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/CompanyServices.cs</url>
           <line>112</line>
           <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/CompanyServices.cs" initialLine="112" containingFunctionPresentation="Method 'Update'">
@@ -331,6 +332,60 @@
             </endOffsets>
           </properties>
           <option name="timeStamp" value="85" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/BenefitServices.cs</url>
+          <line>96</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/BenefitServices.cs" initialLine="96" containingFunctionPresentation="Method 'CreateAsync'">
+            <startOffsets>
+              <option value="4219" />
+            </startOffsets>
+            <endOffsets>
+              <option value="4250" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="86" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/GroupServices.cs</url>
+          <line>107</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupServices.cs" initialLine="107" containingFunctionPresentation="Method 'Update'">
+            <startOffsets>
+              <option value="5458" />
+            </startOffsets>
+            <endOffsets>
+              <option value="5532" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="88" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/BenefitServices.cs</url>
+          <line>158</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/BenefitServices.cs" initialLine="158" containingFunctionPresentation="Method 'UpdateAsync'">
+            <startOffsets>
+              <option value="6494" />
+              <option value="6564" />
+            </startOffsets>
+            <endOffsets>
+              <option value="6590" />
+              <option value="6581" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="89" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/GroupAccountServices.cs</url>
+          <line>356</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupAccountServices.cs" initialLine="356" containingFunctionPresentation="Method 'ScheduleUpdateBalanceForAccountsInGroup'">
+            <startOffsets>
+              <option value="15998" />
+            </startOffsets>
+            <endOffsets>
+              <option value="16017" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="95" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

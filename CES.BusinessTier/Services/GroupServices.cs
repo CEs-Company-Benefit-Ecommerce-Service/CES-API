@@ -26,7 +26,7 @@ namespace CES.BusinessTier.Services
         Task<BaseResponseViewModel<GroupResponseModel>> Get(Guid id);
         Task<BaseResponseViewModel<GroupResponseModel>> AddEmployee(GroupMemberRequestModel requestModel);
         Task<BaseResponseViewModel<GroupResponseModel>> RemoveEmployee(GroupMemberRequestModel requestModel);
-        Task<BaseResponseViewModel<GroupResponseModel>> Update(Guid id, GroupRequestModel request);
+        Task<BaseResponseViewModel<GroupResponseModel>> Update(Guid id, GroupUpdateModel request);
         Task<BaseResponseViewModel<GroupResponseModel>> Create(GroupRequestModel request);
         Task<BaseResponseViewModel<GroupResponseModel>> Delete(Guid id);
         Task<DynamicResponse<GroupResponseModel>> GetGroupsByEmployeeId(Guid accountId);
@@ -103,7 +103,7 @@ namespace CES.BusinessTier.Services
                 Data = _mapper.Map<GroupResponseModel>(group)
             };
         }
-        public async Task<BaseResponseViewModel<GroupResponseModel>> Update(Guid id, GroupRequestModel request)
+        public async Task<BaseResponseViewModel<GroupResponseModel>> Update(Guid id, GroupUpdateModel request)
         {
             var existedGroup = _unitOfWork.Repository<Group>().GetByIdGuid(id).Result;
             if (existedGroup == null)
@@ -116,9 +116,15 @@ namespace CES.BusinessTier.Services
             }
             try
             {
-                var updateGroup = _mapper.Map<GroupRequestModel, Group>(request, existedGroup);
+                var updateGroup = _mapper.Map<GroupUpdateModel, Group>(request, existedGroup);
                 await _unitOfWork.Repository<Group>().UpdateDetached(updateGroup);
                 await _unitOfWork.CommitAsync();
+                
+                if (updateGroup.Status == (int)Status.Active)
+                {
+                    Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+                    _ = await _projectAccountServices.ScheduleUpdateBalanceForAccountsInGroup(id, accountLoginId);
+                }
 
                 return new BaseResponseViewModel<GroupResponseModel>
                 {

@@ -17,6 +17,8 @@ using Microsoft.AspNetCore.Http;
 using FirebaseAdmin.Messaging;
 using Notification = CES.DataTier.Models.Notification;
 using System.Globalization;
+using CES.BusinessTier.RequestModels;
+using Hangfire;
 
 namespace CES.BusinessTier.Services
 {
@@ -27,7 +29,8 @@ namespace CES.BusinessTier.Services
         public IEnumerable<Group> Gets(PagingModel paging);
         Task<bool> CheckAccountInGroup(Guid employId, Guid projectId);
         Task<DynamicResponse<AccountResponseModel>> GetAccountsByGroupId(Guid id, PagingModel paging);
-        Task UpdateBalanceForAccountsInGroup(Guid id);
+        Task UpdateBalanceForAccountsInGroup(Guid id, Guid enterpriseId);
+        Task<bool> ScheduleUpdateBalanceForAccountsInGroup(Guid id, Guid enterpriseId);
     }
 
     public class GroupAccountServices : IGroupAccountServices
@@ -185,27 +188,21 @@ namespace CES.BusinessTier.Services
             };
         }
 
-        public async Task UpdateBalanceForAccountsInGroup(Guid id)
+        public async Task UpdateBalanceForAccountsInGroup(Guid id, Guid enterpriseId)
         {
-            var group = _unitOfWork.Repository<Group>()
+            var group = await _unitOfWork.Repository<Group>()
                 .AsQueryable(x => x.Id == id && x.Status == (int)Status.Active)
                 .Include(x => x.Benefit)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
             if (group == null) throw new ErrorResponse(StatusCodes.Status404NotFound, 404, "");
-            Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value
-                .ToString());
-            var enterprise = _unitOfWork.Repository<Enterprise>().GetWhere(x => x.AccountId == accountLoginId).Result
-                .FirstOrDefault();
-            var enterpriseAccount = _unitOfWork.Repository<Account>()
+            var enterprise = await _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.AccountId == enterpriseId)
+                .FirstOrDefaultAsync();
+            var enterpriseAccount = await _unitOfWork.Repository<Account>()
                 .AsQueryable(x => x.Id == enterprise.AccountId && x.Status == (int)Status.Active)
                 .Include(x => x.Wallets)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
             if (enterpriseAccount == null) throw new ErrorResponse(StatusCodes.Status404NotFound, 404, "");
-            double enterpriseWalletBalance = 0;
-            foreach (var wallet in enterpriseAccount.Wallets)
-            {
-                enterpriseWalletBalance = (double)wallet.Balance;
-            }
+            double enterpriseWalletBalance = (double)enterpriseAccount.Wallets.First().Balance;
 
             var groupEmployees = _unitOfWork.Repository<EmployeeGroupMapping>()
                 .AsQueryable(x => x.GroupId == id)
@@ -229,9 +226,9 @@ namespace CES.BusinessTier.Services
 
             foreach (var employeeId in listEmployeeId)
             {
-                var employee = _unitOfWork.Repository<Employee>()
+                var employee = await _unitOfWork.Repository<Employee>()
                     .AsQueryable(x => x.Id == Guid.Parse(employeeId) && x.Status == (int)Status.Active)
-                    .FirstOrDefault();
+                    .FirstOrDefaultAsync();
                 if (employee != null)
                 {
                     if (groupEmployeeReceiveStatus.ContainsKey(employee.Id))
@@ -275,7 +272,7 @@ namespace CES.BusinessTier.Services
                         var walletTransactionForReceiver = new Transaction()
                         {
                             Id = Guid.NewGuid(),
-                            SenderId = accountLoginId,
+                            SenderId = enterpriseId,
                             RecieveId = account.Id,
                             WalletId = account.Wallets.First().Id,
                             Type = (int)WalletTransactionTypeEnums.AddWelfare,
@@ -288,7 +285,7 @@ namespace CES.BusinessTier.Services
                         var walletTransactionForSender = new Transaction()
                         {
                             Id = Guid.NewGuid(),
-                            SenderId = accountLoginId,
+                            SenderId = enterpriseId,
                             RecieveId = account.Id,
                             WalletId = enterpriseAccount.Wallets.First().Id,
                             Type = (int)WalletTransactionTypeEnums.AllocateWelfare,
@@ -310,15 +307,20 @@ namespace CES.BusinessTier.Services
 
                         // send noti
                         var messaging = FirebaseMessaging.DefaultInstance;
-                        var response = messaging.SendAsync(new Message
+                        if (account.FcmToken != null && !String.IsNullOrWhiteSpace(account.FcmToken))
                         {
-                            Token = account.FcmToken,
-                            Notification = new FirebaseAdmin.Messaging.Notification
+                            var response = await messaging.SendAsync(new Message
                             {
-                                Title = "Ting Ting",
-                                Body = "Bạn vừa nhận được số tiền: " + String.Format(cul, "{0:c}", group.Benefit.UnitPrice),
-                            },
-                        });
+                                Token = account.FcmToken,
+                                Notification = new FirebaseAdmin.Messaging.Notification
+                                {
+                                    Title = "Ting Ting",
+                                    Body = "Bạn vừa nhận được số tiền: " +
+                                           String.Format(cul, "{0:c}", group.Benefit.UnitPrice),
+                                },
+                            });
+                        }
+
                         try
                         {
                             await _unitOfWork.Repository<Account>().UpdateDetached(account);
@@ -335,9 +337,121 @@ namespace CES.BusinessTier.Services
                     }
                 }
             }
+            
+            
+
             enterpriseAccount.Wallets.First().Balance = enterpriseWalletBalance;
             await _unitOfWork.Repository<Account>().UpdateDetached(enterpriseAccount);
             await _unitOfWork.CommitAsync();
+            _ = await ScheduleUpdateBalanceForAccountsInGroup(id, enterpriseId);
+        }
+
+        public async Task<bool> ScheduleUpdateBalanceForAccountsInGroup(Guid id, Guid enterpriseId)
+        {
+            var group = await _unitOfWork.Repository<Group>()
+                .AsQueryable(x => x.Id == id && x.Status == (int)Status.Active)
+                .Include(x => x.Benefit)
+                .FirstOrDefaultAsync();
+            var now = TimeUtils.GetCurrentSEATime();
+            var formattedDateTime = new DateTime(now.Year, now.Month, now.Day, (int)group.TimeFilter, 0, 0);
+            switch (group.Type)
+            {
+                case (int)GroupTypes.Daily:
+                    DateTimeOffset nowDateTimeOffset = new DateTimeOffset(now);
+                    DateTimeOffset dateTimeOffset = new DateTimeOffset(formattedDateTime);
+                    if (dateTimeOffset <= nowDateTimeOffset)
+                    {
+                        // dateTimeOffset = dateTimeOffset.AddDays(1);
+                        dateTimeOffset = dateTimeOffset.AddDays(1).AddHours(-7);
+                    }
+                    // dateTimeOffset = dateTimeOffset.AddDays(1).AddHours(-7);
+                    if (group.EndDate == null || (group.EndDate != null && group.EndDate > formattedDateTime))
+                    {
+                        BackgroundJob.Schedule(() => UpdateBalanceForAccountsInGroup(group.Id, enterpriseId),
+                            dateTimeOffset);
+                        return true;
+                    }
+                    else if (group.EndDate != null && group.EndDate <= formattedDateTime)
+                    {
+                        var existedBenefit = _unitOfWork.Repository<Benefit>().FindAsync(x => x.Id == group.Benefit.Id)
+                            .Result;
+                        existedBenefit.Status = (int)Status.Inactive;
+                        await _unitOfWork.Repository<Benefit>().UpdateDetached(existedBenefit);
+                        group.Status = (int)Status.Inactive;
+                        await _unitOfWork.Repository<Group>().UpdateDetached(group);
+                        await _unitOfWork.CommitAsync();
+                    }
+                    break;
+                case (int)GroupTypes.Weekly:
+                    if (group.DateFilter == null)
+                    {
+                        throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "Please provide Date");
+                    }
+                    int currentDayOfWeekValue = (int)formattedDateTime.DayOfWeek;
+                    int daysToAdd = ((int)group.DateFilter - currentDayOfWeekValue + 7) % 7;
+                    DateTime resultDate = formattedDateTime;
+                    DateTimeOffset dateTimeOffsetWeekly = new DateTimeOffset(resultDate);
+                    if (formattedDateTime > now)
+                    {
+                        dateTimeOffsetWeekly = new DateTimeOffset(formattedDateTime);
+                    }else if (daysToAdd == 0 && formattedDateTime <= now)
+                    {
+                        dateTimeOffsetWeekly = dateTimeOffsetWeekly.AddDays(7);
+                    }
+
+                    dateTimeOffsetWeekly = dateTimeOffsetWeekly.AddHours(-7);
+                    if (group.EndDate == null || (group.EndDate != null && group.EndDate > formattedDateTime))
+                    {
+                        BackgroundJob.Schedule(() => UpdateBalanceForAccountsInGroup(group.Id, enterpriseId),
+                            dateTimeOffsetWeekly);
+                        return true;
+                    }
+                    else if (group.EndDate != null && group.EndDate <= formattedDateTime)
+                    {
+                        var existedBenefit = _unitOfWork.Repository<Benefit>().FindAsync(x => x.Id == group.Benefit.Id)
+                            .Result;
+                        existedBenefit.Status = (int)Status.Inactive;
+                        await _unitOfWork.Repository<Benefit>().UpdateDetached(existedBenefit);
+                        group.Status = (int)Status.Inactive;
+                        await _unitOfWork.Repository<Group>().UpdateDetached(group);
+                        await _unitOfWork.CommitAsync();
+                    }
+                    break;
+                case (int)GroupTypes.Monthly:
+                    if (group.DayFilter == null)
+                    {
+                        throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "Please provide Day");
+                    }
+                    DateTime resultDateMonthly = formattedDateTime.AddMonths(1);
+                    DateTime formattedDayOfMonthly = new DateTime(resultDateMonthly.Year, resultDateMonthly.Month, (int)group.DayFilter, resultDateMonthly.Hour, resultDateMonthly.Minute, resultDateMonthly.Second);
+                    DateTimeOffset nowDateTimeOffsetMonthly = new DateTimeOffset(now);
+                    DateTimeOffset nowFormattedDateTimeOffsetMonthly = new DateTimeOffset(formattedDateTime);
+                    DateTimeOffset dateTimeOffsetMonthly = new DateTimeOffset(formattedDayOfMonthly);
+                    if (nowFormattedDateTimeOffsetMonthly > nowDateTimeOffsetMonthly)
+                    {
+                        dateTimeOffsetMonthly = new DateTimeOffset(formattedDateTime);
+                    }
+
+                    dateTimeOffsetMonthly = dateTimeOffsetMonthly.AddHours(-7);
+                    if (group.EndDate == null || (group.EndDate != null && group.EndDate > formattedDateTime))
+                    {
+                        BackgroundJob.Schedule(() => UpdateBalanceForAccountsInGroup(group.Id, enterpriseId),
+                            dateTimeOffsetMonthly);
+                        return true;
+                    }
+                    else if (group.EndDate != null && group.EndDate <= formattedDateTime)
+                    {
+                        var existedBenefit = _unitOfWork.Repository<Benefit>().FindAsync(x => x.Id == group.Benefit.Id)
+                            .Result;
+                        existedBenefit.Status = (int)Status.Inactive;
+                        await _unitOfWork.Repository<Benefit>().UpdateDetached(existedBenefit);
+                        group.Status = (int)Status.Inactive;
+                        await _unitOfWork.Repository<Group>().UpdateDetached(group);
+                        await _unitOfWork.CommitAsync();
+                    }
+                    break;
+            }
+            return false;
         }
         //public async Task<bool> DeleteRange(Guid projectId)
         //{
