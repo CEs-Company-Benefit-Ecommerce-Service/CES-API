@@ -4,6 +4,7 @@ using CES.BusinessTier.Services;
 using Microsoft.AspNetCore.Mvc;
 using CES.BusinessTier.RequestModels;
 using CES.DataTier.Models;
+using Microsoft.AspNetCore.Authorization;
 using Swashbuckle.AspNetCore.Annotations;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -23,6 +24,7 @@ namespace CES.API.Controllers
         // GET: api/<CategoryController>
         [SwaggerOperation(summary: "Get categories", description: "Sort: {Parameter}, Order: asc || desc")]
         [HttpGet]
+        [Authorize(Roles = "System Admin, Supplier Admin, Employee")]
         public async Task<ActionResult<DynamicResponse<CategoryResponseModel>>> GetAllCategory([FromQuery] CategoryResponseModel filter, [FromQuery] PagingModel paging)
         {
             return Ok(await _categoryService.GetAllCategoryAsync(filter, paging));
@@ -30,6 +32,7 @@ namespace CES.API.Controllers
 
         // GET api/<CategoryController>/5
         [HttpGet("{id}")]
+        [Authorize(Roles = "System Admin, Supplier Admin, Employee")]
         public async Task<ActionResult<BaseResponseViewModel<CategoryResponseModel>>> GetCategoryById(int id, [FromQuery] CategoryResponseModel filter)
         {
             return Ok(await _categoryService.GetCategoryAsync(id, filter));

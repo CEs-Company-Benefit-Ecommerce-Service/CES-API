@@ -26,7 +26,7 @@ namespace CES.API.Controllers
 
         // GET: api/Product
         [HttpGet]
-        [Authorize(Roles = "Supplier Admin, Employee")]
+        [Authorize(Roles = "System Admin, Supplier Admin, Employee")]
         public async Task<ActionResult<DynamicResponse<ProductResponseModel>>> GetAllProduct([FromQuery] ProductResponseModel filter, [FromQuery] PagingModel paging)
         {
             return Ok(await _productService.GetAllProductAsync(filter, paging));
@@ -34,7 +34,7 @@ namespace CES.API.Controllers
 
         // GET: api/Product/5
         [HttpGet("{id}")]
-        [Authorize(Roles = "Supplier Admin, Employee")]
+        [Authorize(Roles = "System Admin, Supplier Admin, Employee")]
         public async Task<ActionResult<BaseResponseViewModel<ProductResponseModel>>> GetProduct(Guid id, [FromQuery] ProductResponseModel filter)
         {
             return Ok(await _productService.GetProductAsync(id, filter));
