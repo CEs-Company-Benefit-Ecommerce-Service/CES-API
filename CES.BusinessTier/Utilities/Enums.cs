@@ -92,6 +92,8 @@ namespace CES.BusinessTier.Utilities
         [Display(Name = "New")] New = 0,
         [Display(Name = "Complete")] Complete = 1,
         [Display(Name = "Cancel")] Cancel = 2,
+        [Display(Name = "progressing")] Progressing = 3
+
     }
     public enum ReceiptStatusEnums
     {
@@ -204,7 +206,7 @@ namespace CES.BusinessTier.Utilities
         Paid,
         Fail
     }
-    
+
     public enum GroupTypes
     {
         [Display(Name = "Daily")] Daily = 1,

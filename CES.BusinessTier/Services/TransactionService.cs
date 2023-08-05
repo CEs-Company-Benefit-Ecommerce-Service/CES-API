@@ -23,7 +23,7 @@ public interface ITransactionService
     Task<bool> CreateTransaction(TransactionRequestModel request);
     Task<DynamicResponse<TransactionResponseModel>> GetsAsync(TransactionResponseModel filter, PagingModel paging, int? paymentType);
     Task<BaseResponseViewModel<Transaction>> GetById(Guid id);
-    Task<BaseResponseViewModel<TransactionResponseModel>>UpdateAsync(Guid id, TransactionUpdateModel request);
+    Task<BaseResponseViewModel<TransactionResponseModel>> UpdateAsync(Guid id, TransactionUpdateModel request);
     Task<BaseResponseViewModel<CreatePaymentResponse>> CreatePayment(CreatePaymentRequest createPaymentRequest);
     Task<bool> ExecuteZaloPayCallBack(double? used, int? status, string? apptransid);
     Task<bool> ExecuteVnPayCallBack(double? used, string? status, string? apptransid);
@@ -147,15 +147,62 @@ public class TransactionService : ITransactionService
 
     public async Task<BaseResponseViewModel<TransactionResponseModel>> UpdateAsync(Guid id, TransactionUpdateModel request)
     {
-        var transaction = await _unitOfWork.Repository<Transaction>().AsQueryable(x => x.Id == id).FirstOrDefaultAsync();
-        if (transaction == null) throw new ErrorResponse(StatusCodes.Status404NotFound, 404, "");
-        var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value;
-        if (role == Roles.EnterpriseAdmin.GetDisplayName())
+        try
         {
-            transaction.ImageUrl = request.ImageUrl;
+            var transaction = await _unitOfWork.Repository<Transaction>().AsQueryable(x => x.Id == id).FirstOrDefaultAsync();
+            if (transaction == null) throw new ErrorResponse(StatusCodes.Status404NotFound, 404, "");
+            var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value;
+            if (role == Roles.EnterpriseAdmin.GetDisplayName())
+            {
+                transaction.ImageUrl = request.ImageUrl;
+                transaction.UpdatedAt = TimeUtils.GetCurrentSEATime();
+                await _unitOfWork.Repository<Transaction>().UpdateDetached(transaction);
+                await _unitOfWork.CommitAsync();
+                return new BaseResponseViewModel<TransactionResponseModel>
+                {
+                    Code = StatusCodes.Status200OK,
+                    Message = "OK",
+                    Data = _mapper.Map<TransactionResponseModel>(transaction),
+                };
+            }
             transaction.UpdatedAt = TimeUtils.GetCurrentSEATime();
+            transaction.Status = request.Status;
             await _unitOfWork.Repository<Transaction>().UpdateDetached(transaction);
-            await _unitOfWork.CommitAsync();
+            //await _unitOfWork.Repository<Transaction>().UpdateDetached(_mapper.Map<TransactionUpdateModel, Transaction>(request, transaction));
+
+            if (transaction.Status == (int)OrderStatusEnums.Complete)
+            {
+                var result = _walletServices.ResetAllAfterEAPayment((int)transaction.CompanyId).Result;
+                if (result.Code != 200)
+                {
+                    return new BaseResponseViewModel<TransactionResponseModel>
+                    {
+                        Code = StatusCodes.Status400BadRequest,
+                        Message = "Reset EA failed",
+                        Data = _mapper.Map<TransactionResponseModel>(transaction),
+                    };
+                }
+                // lấy ra order có debt status = progressing và thuộc company thanh toán
+                var ordersPayment = await _unitOfWork.Repository<Order>().AsQueryable(x => x.DebtStatus == (int)DebtStatusEnums.Progressing && x.CompanyId == transaction.CompanyId).ToListAsync();
+                foreach (var order in ordersPayment)
+                {
+                    order.DebtStatus = (int)DebtStatusEnums.Complete;
+                    await _unitOfWork.Repository<Order>().UpdateDetached(order);
+                }
+                // check xem có bất kỳ order mới nào được tạo lúc thanh toán không, rồi trừ lại trong balance của EA, tăng used EA lên
+                var orderPaymentNew = await _unitOfWork.Repository<Order>().AsQueryable(x => x.CompanyId == transaction.CompanyId && x.DebtStatus == (int)DebtStatusEnums.New).ToListAsync();
+                var enterprise = await _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.CompanyId == transaction.CompanyId)
+                                                            .Include(x => x.Account).ThenInclude(x => x.Wallets).FirstOrDefaultAsync();
+                if (orderPaymentNew.Count() > 0)
+                {
+                    var sumOrderPrice = orderPaymentNew.Select(x => x.Total).Sum();
+                    enterprise.Account.Wallets.FirstOrDefault().Balance -= sumOrderPrice;
+                    enterprise.Account.Wallets.FirstOrDefault().Used += sumOrderPrice;
+                    await _unitOfWork.Repository<Wallet>().UpdateDetached(enterprise.Account.Wallets.FirstOrDefault());
+                }
+                await _unitOfWork.CommitAsync();
+                // todo cập nhật lại balance EA, kiểm tra các đơn hàng có debtid chưa hoàn thành cộng vào used và trừ balance
+            }
             return new BaseResponseViewModel<TransactionResponseModel>
             {
                 Code = StatusCodes.Status200OK,
@@ -163,19 +210,14 @@ public class TransactionService : ITransactionService
                 Data = _mapper.Map<TransactionResponseModel>(transaction),
             };
         }
-        transaction.UpdatedAt = TimeUtils.GetCurrentSEATime();
-        await _unitOfWork.Repository<Transaction>().UpdateDetached(_mapper.Map<TransactionUpdateModel, Transaction>(request, transaction));
-        await _unitOfWork.CommitAsync();
-        if (transaction.Status == (int)OrderStatusEnums.Complete)
+        catch (Exception ex)
         {
-            // todo cập nhật lại balance EA, kiểm tra các đơn hàng có debtid chưa hoàn thành cộng vào used và trừ balance
+            return new BaseResponseViewModel<TransactionResponseModel>
+            {
+                Code = StatusCodes.Status400BadRequest,
+                Message = "Reset EA failed || " + ex.Message,
+            };
         }
-        return new BaseResponseViewModel<TransactionResponseModel>
-        {
-            Code = StatusCodes.Status200OK,
-            Message = "OK",
-            Data = _mapper.Map<TransactionResponseModel>(transaction),
-        };
     }
 
     public async Task<BaseResponseViewModel<CreatePaymentResponse>> CreatePayment(
@@ -299,9 +341,18 @@ public class TransactionService : ITransactionService
         transaction.CompanyId = companyId;
         transaction.SenderId = accountLoginId;
         transaction.WalletId = wallet.Id;
+
+        var orderPayments = _unitOfWork.Repository<Order>().AsQueryable(x =>
+                x.CompanyId == companyId && x.DebtStatus == (int)DebtStatusEnums.New);
+        foreach (var order in orderPayments)
+        {
+            order.DebtStatus = (int)DebtStatusEnums.Progressing;
+            await _unitOfWork.Repository<Order>().UpdateDetached(order);
+        }
         try
         {
             await _unitOfWork.Repository<Transaction>().InsertAsync(transaction);
+            await _unitOfWork.CommitAsync();
             return true;
         }
         catch (Exception ex)
