@@ -20,9 +20,10 @@ namespace CES.BusinessTier.Services;
 public interface ITransactionService
 {
     //Task<BaseResponseViewModel<Transaction>> CreateTransaction(TransactionRequestModel transactionRequest);
-    Task<bool> CreateTransaction(Transaction request);
+    Task<bool> CreateTransaction(TransactionRequestModel request);
     Task<DynamicResponse<TransactionResponseModel>> GetsAsync(TransactionResponseModel filter, PagingModel paging, int? paymentType);
     Task<BaseResponseViewModel<Transaction>> GetById(Guid id);
+    Task<BaseResponseViewModel<TransactionResponseModel>>UpdateAsync(Guid id, TransactionUpdateModel request);
     Task<BaseResponseViewModel<CreatePaymentResponse>> CreatePayment(CreatePaymentRequest createPaymentRequest);
     Task<bool> ExecuteZaloPayCallBack(double? used, int? status, string? apptransid);
     Task<bool> ExecuteVnPayCallBack(double? used, string? status, string? apptransid);
@@ -144,6 +145,39 @@ public class TransactionService : ITransactionService
         };
     }
 
+    public async Task<BaseResponseViewModel<TransactionResponseModel>> UpdateAsync(Guid id, TransactionUpdateModel request)
+    {
+        var transaction = await _unitOfWork.Repository<Transaction>().AsQueryable(x => x.Id == id).FirstOrDefaultAsync();
+        if (transaction == null) throw new ErrorResponse(StatusCodes.Status404NotFound, 404, "");
+        var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value;
+        if (role == Roles.EnterpriseAdmin.GetDisplayName())
+        {
+            transaction.ImageUrl = request.ImageUrl;
+            transaction.UpdatedAt = TimeUtils.GetCurrentSEATime();
+            await _unitOfWork.Repository<Transaction>().UpdateDetached(transaction);
+            await _unitOfWork.CommitAsync();
+            return new BaseResponseViewModel<TransactionResponseModel>
+            {
+                Code = StatusCodes.Status200OK,
+                Message = "OK",
+                Data = _mapper.Map<TransactionResponseModel>(transaction),
+            };
+        }
+        transaction.UpdatedAt = TimeUtils.GetCurrentSEATime();
+        await _unitOfWork.Repository<Transaction>().UpdateDetached(_mapper.Map<TransactionUpdateModel, Transaction>(request, transaction));
+        await _unitOfWork.CommitAsync();
+        if (transaction.Status == (int)OrderStatusEnums.Complete)
+        {
+            // todo cập nhật lại balance EA, kiểm tra các đơn hàng có debtid chưa hoàn thành cộng vào used và trừ balance
+        }
+        return new BaseResponseViewModel<TransactionResponseModel>
+        {
+            Code = StatusCodes.Status200OK,
+            Message = "OK",
+            Data = _mapper.Map<TransactionResponseModel>(transaction),
+        };
+    }
+
     public async Task<BaseResponseViewModel<CreatePaymentResponse>> CreatePayment(
         CreatePaymentRequest createPaymentRequest)
     {
@@ -251,11 +285,23 @@ public class TransactionService : ITransactionService
         return await _unitOfWork.CommitAsync() > 0;
     }
 
-    public async Task<bool> CreateTransaction(Transaction request)
+    public async Task<bool> CreateTransaction(TransactionRequestModel request)
     {
+        Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+        var wallet = await _unitOfWork.Repository<Wallet>().AsQueryable(x => x.AccountId == accountLoginId && x.Status == (int)Status.Active)
+            .FirstOrDefaultAsync();
+        int companyId = Int32.Parse(_contextAccessor.HttpContext?.User.FindFirst("CompanyId").Value);
+        var transaction = _mapper.Map<Transaction>(request);
+        transaction.Id = Guid.NewGuid();
+        transaction.Type = (int)WalletTransactionTypeEnums.Bank;
+        transaction.Status = (int)OrderStatusEnums.New;
+        transaction.CreatedAt = TimeUtils.GetCurrentSEATime();
+        transaction.CompanyId = companyId;
+        transaction.SenderId = accountLoginId;
+        transaction.WalletId = wallet.Id;
         try
         {
-            await _unitOfWork.Repository<Transaction>().InsertAsync(request);
+            await _unitOfWork.Repository<Transaction>().InsertAsync(transaction);
             return true;
         }
         catch (Exception ex)

@@ -1,7 +1,9 @@
-﻿using CES.BusinessTier.ResponseModels;
+﻿using CES.BusinessTier.RequestModels;
+using CES.BusinessTier.ResponseModels;
 using CES.BusinessTier.ResponseModels.BaseResponseModels;
 using CES.BusinessTier.Services;
 using CES.DataTier.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -40,6 +42,22 @@ namespace CES.API.Controllers
         {
             var result = await _walletTransactionService.GetsTransOfWalletByLoginUser(filter, paging);
             return StatusCode((int)result.Code, result);
+        }
+        
+        [HttpPost]
+        [Authorize(Roles = "Enterprise Admin")]
+        public async Task<ActionResult<bool>> CreateTransaction([FromBody] TransactionRequestModel request)
+        {
+            var result = await _transactionService.CreateTransaction(request);
+            return Ok(result);
+        }
+        
+        [HttpPut("{id}")]
+        [Authorize(Roles = "System Admin, Enterprise Admin")]
+        public async Task<ActionResult<BaseResponseViewModel<TransactionResponseModel>>> UpdateAsync(Guid id, [FromBody] TransactionUpdateModel request)
+        {
+            var result = await _transactionService.UpdateAsync(id, request);
+            return Ok(result);
         }
     }
 }
