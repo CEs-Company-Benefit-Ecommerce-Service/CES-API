@@ -39,6 +39,13 @@ namespace CES.API.Controllers
             var result = _accountServices.Gets(filter, pagingModel);
             return StatusCode((int)result.Code, result);
         }
+        [Authorize(Roles = "Enterprise Admin, System Admin")]
+        [HttpGet("employee-by-company-id")]
+        public IActionResult GetAccountEmplByCompanyId([FromQuery] AccountAllResponseModel filter, [FromQuery] PagingModel pagingModel)
+        {
+            var result = _accountServices.GetsAccountByCompanyId(filter, pagingModel);
+            return StatusCode((int)result.Code, result);
+        }
         [HttpGet("{id}")]
         public IActionResult Get(Guid id)
         {

@@ -24,6 +24,7 @@ namespace CES.BusinessTier.Services
     public interface IAccountServices
     {
         DynamicResponse<AccountAllResponseModel> Gets(AccountAllResponseModel filter, PagingModel paging);
+        DynamicResponse<AccountAllResponseModel> GetsAccountByCompanyId(AccountAllResponseModel filter, PagingModel paging);
         BaseResponseViewModel<AccountResponseModel> Get(Guid id);
         Task<BaseResponseViewModel<AccountResponseModel>> UpdateAccountAsync(Guid id, AccountUpdateModel updateModel);
         Task<BaseResponseViewModel<AccountResponseModel>> DeleteAccountAsync(Guid id);
@@ -392,6 +393,83 @@ namespace CES.BusinessTier.Services
                 return null;
             }
             return account;
+        }
+        public DynamicResponse<AccountAllResponseModel> GetsAccountByCompanyId(AccountAllResponseModel filter, PagingModel paging)
+        {
+            var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value;
+            if (role == Roles.EnterpriseAdmin.GetDisplayName())
+            {
+                int enterpriseCompanyId = Int32.Parse(_contextAccessor.HttpContext?.User.FindFirst("CompanyId").Value);
+                var employees = _unitOfWork.Repository<Employee>()
+                    .AsQueryable(x => x.CompanyId == enterpriseCompanyId)
+                    .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging);
+
+                var emplAccounts = new List<AccountAllResponseModel>();
+
+                foreach (var employee in employees.Item2.ToList())
+                {
+                    var emplAccount = _unitOfWork.Repository<Account>()
+                        .GetAll()
+                        .Where(x => x.Id == employee.AccountId && x.Status == (int)Status.Active)
+                        .ProjectTo<AccountAllResponseModel>(_mapper.ConfigurationProvider)
+                        .DynamicFilter(filter)
+                        .FirstOrDefault();
+                    if (emplAccount != null)
+                    {
+                        emplAccount.CompanyId = enterpriseCompanyId;
+                        emplAccounts.Add(emplAccount);
+                    };
+                }
+
+                return new DynamicResponse<AccountAllResponseModel>
+                {
+                    Code = 200,
+                    Message = "OK",
+                    MetaData = new PagingMetaData()
+                    {
+                        Total = emplAccounts.Count()
+                    },
+                    Data = emplAccounts
+                };
+            }
+            else
+            {
+                var companyId = filter.CompanyId;
+                filter.CompanyId = null;
+                var employees = _unitOfWork.Repository<Employee>().AsQueryable(x => x.CompanyId == companyId);
+
+                var emplAccounts = new List<AccountAllResponseModel>();
+
+                foreach (var employee in employees)
+                {
+                    var emplAccount = _unitOfWork.Repository<Account>()
+                        .GetAll()
+                        .Where(x => x.Id == employee.AccountId)
+                        .ProjectTo<AccountAllResponseModel>(_mapper.ConfigurationProvider)
+                        .DynamicFilter(filter)
+                        .FirstOrDefault();
+                    if (emplAccount != null)
+                    {
+                        emplAccount.CompanyId = companyId;
+                        emplAccounts.Add(emplAccount);
+                    };
+                }
+
+
+
+                return new DynamicResponse<AccountAllResponseModel>
+                {
+                    Code = 200,
+                    Message = "OK",
+                    MetaData = new PagingMetaData()
+                    {
+                        Total = emplAccounts.Count()
+                    },
+                    Data = emplAccounts
+                };
+
+            }
+
         }
 
         private async Task HandleAccountRole(Account newAccount, CompanyRequestModel newCompany, int companyId = 0)
