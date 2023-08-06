@@ -99,7 +99,7 @@ namespace CES.API.Controllers
         public async Task<ActionResult> GetTotalOrder(int companyId)
         {
             var result = await _debtServices.GetValueForPayment(companyId);
-            return StatusCode((int)result.Code, result);
+            return Ok(result);
         }
     }
 }

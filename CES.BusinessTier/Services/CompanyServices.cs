@@ -50,7 +50,7 @@ namespace CES.BusinessTier.Services
 
             return new DynamicResponse<CompanyResponseModel>
             {
-                Code = StatusCodes.Status200OK,
+                Code = 000,
                 Message = "OK",
                 MetaData = new PagingMetaData
                 {
@@ -69,7 +69,7 @@ namespace CES.BusinessTier.Services
 
             return new BaseResponseViewModel<CompanyResponseModel>
             {
-                Code = 200,
+                Code = 000,
                 Message = "OK",
                 Data = company
             };
@@ -90,7 +90,7 @@ namespace CES.BusinessTier.Services
 
                 return new BaseResponseViewModel<CompanyResponseModel>
                 {
-                    Code = 200,
+                    Code = 014,
                     Message = "OK",
                     Data = _mapper.Map<CompanyResponseModel>(newCompany)
                 };
@@ -99,7 +99,7 @@ namespace CES.BusinessTier.Services
             {
                 return new BaseResponseViewModel<CompanyResponseModel>
                 {
-                    Code = 400,
+                    Code = 015,
                     Message = StatusCodes.Status400BadRequest.ToString(),
                 };
             }
@@ -124,7 +124,7 @@ namespace CES.BusinessTier.Services
 
                 return new BaseResponseViewModel<CompanyResponseModel>
                 {
-                    Code = 200,
+                    Code = 017,
                     Message = StatusCodes.Status200OK.ToString(),
                 };
             }
@@ -132,7 +132,7 @@ namespace CES.BusinessTier.Services
             {
                 return new BaseResponseViewModel<CompanyResponseModel>
                 {
-                    Code = 400,
+                    Code = 018,
                     Message = StatusCodes.Status400BadRequest.ToString(),
                 };
             }

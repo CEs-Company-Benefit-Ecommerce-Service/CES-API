@@ -55,7 +55,7 @@ namespace CES.API.Controllers
         public async Task<ActionResult> Post([FromBody] BenefitRequestModel request)
         {
             var result = await _benefitServices.CreateAsync(request);
-            return StatusCode((int)result.Code, result);
+            return Ok(result);
         }
         
         [HttpPut("{id}")]
@@ -63,7 +63,7 @@ namespace CES.API.Controllers
         public async Task<ActionResult> Put(Guid id, [FromBody] BenefitUpdateModel request)
         {
             var result = await _benefitServices.UpdateAsync(request, id);
-            return StatusCode((int)result.Code, result);
+            return Ok(result);
         }
     }
 }

@@ -20,14 +20,14 @@ namespace CES.API.Controllers
         public async Task<ActionResult> GetReportForEA([FromQuery] ReportRequestModel request)
         {
             var result = await _reportServices.GetReportForEA(request);
-            return StatusCode((int)result.Code, result);
+            return Ok(result);
         }
 
         [HttpGet("sa")]
         public async Task<ActionResult> GetReportForSA([FromQuery] ReportRequestModel request)
         {
             var result = await _reportServices.GetReportForSA(request);
-            return StatusCode((int)result.Code, result);
+            return Ok(result);
         }
     }
 }

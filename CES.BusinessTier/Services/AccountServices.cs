@@ -54,16 +54,16 @@ namespace CES.BusinessTier.Services
             {
                 return new BaseResponseViewModel<AccountResponseModel>
                 {
-                    Code = 404,
-                    Message = "Not found",
+                    Code = 002,
+                    Message = "Account is not found",
 
                 };
             }
 
             return new BaseResponseViewModel<AccountResponseModel>
             {
-                Code = 200,
-                Message = "OK",
+                Code = 003,
+                Message = "Login success",
                 Data = _mapper.Map<AccountResponseModel>(account)
                 //Data = account
             };
@@ -98,8 +98,8 @@ namespace CES.BusinessTier.Services
 
                 return new DynamicResponse<AccountAllResponseModel>
                 {
-                    Code = 200,
-                    Message = "OK",
+                    Code = 000,
+                    Message = "Success",
                     MetaData = new PagingMetaData()
                     {
                         Total = emplAccounts.Count()
@@ -115,8 +115,8 @@ namespace CES.BusinessTier.Services
 
             return new DynamicResponse<AccountAllResponseModel>
             {
-                Code = 200,
-                Message = "OK",
+                Code = 000,
+                Message = "Success",
                 MetaData = new PagingMetaData()
                 {
                     Total = accounts.Item1
@@ -131,8 +131,8 @@ namespace CES.BusinessTier.Services
             var existedAccount = _unitOfWork.Repository<Account>().GetByIdGuid(id);
             if (existedAccount == null)
             {
-                throw new ErrorResponse(404, (int)AccountErrorEnums.NOT_FOUND_ID,
-                    AccountErrorEnums.NOT_FOUND_ID.GetDisplayName());
+                throw new ErrorResponse(404, 002,
+                    AccountErrorEnums.NOT_FOUND.GetDisplayName());
             }
             try
             {
@@ -145,7 +145,7 @@ namespace CES.BusinessTier.Services
                         .Find(x => x.Id == updateModel.CompanyId && x.Status == (int)Status.Active).Any();
                     if (!company)
                     {
-                        throw new ErrorResponse(StatusCodes.Status404NotFound, (int)AccountErrorEnums.NOT_FOUND_ID,
+                        throw new ErrorResponse(StatusCodes.Status404NotFound, 004,
                             AccountErrorEnums.NOT_FOUND_ID.GetDisplayName());
                     }
                     if (Commons.RemoveSpaces(temp.Role).ToLower() ==
@@ -179,8 +179,8 @@ namespace CES.BusinessTier.Services
                 await _unitOfWork.CommitAsync();
                 return new BaseResponseViewModel<AccountResponseModel>
                 {
-                    Code = 200,
-                    Message = "OK",
+                    Code = 005,
+                    Message = "Update account success",
                     Data = _mapper.Map<AccountResponseModel>(temp),
                 };
             }
@@ -188,7 +188,7 @@ namespace CES.BusinessTier.Services
             {
                 return new BaseResponseViewModel<AccountResponseModel>
                 {
-                    Code = 400,
+                    Code = 004,
                     Message = "Bad request" + "||" + ex.Message,
                 };
             }
@@ -203,17 +203,17 @@ namespace CES.BusinessTier.Services
             switch (validatePermission)
             {
                 case "Employee":
-                    throw new ErrorResponse(StatusCodes.Status403Forbidden, (int)AccountErrorEnums.NOT_HAVE_PERMISSION, AccountErrorEnums.NOT_HAVE_PERMISSION.GetDisplayName());
+                    throw new ErrorResponse(StatusCodes.Status403Forbidden, 006, AccountErrorEnums.NOT_HAVE_PERMISSION.GetDisplayName());
                 case "Shipper":
-                    throw new ErrorResponse(StatusCodes.Status403Forbidden, (int)AccountErrorEnums.NOT_HAVE_PERMISSION, AccountErrorEnums.NOT_HAVE_PERMISSION.GetDisplayName());
+                    throw new ErrorResponse(StatusCodes.Status403Forbidden, 006, AccountErrorEnums.NOT_HAVE_PERMISSION.GetDisplayName());
                 case "Enterprise Admin":
                     if (Commons.RemoveSpaces(stringRole).ToLower() != Commons.RemoveSpaces(Roles.Employee.GetDisplayName()).ToLower())
                     {
-                        throw new ErrorResponse(StatusCodes.Status403Forbidden, (int)AccountErrorEnums.NOT_HAVE_PERMISSION, AccountErrorEnums.NOT_HAVE_PERMISSION.GetDisplayName());
+                        throw new ErrorResponse(StatusCodes.Status403Forbidden, 006, AccountErrorEnums.NOT_HAVE_PERMISSION.GetDisplayName());
                     };
                     break;
                 case "Supplier Admin":
-                    throw new ErrorResponse(StatusCodes.Status403Forbidden, (int)AccountErrorEnums.NOT_HAVE_PERMISSION, AccountErrorEnums.NOT_HAVE_PERMISSION.GetDisplayName());
+                    throw new ErrorResponse(StatusCodes.Status403Forbidden, 006, AccountErrorEnums.NOT_HAVE_PERMISSION.GetDisplayName());
                 default:
                     break;
             }
@@ -222,7 +222,7 @@ namespace CES.BusinessTier.Services
             var checkEmailAccount = _unitOfWork.Repository<Account>().GetAll().Any(x => x.Email.Equals(requestModel.Email));
             if (checkEmailAccount)
             {
-                throw new ErrorResponse(StatusCodes.Status400BadRequest, StatusCodes.Status400BadRequest, "Email already existed!");
+                throw new ErrorResponse(StatusCodes.Status400BadRequest, 007, "Email already existed!");
             }
             var hashPassword = Authen.HashPassword(requestModel.Password);
             var newAccount = _mapper.Map<Account>(requestModel);
@@ -243,14 +243,14 @@ namespace CES.BusinessTier.Services
             {
                 return new BaseResponseViewModel<AccountResponseModel>
                 {
-                    Code = StatusCodes.Status400BadRequest,
+                    Code = 008,
                     Message = "Bad Request",
                 };
             }
             return new BaseResponseViewModel<AccountResponseModel>
             {
-                Code = StatusCodes.Status200OK,
-                Message = "OK",
+                Code = 009,
+                Message = "Create success",
                 Data = _mapper.Map<AccountResponseModel>(newAccount),
             };
         }
@@ -262,7 +262,7 @@ namespace CES.BusinessTier.Services
             {
                 return new BaseResponseViewModel<AccountResponseModel>
                 {
-                    Code = 404,
+                    Code = 002,
                     Message = "Not Found",
                 };
             }
@@ -320,7 +320,7 @@ namespace CES.BusinessTier.Services
                 await _unitOfWork.CommitAsync();
                 return new BaseResponseViewModel<AccountResponseModel>
                 {
-                    Code = 200,
+                    Code = 010,
                     Message = "OK",
                 };
             }
@@ -328,7 +328,7 @@ namespace CES.BusinessTier.Services
             {
                 return new BaseResponseViewModel<AccountResponseModel>
                 {
-                    Code = 400,
+                    Code = 011,
                     Message = "Bad request" + "||" + ex.Message,
                 };
             }
@@ -345,7 +345,7 @@ namespace CES.BusinessTier.Services
             {
                 return new BaseResponseViewModel<string>
                 {
-                    Code = 404,
+                    Code = 002,
                     Message = "Not Found",
                 };
             }
@@ -353,7 +353,7 @@ namespace CES.BusinessTier.Services
             {
                 return new BaseResponseViewModel<string>
                 {
-                    Code = 400,
+                    Code = 012,
                     Message = "Bad Request",
                     Data = "Wrong confirm password"
                 };
@@ -368,7 +368,7 @@ namespace CES.BusinessTier.Services
 
                 return new BaseResponseViewModel<string>
                 {
-                    Code = 200,
+                    Code = 013,
                     Message = "OK",
                     Data = "Success"
                 };
@@ -377,7 +377,7 @@ namespace CES.BusinessTier.Services
             {
                 return new BaseResponseViewModel<string>
                 {
-                    Code = 400,
+                    Code = 012,
                     Message = "Bad request" + "||" + ex.Message,
                 };
             }

@@ -39,7 +39,7 @@ namespace CES.API.Controllers
                 return StatusCode(401);
             }
             var result = _projectServices.Gets(filter, pagingModel);
-            return StatusCode((int)result.Code, result);
+            return Ok(result);
         }
         /// <summary>
         /// Only enterprise can use
@@ -55,7 +55,7 @@ namespace CES.API.Controllers
                 return StatusCode(401);
             }
             var result = _projectServices.Get(id).Result;
-            return StatusCode((int)result.Code, result);
+            return Ok(result);
         }
         /// <summary>
         /// Only enterprise can use
@@ -72,7 +72,7 @@ namespace CES.API.Controllers
                 return StatusCode(401);
             }
             var result = _projectServices.Create(requestModel).Result;
-            return StatusCode((int)result.Code, result);
+            return Ok(result);
         }
         /// <summary>
         /// Only enterprise can use
@@ -89,7 +89,7 @@ namespace CES.API.Controllers
                 return StatusCode(401);
             }
             var result = _projectServices.Update(id, requestModel).Result;
-            return StatusCode((int)result.Code, result);
+            return Ok(result);
         }
         /// <summary>
         /// Only enterprise can use
@@ -105,7 +105,7 @@ namespace CES.API.Controllers
                 return StatusCode(401);
             }
             var result = _projectServices.Delete(id).Result;
-            return StatusCode((int)result.Code, result);
+            return Ok(result);
         }
         /// <summary>
         /// Only enterprise can use
@@ -122,7 +122,7 @@ namespace CES.API.Controllers
                 return StatusCode(401);
             }
             var result = _projectServices.AddEmployee(requestModel).Result;
-            return StatusCode((int)result.Code, result);
+            return Ok(result);
         }
         /// <summary>
         /// Only enterprise can use
@@ -139,7 +139,7 @@ namespace CES.API.Controllers
                 return StatusCode(401);
             }
             var result = _projectServices.RemoveEmployee(requestModel).Result;
-            return StatusCode((int)result.Code, result);
+            return Ok(result);
         }
 
 
@@ -159,7 +159,7 @@ namespace CES.API.Controllers
             // }
 
             var result = await _groupAccountServices.GetAccountsByGroupId(id, paging);
-            return StatusCode((int)result.Code, result);
+            return Ok(result);
         }
 
         /// <summary>
