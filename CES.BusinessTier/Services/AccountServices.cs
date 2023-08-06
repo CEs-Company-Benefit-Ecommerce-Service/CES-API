@@ -107,22 +107,44 @@ namespace CES.BusinessTier.Services
                     Data = emplAccounts
                 };
             }
-            var accounts = _unitOfWork.Repository<Account>().GetAll()
-                    .Where(x => x.Role == Roles.EnterpriseAdmin.GetDisplayName() || x.Role == Roles.SupplierAdmin.GetDisplayName() || x.Role == Roles.Shipper.GetDisplayName())
-                    .ProjectTo<AccountAllResponseModel>(_mapper.ConfigurationProvider)
-                    .DynamicFilter(filter)
-                    .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging);
-
-            return new DynamicResponse<AccountAllResponseModel>
+            else if (filter.Role == (int)Roles.Shipper)
             {
-                Code = 000,
-                Message = "Success",
-                MetaData = new PagingMetaData()
+                var roleFilter = Commons.ConvertIntRoleToString((int)filter.Role);
+                filter.Role = null;
+                var accounts = _unitOfWork.Repository<Account>().GetAll()
+                   .Where(x => x.Role == roleFilter)
+                   .ProjectTo<AccountAllResponseModel>(_mapper.ConfigurationProvider)
+                   .DynamicFilter(filter)
+                   .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging);
+                return new DynamicResponse<AccountAllResponseModel>
                 {
-                    Total = accounts.Item1
-                },
-                Data = accounts.Item2.ToList()
-            };
+                    Code = 000,
+                    Message = "Success",
+                    MetaData = new PagingMetaData()
+                    {
+                        Total = accounts.Item1
+                    },
+                    Data = accounts.Item2.ToList()
+                };
+            }
+            else
+            {
+                var accounts = _unitOfWork.Repository<Account>().GetAll()
+                   //.Where(x => x.Role == Roles.EnterpriseAdmin.GetDisplayName() || x.Role == Roles.SupplierAdmin.GetDisplayName() || x.Role == Roles.Shipper.GetDisplayName())
+                   .ProjectTo<AccountAllResponseModel>(_mapper.ConfigurationProvider)
+                   .DynamicFilter(filter)
+                   .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging);
+                return new DynamicResponse<AccountAllResponseModel>
+                {
+                    Code = 000,
+                    Message = "Success",
+                    MetaData = new PagingMetaData()
+                    {
+                        Total = accounts.Item1
+                    },
+                    Data = accounts.Item2.ToList()
+                };
+            }
         }
 
         public async Task<BaseResponseViewModel<AccountResponseModel>> UpdateAccountAsync(Guid id, AccountUpdateModel updateModel)

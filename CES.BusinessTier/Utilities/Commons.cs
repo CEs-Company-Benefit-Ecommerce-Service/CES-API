@@ -35,7 +35,7 @@ public static class Commons
             return Roles.EnterpriseAdmin.GetDisplayName();
         else if (role == (int)Roles.Employee)
             return Roles.Employee.GetDisplayName();
-        else if (role == (int)Roles.Employee)
+        else if (role == (int)Roles.SupplierAdmin)
             return Roles.SupplierAdmin.GetDisplayName();
         else
             return Roles.Shipper.GetDisplayName();
