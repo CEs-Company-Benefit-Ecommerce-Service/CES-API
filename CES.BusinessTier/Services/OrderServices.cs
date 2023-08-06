@@ -155,6 +155,13 @@ namespace CES.BusinessTier.Services
                         Message = "Not found",
                     };
                 }
+
+                if (existedOrder.Status == (int)OrderStatusEnums.Ready && status == (int)OrderStatusEnums.Cancel)
+                {
+                    throw new ErrorResponse(StatusCodes.Status400BadRequest, 400,
+                        "Order is waiting for ship, you can not cancel order");
+                }
+                
                 existedOrder.Status = status;
                 existedOrder.UpdatedAt = TimeUtils.GetCurrentSEATime();
 
@@ -162,7 +169,9 @@ namespace CES.BusinessTier.Services
 
                 var employee = await _unitOfWork.Repository<Employee>().AsQueryable(x => x.Id == existedOrder.EmployeeId).FirstOrDefaultAsync();
 
-                var accountEmp = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == employee.AccountId).FirstOrDefaultAsync();
+                var accountEmp = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == employee.AccountId)
+                    .Include(x => x.Wallets)
+                    .FirstOrDefaultAsync();
 
                 var empNotification = new DataTier.Models.Notification()
                 {
@@ -194,20 +203,57 @@ namespace CES.BusinessTier.Services
                     }
                 }
 
-                //if(existedOrder.Status == (int)OrderStatusEnums.Cancel)
-                //{
-                //   var eaAccount = await _unitOfWork.Repository<Account>().AsQueryable().Include(x => x.Enterprises).Where(x => x.Enterprises.Select(x => x.CompanyId).FirstOrDefault() == existedOrder.CompanyId).FirstOrDefaultAsync();
-                //    var eaNotification = new Notification()
-                //    {
-                //        Id = Guid.NewGuid(),
-                //        Title = ",
-                //        Description = "Đơn hàng của " + accountEmp.Name + "đã bị hủy",
-                //        OrderId = existedOrder.Id,
-                //        IsRead = false,
-                //        CreatedAt = TimeUtils.GetCurrentSEATime(),
-                //        AccountId = eaAccount.Id
-                //    };
-                //}
+                if(existedOrder.Status == (int)OrderStatusEnums.Cancel)
+                {
+                   var eaAccount = await _unitOfWork.Repository<Account>().AsQueryable()
+                       .Include(x => x.Enterprises)
+                       .Include(x => x.Wallets)
+                       .Where(x => x.Enterprises.Select(x => x.CompanyId).FirstOrDefault() == existedOrder.CompanyId)
+                       .FirstOrDefaultAsync();
+                    var eaNotification = new DataTier.Models.Notification()
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "",
+                        Description = "Đơn hàng của " + accountEmp.Name + "đã bị hủy",
+                        OrderId = existedOrder.Id,
+                        IsRead = false,
+                        CreatedAt = TimeUtils.GetCurrentSEATime(),
+                        AccountId = eaAccount.Id
+                    };
+                    await _unitOfWork.Repository<DataTier.Models.Notification>().InsertAsync(eaNotification);
+
+                    #region Hoàn tiền emp
+
+                    var cashBackTotal = existedOrder.Total - Constants.ServiceFee;
+                    accountEmp.Wallets.First().Balance += cashBackTotal;
+                    var walletTransaction = new Transaction()
+                    {
+                        Id = Guid.NewGuid(),
+                        WalletId = accountEmp.Wallets.First().Id,
+                        Type = (int)WalletTransactionTypeEnums.AddWelfare,
+                        Description = $"Hoàn {cashBackTotal} từ đơn hàng {existedOrder.OrderCode}",
+                        OrderId = existedOrder.Id,
+                        RecieveId = accountEmp.Id,
+                        Total = (double)cashBackTotal,
+                        CompanyId = employee.CompanyId,
+                        CreatedAt = TimeUtils.GetCurrentSEATime(),
+                    };
+                    await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransaction);
+
+                    #endregion
+                } else if (existedOrder.Status == (int)OrderStatusEnums.Ready)
+                {
+                    var eaAccount = await _unitOfWork.Repository<Account>().AsQueryable()
+                        .Include(x => x.Enterprises)
+                        .Include(x => x.Wallets)
+                        .Where(x => x.Enterprises.Select(x => x.CompanyId).FirstOrDefault() == existedOrder.CompanyId)
+                        .FirstOrDefaultAsync();
+                    var cashBackTotal = existedOrder.Total - Constants.ServiceFee;
+                    eaAccount.Wallets.First().Used += cashBackTotal;
+                    eaAccount.UpdatedAt = TimeUtils.GetCurrentSEATime();
+
+                    await _unitOfWork.Repository<Account>().UpdateDetached(eaAccount);
+                }
                 await _unitOfWork.Repository<DataTier.Models.Notification>().InsertAsync(empNotification);
                 await _unitOfWork.Repository<Order>().UpdateDetached(existedOrder);
                 await _unitOfWork.CommitAsync();
@@ -249,10 +295,10 @@ namespace CES.BusinessTier.Services
             var companyId = await GetCompany(accountLoginId);
             var company = _unitOfWork.Repository<Company>().GetWhere(x => x.Id == companyId).Result.FirstOrDefault();
 
-            var enterprise = await _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.CompanyId == companyId)
-                                                                        .Include(x => x.Account).ThenInclude(x => x.Wallets)
-                                                                        .FirstOrDefaultAsync();
-            var enterpriseWallet = enterprise.Account.Wallets.FirstOrDefault();
+            // var enterprise = await _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.CompanyId == companyId)
+            //                                                             .Include(x => x.Account).ThenInclude(x => x.Wallets)
+            //                                                             .FirstOrDefaultAsync();
+            // var enterpriseWallet = enterprise.Account.Wallets.FirstOrDefault();
             #endregion
 
             #region caculate orderDetail price + total
@@ -319,8 +365,8 @@ namespace CES.BusinessTier.Services
                 wallet.Balance -= finalTotal;
                 wallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
 
-                enterpriseWallet.Used += finalTotal;
-                enterpriseWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
+                // enterpriseWallet.Used += finalTotal;
+                // enterpriseWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
 
                 //create new transaction
                 var walletTransaction = new Transaction()
@@ -359,7 +405,7 @@ namespace CES.BusinessTier.Services
 
                 await _unitOfWork.Repository<Wallet>().UpdateDetached(wallet);
 
-                await _unitOfWork.Repository<Wallet>().UpdateDetached(enterpriseWallet);
+                // await _unitOfWork.Repository<Wallet>().UpdateDetached(enterpriseWallet);
 
                 await _unitOfWork.CommitAsync();
 

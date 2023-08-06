@@ -35,14 +35,14 @@ namespace CES.API.Controllers
         /// <param name="paging"></param>
         /// <returns></returns>
         [HttpGet]
-        [Authorize(Roles = "System Admin, Supplier Admin, Employee")]
+        [Authorize(Roles = "System Admin, Supplier Admin, Employee, Enterprise Admin")]
         public async Task<ActionResult> Gets([FromQuery] OrderResponseModel filter, [FromQuery] PagingModel paging, [FromQuery] int type, [FromQuery] FilterFromTo filterFromTo)
         {
             var result = await _orderServices.GetsAsync(filter, paging, type, filterFromTo);
             return Ok(result);
         }
         [HttpGet("{id}")]
-        [Authorize(Roles = "System Admin, Supplier Admin, Employee")]
+        [Authorize(Roles = "System Admin, Supplier Admin, Employee, Enterprise Admin")]
         public async Task<ActionResult> Get(Guid id)
         {
             var result = await _orderServices.GetById(id);
