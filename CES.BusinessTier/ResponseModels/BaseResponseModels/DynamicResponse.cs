@@ -9,6 +9,7 @@ namespace CES.BusinessTier.ResponseModels.BaseResponseModels
     public class DynamicResponse<T>
     {
         public int? Code { get; set; }
+        public string? SystemCode { get; set; }
         public string? Message { get; set; }
         public PagingMetaData MetaData { get; set; }
         public List<T> Data { get; set; }
@@ -32,6 +33,7 @@ namespace CES.BusinessTier.ResponseModels.BaseResponseModels
     public class BaseResponseViewModel<T>
     {
         public int? Code { get; set; }
+        public string? SystemCode { get; set; }
         public string? Message { get; set; }
         public T Data { get; set; }
     }

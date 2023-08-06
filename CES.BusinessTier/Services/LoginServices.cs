@@ -137,6 +137,7 @@ namespace CES.BusinessTier.Services
             return new BaseResponseViewModel<LoginResponseModel>
             {
                 Code = StatusCodes.Status200OK,
+                SystemCode = "003",
                 Message = LoginEnums.Success.GetDisplayName(),
                 Data = result
             };

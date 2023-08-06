@@ -55,15 +55,16 @@ namespace CES.BusinessTier.Services
                 return new BaseResponseViewModel<AccountResponseModel>
                 {
                     Code = 404,
-                    Message = "Not found",
-
+                    SystemCode = "002",
+                    Message = "Account is not found",
                 };
             }
 
             return new BaseResponseViewModel<AccountResponseModel>
             {
                 Code = 200,
-                Message = "OK",
+                SystemCode = "000",
+                Message = "Get Success",
                 Data = _mapper.Map<AccountResponseModel>(account)
                 //Data = account
             };
@@ -72,6 +73,7 @@ namespace CES.BusinessTier.Services
         public DynamicResponse<AccountAllResponseModel> Gets(AccountAllResponseModel filter, PagingModel paging)
         {
             var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value;
+
             if (role == Roles.EnterpriseAdmin.GetDisplayName())
             {
                 int enterpriseCompanyId = Int32.Parse(_contextAccessor.HttpContext?.User.FindFirst("CompanyId").Value);
@@ -99,7 +101,8 @@ namespace CES.BusinessTier.Services
                 return new DynamicResponse<AccountAllResponseModel>
                 {
                     Code = 200,
-                    Message = "OK",
+                    SystemCode = "000",
+                    Message = "Get Success",
                     MetaData = new PagingMetaData()
                     {
                         Total = emplAccounts.Count()
@@ -107,7 +110,7 @@ namespace CES.BusinessTier.Services
                     Data = emplAccounts
                 };
             }
-            else if (filter.Role == (int)Roles.Shipper)
+            else if (filter.Role != null)
             {
                 var roleFilter = Commons.ConvertIntRoleToString((int)filter.Role);
                 filter.Role = null;
@@ -116,10 +119,12 @@ namespace CES.BusinessTier.Services
                    .ProjectTo<AccountAllResponseModel>(_mapper.ConfigurationProvider)
                    .DynamicFilter(filter)
                    .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging);
+
                 return new DynamicResponse<AccountAllResponseModel>
                 {
                     Code = 200,
-                    Message = "OK",
+                    SystemCode = "000",
+                    Message = "Get Success",
                     MetaData = new PagingMetaData()
                     {
 
@@ -138,7 +143,8 @@ namespace CES.BusinessTier.Services
                 return new DynamicResponse<AccountAllResponseModel>
                 {
                     Code = 200,
-                    Message = "OK",
+                    SystemCode = "000",
+                    Message = "Get Success",
                     MetaData = new PagingMetaData()
                     {
                         Total = accounts.Item1
@@ -203,7 +209,8 @@ namespace CES.BusinessTier.Services
                 return new BaseResponseViewModel<AccountResponseModel>
                 {
                     Code = 200,
-                    Message = "OK",
+                    SystemCode = "005",
+                    Message = "Update account success",
                     Data = _mapper.Map<AccountResponseModel>(temp),
                 };
             }
@@ -212,7 +219,8 @@ namespace CES.BusinessTier.Services
                 return new BaseResponseViewModel<AccountResponseModel>
                 {
                     Code = 400,
-                    Message = "Bad request" + "||" + ex.Message,
+                    SystemCode = "004",
+                    Message = "Update account failed",
                 };
             }
 
@@ -245,7 +253,7 @@ namespace CES.BusinessTier.Services
             var checkEmailAccount = _unitOfWork.Repository<Account>().GetAll().Any(x => x.Email.Equals(requestModel.Email));
             if (checkEmailAccount)
             {
-                throw new ErrorResponse(StatusCodes.Status400BadRequest, StatusCodes.Status400BadRequest, "Email already existed!");
+                throw new ErrorResponse(StatusCodes.Status400BadRequest, 007, "Email already existed!");
             }
             var hashPassword = Authen.HashPassword(requestModel.Password);
             var newAccount = _mapper.Map<Account>(requestModel);
@@ -267,13 +275,15 @@ namespace CES.BusinessTier.Services
                 return new BaseResponseViewModel<AccountResponseModel>
                 {
                     Code = StatusCodes.Status400BadRequest,
-                    Message = "Bad Request",
+                    SystemCode = "008",
+                    Message = "Create account failed",
                 };
             }
             return new BaseResponseViewModel<AccountResponseModel>
             {
                 Code = StatusCodes.Status200OK,
-                Message = "OK",
+                SystemCode = "009",
+                Message = "Create account success",
                 Data = _mapper.Map<AccountResponseModel>(newAccount),
             };
         }
@@ -286,7 +296,8 @@ namespace CES.BusinessTier.Services
                 return new BaseResponseViewModel<AccountResponseModel>
                 {
                     Code = 404,
-                    Message = "Not Found",
+                    SystemCode = "002",
+                    Message = "Account is not found",
                 };
             }
             account.Status = (int)Status.Banned;
@@ -344,7 +355,8 @@ namespace CES.BusinessTier.Services
                 return new BaseResponseViewModel<AccountResponseModel>
                 {
                     Code = 200,
-                    Message = "OK",
+                    SystemCode = "010",
+                    Message = "Delete account success",
                 };
             }
             catch (Exception ex)
@@ -352,7 +364,8 @@ namespace CES.BusinessTier.Services
                 return new BaseResponseViewModel<AccountResponseModel>
                 {
                     Code = 400,
-                    Message = "Bad request" + "||" + ex.Message,
+                    SystemCode = "011",
+                    Message = "Delete account failed",
                 };
             }
         }
@@ -369,7 +382,8 @@ namespace CES.BusinessTier.Services
                 return new BaseResponseViewModel<string>
                 {
                     Code = 404,
-                    Message = "Not Found",
+                    SystemCode = "002",
+                    Message = "Account is not found",
                 };
             }
             if (!Authen.VerifyHashedPassword(existedAccount.Password, oldPassword))
@@ -377,7 +391,8 @@ namespace CES.BusinessTier.Services
                 return new BaseResponseViewModel<string>
                 {
                     Code = 400,
-                    Message = "Bad Request",
+                    SystemCode = "013",
+                    Message = "Wrong confirm password",
                     Data = "Wrong confirm password"
                 };
             }
@@ -392,7 +407,8 @@ namespace CES.BusinessTier.Services
                 return new BaseResponseViewModel<string>
                 {
                     Code = 200,
-                    Message = "OK",
+                    SystemCode = "014",
+                    Message = "Change account password success",
                     Data = "Success"
                 };
             }
@@ -401,7 +417,8 @@ namespace CES.BusinessTier.Services
                 return new BaseResponseViewModel<string>
                 {
                     Code = 400,
-                    Message = "Bad request" + "||" + ex.Message,
+                    SystemCode = "012",
+                    Message = "Change account password failed",
                 };
             }
         }
@@ -447,7 +464,8 @@ namespace CES.BusinessTier.Services
                 return new DynamicResponse<AccountAllResponseModel>
                 {
                     Code = 200,
-                    Message = "OK",
+                    SystemCode = "000",
+                    Message = "Get success",
                     MetaData = new PagingMetaData()
                     {
                         Total = emplAccounts.Count()
@@ -483,7 +501,8 @@ namespace CES.BusinessTier.Services
                 return new DynamicResponse<AccountAllResponseModel>
                 {
                     Code = 200,
-                    Message = "OK",
+                    SystemCode = "000",
+                    Message = "Get success",
                     MetaData = new PagingMetaData()
                     {
                         Total = emplAccounts.Count()

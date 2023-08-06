@@ -53,7 +53,8 @@ namespace CES.BusinessTier.Services
             return new DynamicResponse<BenefitResponseModel>
             {
                 Code = StatusCodes.Status200OK,
-                Message = "OK",
+                SystemCode = "000",
+                Message = "Get success",
                 MetaData = new PagingMetaData
                 {
                     Page = paging.Page,
@@ -68,11 +69,20 @@ namespace CES.BusinessTier.Services
         {
             var benefit = await _unitOfWork.Repository<Benefit>().AsQueryable(x => x.Id == id)
                 .ProjectTo<BenefitResponseModel>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
-
+            if (benefit == null)
+            {
+                return new BaseResponseViewModel<BenefitResponseModel>
+                {
+                    Code = StatusCodes.Status404NotFound,
+                    SystemCode = "015",
+                    Message = "Benefit was not found",
+                };
+            }
             return new BaseResponseViewModel<BenefitResponseModel>
             {
                 Code = StatusCodes.Status200OK,
-                Message = "OK",
+                SystemCode = "000",
+                Message = "Get success",
                 Data = benefit
             };
         }
@@ -106,13 +116,13 @@ namespace CES.BusinessTier.Services
                 case (int)GroupTypes.Weekly:
                     if (request.DateFilter == null)
                     {
-                        throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "Please provide Date");
+                        throw new ErrorResponse(StatusCodes.Status400BadRequest, 016, "Please provide Date");
                     }
                     break;
                 case (int)GroupTypes.Monthly:
                     if (request.DayFilter == null)
                     {
-                        throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "Please provide Day");
+                        throw new ErrorResponse(StatusCodes.Status400BadRequest, 017, "Please provide Day");
                     }
                     break;
             }
@@ -141,7 +151,8 @@ namespace CES.BusinessTier.Services
                 return new BaseResponseViewModel<BenefitResponseModel>()
                 {
                     Code = StatusCodes.Status204NoContent,
-                    Message = "No Content",
+                    SystemCode = "018",
+                    Message = "Create benefit successed",
                 };
             }
             catch (Exception ex)
@@ -149,7 +160,8 @@ namespace CES.BusinessTier.Services
                 return new BaseResponseViewModel<BenefitResponseModel>()
                 {
                     Code = StatusCodes.Status400BadRequest,
-                    Message = "Bad request" + "|" + ex.Message,
+                    SystemCode = "019",
+                    Message = "Create benefit failed",
                 };
             }
         }
@@ -157,6 +169,15 @@ namespace CES.BusinessTier.Services
         public async Task<BaseResponseViewModel<BenefitResponseModel>> UpdateAsync(BenefitUpdateModel request, Guid benefitId)
         {
             var existedBenefit = _unitOfWork.Repository<Benefit>().FindAsync(x => x.Id == benefitId).Result;
+            if (existedBenefit == null)
+            {
+                return new BaseResponseViewModel<BenefitResponseModel>
+                {
+                    Code = StatusCodes.Status404NotFound,
+                    SystemCode = "015",
+                    Message = "Benefit was not found"
+                };
+            }
             var temp = _mapper.Map<BenefitUpdateModel, Benefit>(request, existedBenefit);
             temp.UpdatedAt = TimeUtils.GetCurrentSEATime();
 
@@ -164,7 +185,7 @@ namespace CES.BusinessTier.Services
             {
                 await _unitOfWork.Repository<Benefit>().UpdateDetached(temp);
                 await _unitOfWork.CommitAsync();
-                
+
                 var group = await _unitOfWork.Repository<Group>().AsQueryable(x => x.BenefitId == benefitId).FirstOrDefaultAsync();
                 GroupUpdateModel groupUpdate = new GroupUpdateModel()
                 {
@@ -175,7 +196,8 @@ namespace CES.BusinessTier.Services
                 return new BaseResponseViewModel<BenefitResponseModel>
                 {
                     Code = StatusCodes.Status204NoContent,
-                    Message = "No Content"
+                    SystemCode = "020",
+                    Message = "Update benefit successed"
                 };
             }
             catch (Exception ex)
@@ -183,7 +205,8 @@ namespace CES.BusinessTier.Services
                 return new BaseResponseViewModel<BenefitResponseModel>()
                 {
                     Code = StatusCodes.Status400BadRequest,
-                    Message = "Bad request" + "|" + ex.Message,
+                    SystemCode = "021",
+                    Message = "Update benefit failed",
                 };
             }
         }
