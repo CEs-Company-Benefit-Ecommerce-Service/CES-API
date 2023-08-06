@@ -144,9 +144,7 @@ namespace CES.BusinessTier.Services
         }
         public async Task<BaseResponseViewModel<OrderResponseModel>> UpdateOrderStatus(Guid orderId, int status)
         {
-            try
-            {
-                var existedOrder = await _unitOfWork.Repository<Order>().AsQueryable(x => x.Id == orderId).FirstOrDefaultAsync();
+            var existedOrder = await _unitOfWork.Repository<Order>().AsQueryable(x => x.Id == orderId).FirstOrDefaultAsync();
                 if (existedOrder == null)
                 {
                     return new BaseResponseViewModel<OrderResponseModel>
@@ -263,15 +261,6 @@ namespace CES.BusinessTier.Services
                     Code = StatusCodes.Status204NoContent,
                     Message = "No content",
                 };
-            }
-            catch (Exception)
-            {
-                return new BaseResponseViewModel<OrderResponseModel>
-                {
-                    Code = StatusCodes.Status400BadRequest,
-                    Message = "Bad request",
-                };
-            }
         }
 
         public async Task<BaseResponseViewModel<OrderResponseModel>> CreateOrder(List<OrderDetailsRequestModel> orderDetails, string? note)
