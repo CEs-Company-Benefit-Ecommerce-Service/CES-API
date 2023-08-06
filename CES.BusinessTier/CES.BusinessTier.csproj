@@ -15,7 +15,7 @@
     <PackageReference Include="Hangfire.Core" Version="1.8.3" />
     <PackageReference Include="Hangfire.SqlServer" Version="1.8.3" />
     <PackageReference Include="Hangfire.SqlServer.MSMQ" Version="1.8.3" />
-    <PackageReference Include="LAK.Sdk.Core" Version="1.0.0" />
+    <PackageReference Include="LAK.Sdk.Core" Version="5.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
