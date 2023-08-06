@@ -42,13 +42,13 @@ namespace CES.API.Controllers
         public async Task<ActionResult> Post(int companyId)
         {
             var result = await _debtServices.CreateAsync(companyId);
-            return Ok(result);
+            return StatusCode((int)result.Code, result);
         }
         [HttpDelete("debt/{debtId}")]
         public async Task<ActionResult> Delete(int debtId)
         {
             var result = await _debtServices.DeleteAsync(debtId);
-            return Ok(result);
+            return StatusCode((int)result.Code, result);
         }
     }
 }

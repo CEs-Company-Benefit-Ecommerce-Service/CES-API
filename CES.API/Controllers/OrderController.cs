@@ -54,7 +54,7 @@ namespace CES.API.Controllers
         public async Task<ActionResult> Post([FromBody] List<OrderDetailsRequestModel>? orderDetails, [FromQuery] string? notes)
         {
             var result = _orderServices.CreateOrder(orderDetails, notes).Result;
-            return Ok(result);
+            return StatusCode((int)result.Code, result);
         }
 
         [HttpPut("{id}")]
@@ -62,7 +62,7 @@ namespace CES.API.Controllers
         public async Task<ActionResult> Put(Guid id, [FromQuery] int status)
         {
             var result = _orderServices.UpdateOrderStatus(id, status).Result;
-            return Ok(result);
+            return StatusCode((int)result.Code, result);
         }
     }
 }

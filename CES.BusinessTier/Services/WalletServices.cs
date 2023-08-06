@@ -63,7 +63,7 @@ namespace CES.BusinessTier.Services
             //var wa = _unitOfWork.Repository<Wallet>().AsQueryable();
             return new DynamicResponse<WalletResponseModel>
             {
-                Code = 000,
+                Code = 200,
                 Message = "OK",
                 MetaData = new PagingMetaData(),
                 Data = await wallets.Item2.ToListAsync()
@@ -75,7 +75,7 @@ namespace CES.BusinessTier.Services
             var account = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountId).Include(x => x.Wallets).FirstOrDefaultAsync();
             return new BaseResponseViewModel<List<WalletResponseModel>>
             {
-                Code = 000,
+                Code = 200,
                 Message = "OK",
                 Data = _mapper.Map<List<WalletResponseModel>>(account.Wallets)
             };
@@ -88,14 +88,14 @@ namespace CES.BusinessTier.Services
             {
                 return new BaseResponseViewModel<WalletResponseModel>
                 {
-                    Code = 019,
+                    Code = 404,
                     Message = "Not found",
                 };
             }
 
             return new BaseResponseViewModel<WalletResponseModel>
             {
-                Code = 000,
+                Code = 200,
                 Message = "OK",
                 Data = _mapper.Map<WalletResponseModel>(wallet.Result)
             };
@@ -117,7 +117,7 @@ namespace CES.BusinessTier.Services
 
                 return new BaseResponseViewModel<WalletResponseModel>
                 {
-                    Code = 020,
+                    Code = 204,
                     Message = "No content",
                 };
             }
@@ -125,7 +125,7 @@ namespace CES.BusinessTier.Services
             {
                 return new BaseResponseViewModel<WalletResponseModel>
                 {
-                    Code = 021,
+                    Code = 400,
                     Message = "Bad request",
                 };
             }
@@ -139,7 +139,7 @@ namespace CES.BusinessTier.Services
             {
                 return new BaseResponseViewModel<WalletResponseModel>
                 {
-                    Code = 019,
+                    Code = 404,
                     Message = "Not found",
                 };
             }
@@ -153,7 +153,7 @@ namespace CES.BusinessTier.Services
 
                 return new BaseResponseViewModel<WalletResponseModel>
                 {
-                    Code = 022,
+                    Code = 204,
                     Message = "No content",
                 };
             }
@@ -161,7 +161,7 @@ namespace CES.BusinessTier.Services
             {
                 return new BaseResponseViewModel<WalletResponseModel>
                 {
-                    Code = 023,
+                    Code = 400,
                     Message = "Bad request",
                 };
             }
@@ -188,7 +188,7 @@ namespace CES.BusinessTier.Services
             {
                 return new BaseResponseViewModel<WalletResponseModel>
                 {
-                    Code = 019,
+                    Code = 404,
                     Message = "Not found",
                 };
             }

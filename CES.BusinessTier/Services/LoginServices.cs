@@ -63,8 +63,8 @@ namespace CES.BusinessTier.Services
 
             if (account == null)
             {
-                throw new ErrorResponse(404, 002,
-                    AccountErrorEnums.NOT_FOUND.GetDisplayName());
+                throw new ErrorResponse(404, (int)AccountErrorEnums.NOT_FOUND_ID,
+                    AccountErrorEnums.NOT_FOUND_ID.GetDisplayName());
             }
 
             var result = _mapper.Map<AccountResponseModel>(account);
@@ -98,11 +98,11 @@ namespace CES.BusinessTier.Services
             var account = _accountServices.GetAccountByEmail(loginModel.Email);
             if (account == null)
             {
-                throw new ErrorResponse(StatusCodes.Status400BadRequest, 002, AccountErrorEnums.NOT_FOUND.GetDisplayName());
+                throw new ErrorResponse(StatusCodes.Status400BadRequest, (int)AccountErrorEnums.NOT_FOUND, AccountErrorEnums.NOT_FOUND.GetDisplayName());
             }
             if (!Authen.VerifyHashedPassword(account.Password, loginModel.Password))
             {
-                throw new ErrorResponse(StatusCodes.Status400BadRequest, 001, "Wrong email or password");
+                throw new ErrorResponse(StatusCodes.Status400BadRequest, StatusCodes.Status400BadRequest, "Login failed");
             }
             // check on firebase đã có hay không
             // nếu có thì bỏ qua, không thì tạo data trên firebase + lấy fcm lưu về local db
@@ -136,7 +136,7 @@ namespace CES.BusinessTier.Services
             };
             return new BaseResponseViewModel<LoginResponseModel>
             {
-                Code = 003,
+                Code = StatusCodes.Status200OK,
                 Message = LoginEnums.Success.GetDisplayName(),
                 Data = result
             };

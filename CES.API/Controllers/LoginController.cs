@@ -27,7 +27,7 @@ namespace CES.API.Controllers
         public IActionResult Login([FromBody] LoginModel loginModel)
         {
             var result = _loginServices.Login(loginModel).Result;
-            return Ok(result);
+            return StatusCode((int)result.Code, result);
         }
 
         [SwaggerOperation(summary: "Get current login account")]
@@ -44,7 +44,7 @@ namespace CES.API.Controllers
         public async Task<ActionResult<AccountResponseModel>> GetNotificationOfCurrentLoginUser([FromQuery] NotificationResponseModel filter, [FromQuery] PagingModel paging)
         {
             var result = _notificationServices.GetsAsync(filter, paging).Result;
-            return Ok(result);
+            return StatusCode((int)result.Code, result);
         }
 
         [SwaggerOperation(summary: "Get notification of current login account by notification id")]
@@ -53,7 +53,7 @@ namespace CES.API.Controllers
         public async Task<ActionResult<AccountResponseModel>> GetNotificationOfCurrentLoginUser(Guid notificationId)
         {
             var result = _notificationServices.GetAsync(notificationId).Result;
-            return Ok(result);
+            return StatusCode((int)result.Code, result);
         }
 
         [HttpPost("testnotification")]

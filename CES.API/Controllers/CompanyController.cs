@@ -25,13 +25,13 @@ namespace CES.API.Controllers
         public async Task<ActionResult> Gets([FromQuery] CompanyResponseModel filter, [FromQuery] PagingModel paging)
         {
             var result = await _companyServices.Gets(filter, paging);
-            return Ok(result);
+            return StatusCode((int)result.Code, result);
         }
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(int id)
         {
             var result = await _companyServices.GetById(id);
-            return Ok(result);
+            return StatusCode((int)result.Code, result);
         }
 
         //[HttpGet("all-info")]
@@ -50,7 +50,7 @@ namespace CES.API.Controllers
         public async Task<ActionResult> Post([FromBody] CompanyRequestModel request)
         {
             var result = await _companyServices.CreateNew(request);
-            return Ok(result);
+            return StatusCode((int)result.Code, result);
         }
         /// <summary>
         /// For System Admin
@@ -63,7 +63,7 @@ namespace CES.API.Controllers
         public async Task<ActionResult> Put(int id, [FromBody] CompanyRequestModel request)
         {
             var result = await _companyServices.Update(id, request);
-            return Ok(result);
+            return StatusCode((int)result.Code, result);
         }
     }
 }

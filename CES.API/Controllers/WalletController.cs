@@ -38,7 +38,7 @@ namespace CES.API.Controllers
             }
 
             var result = await _walletServices.GetsAsync(pagingModel);
-            return Ok(result);
+            return StatusCode((int)result.Code, result);
         }
         /// <summary>
         /// Employee can't use
@@ -54,7 +54,7 @@ namespace CES.API.Controllers
                 return StatusCode(401);
             }
             var result = _walletServices.Get(id);
-            return Ok(result);
+            return StatusCode((int)result.Code, result);
         }
         /// <summary>
         ///  Only Employee use
@@ -71,7 +71,7 @@ namespace CES.API.Controllers
             //    return StatusCode(401);
             //}
             var result = await _walletServices.GetWalletsAccount(accountId);
-            return Ok(result);
+            return StatusCode((int)result.Code, result);
         }
         /// <summary>
         /// API test create wallet
@@ -82,7 +82,7 @@ namespace CES.API.Controllers
         public IActionResult Post(WalletRequestModel request)
         {
             var result = _walletServices.CreateAsync(request).Result;
-            return Ok(result);
+            return StatusCode((int)result.Code, result);
         }
         /// <summary>
         /// Update wallet info exclude balance, only System Admin can use
@@ -99,7 +99,7 @@ namespace CES.API.Controllers
                 return StatusCode(401);
             }
             var result = _walletServices.UpdateWalletInfoAsync(id, request).Result;
-            return Ok(result);
+            return StatusCode((int)result.Code, result);
         }
         /// <summary>
         /// update wallet balance, only Enterprise can use
@@ -117,7 +117,7 @@ namespace CES.API.Controllers
                 return StatusCode(401);
             }
             var result = _walletServices.UpdateWalletBalanceAsync(request).Result;
-            return Ok(result);
+            return StatusCode((int)result.Code, result);
         }
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace CES.API.Controllers
         public async Task<ActionResult> ResetAllAfterEAPayment(int companyId)
         {
             var result = _walletServices.ResetAllAfterEAPayment(companyId).Result;
-            return Ok(result);
+            return StatusCode((int)result.Code, result);
         }
     }
 }

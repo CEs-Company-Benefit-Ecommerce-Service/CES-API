@@ -37,7 +37,7 @@ namespace CES.API.Controllers
             //    return StatusCode(401);
             //}
             var result = _accountServices.Gets(filter, pagingModel);
-            return Ok(result);
+            return StatusCode((int)result.Code, result);
         }
         [Authorize(Roles = "Enterprise Admin, System Admin")]
         [HttpGet("employee-by-company-id")]
@@ -66,7 +66,7 @@ namespace CES.API.Controllers
                 return StatusCode(401);
             }
             var result = await _accountServices.DeleteAccountAsync(id);
-            return Ok(result);
+            return StatusCode((int)result.Code, result);
         }
         /// <summary>
         /// 
@@ -78,7 +78,7 @@ namespace CES.API.Controllers
         public async Task<ActionResult> Update(Guid id, [FromBody] AccountUpdateModel updateModel)
         {
             var result = await _accountServices.UpdateAccountAsync(id, updateModel);
-            return Ok(result);
+            return StatusCode((int)result.Code, result);
         }
         /// <summary>
         /// Employee can't use
@@ -91,13 +91,13 @@ namespace CES.API.Controllers
         public async Task<ActionResult> Create([FromBody] AccountRequestModel requestModel)
         {
             var result = await _accountServices.CreateAccountAsync(requestModel);
-            return Ok(result);
+            return StatusCode((int)result.Code, result);
         }
         [HttpPut("password")]
         public async Task<ActionResult> ChangePassword([FromBody] ChangePasswordModel request)
         {
             var result = await _accountServices.ChangeAccountPassword(request.NewPassword, request.OldPassword);
-            return Ok(result);
+            return StatusCode((int)result.Code, result);
         }
     }
 }

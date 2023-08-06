@@ -342,6 +342,11 @@ public class TransactionService : ITransactionService
         transaction.SenderId = accountLoginId;
         transaction.WalletId = wallet.Id;
 
+        DateTime currentTime = TimeUtils.GetCurrentSEATime();
+        string currentTimeStamp = TimeUtils.GetTimestamp(currentTime);
+
+        transaction.InvoiceId = TimeUtils.ConvertDateTimeToVietNamTimeZone().ToString("yyMMdd") + "_" + currentTimeStamp;
+
         var orderPayments = _unitOfWork.Repository<Order>().AsQueryable(x =>
                 x.CompanyId == companyId && x.DebtStatus == (int)DebtStatusEnums.New);
         foreach (var order in orderPayments)
