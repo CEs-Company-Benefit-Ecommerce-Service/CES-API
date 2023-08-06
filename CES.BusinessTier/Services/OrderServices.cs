@@ -246,8 +246,8 @@ namespace CES.BusinessTier.Services
                         .Include(x => x.Wallets)
                         .Where(x => x.Enterprises.Select(x => x.CompanyId).FirstOrDefault() == existedOrder.CompanyId)
                         .FirstOrDefaultAsync();
-                    var cashBackTotal = existedOrder.Total - Constants.ServiceFee;
-                    eaAccount.Wallets.First().Used += cashBackTotal;
+                    var useTotal = existedOrder.Total + Constants.ServiceFee;
+                    eaAccount.Wallets.First().Used += useTotal;
                     eaAccount.UpdatedAt = TimeUtils.GetCurrentSEATime();
 
                     await _unitOfWork.Repository<Account>().UpdateDetached(eaAccount);
