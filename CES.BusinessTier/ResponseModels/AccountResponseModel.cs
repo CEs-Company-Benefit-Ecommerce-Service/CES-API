@@ -24,12 +24,15 @@ namespace CES.BusinessTier.ResponseModels
         public int? Role { get; set; }
         public int? Status { get; set; }
         public int? CompanyId { get; set; }
-        public DateTime? ExpiredDate { get;set; }
+        public DateTime? ExpiredDate { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public bool? IsReceived { get; set; }
 
         public ICollection<WalletResponseModel> Wallets { get; set; }
+        public ICollection<UserResponseModel> Suppliers { get; set; }
+        public ICollection<UserResponseModel> Employees { get; set; }
+        public ICollection<UserResponseModel> Enterprises { get; set; }
     }
     public class AccountAllResponseModel
     {

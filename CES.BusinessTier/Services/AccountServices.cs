@@ -49,7 +49,7 @@ namespace CES.BusinessTier.Services
 
         public BaseResponseViewModel<AccountResponseModel> Get(Guid id)
         {
-            var account = _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == id).Include(x => x.Wallets).Include(x => x.Enterprises).ThenInclude(x => x.Company).FirstOrDefault();
+            var account = _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == id).Include(x => x.Wallets).Include(x => x.Enterprises).ThenInclude(x => x.Company).Include(x => x.Suppliers).Include(x => x.Employees).FirstOrDefault();
             if (account == null)
             {
                 return new BaseResponseViewModel<AccountResponseModel>
