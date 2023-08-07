@@ -28,7 +28,7 @@ namespace CES.BusinessTier.Services
         Task<BaseResponseViewModel<OrderResponseModel>> CreateOrder(List<OrderDetailsRequestModel> orderDetails, string? note);
         Task<BaseResponseViewModel<OrderResponseModel>> GetById(Guid id);
         Task<TotalOrderResponse> GetTotal(int companyId);
-        Task<DynamicResponse<OrderResponseModel>> GetsBySupplierId(Guid id, PagingModel paging);
+        Task<DynamicResponse<OrderResponseModel>> GetsBySupplierId(Guid id, OrderResponseModel filter, PagingModel paging);
 
     }
     public class OrderServices : IOrderServices
@@ -446,11 +446,12 @@ namespace CES.BusinessTier.Services
             }
             return 0;
         }
-        public async Task<DynamicResponse<OrderResponseModel>> GetsBySupplierId(Guid id, PagingModel paging)
+        public async Task<DynamicResponse<OrderResponseModel>> GetsBySupplierId(Guid id, OrderResponseModel filter, PagingModel paging)
         {
             var orders = _unitOfWork.Repository<Order>().AsQueryable().Include(x => x.OrderDetails).ThenInclude(x => x.Product)
                                                         .Where(x => x.OrderDetails.FirstOrDefault().Product.SupplierId == id)
                                                         .ProjectTo<OrderResponseModel>(_mapper.ConfigurationProvider)
+                                                        .DynamicFilter(filter)
                                                         .DynamicSort(paging.Sort, paging.Order)
                                                         .PagingQueryable(paging.Page, paging.Size);
             //if (orders.Item1 == 0)

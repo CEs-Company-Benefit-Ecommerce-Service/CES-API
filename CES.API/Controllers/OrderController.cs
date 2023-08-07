@@ -50,9 +50,9 @@ namespace CES.API.Controllers
         }
         [HttpGet("supplier/{supplierId}")]
         [Authorize(Roles = "System Admin, Supplier Admin")]
-        public async Task<IActionResult> GetBySupplierId(Guid supplierId, [FromQuery] PagingModel paging)
+        public async Task<IActionResult> GetBySupplierId(Guid supplierId, [FromQuery] OrderResponseModel filter, [FromQuery] PagingModel paging)
         {
-            var result = await _orderServices.GetsBySupplierId(supplierId, paging);
+            var result = await _orderServices.GetsBySupplierId(supplierId, filter, paging);
             return StatusCode((int)result.Code, result);
         }
         [HttpPost]
