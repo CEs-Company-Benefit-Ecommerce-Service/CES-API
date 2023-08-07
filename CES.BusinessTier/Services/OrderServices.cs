@@ -28,6 +28,8 @@ namespace CES.BusinessTier.Services
         Task<BaseResponseViewModel<OrderResponseModel>> CreateOrder(List<OrderDetailsRequestModel> orderDetails, string? note);
         Task<BaseResponseViewModel<OrderResponseModel>> GetById(Guid id);
         Task<TotalOrderResponse> GetTotal(int companyId);
+        Task<DynamicResponse<OrderResponseModel>> GetsBySupplierId(Guid id, PagingModel paging);
+
     }
     public class OrderServices : IOrderServices
     {
@@ -145,122 +147,123 @@ namespace CES.BusinessTier.Services
         public async Task<BaseResponseViewModel<OrderResponseModel>> UpdateOrderStatus(Guid orderId, int status)
         {
             var existedOrder = await _unitOfWork.Repository<Order>().AsQueryable(x => x.Id == orderId).FirstOrDefaultAsync();
-                if (existedOrder == null)
+            if (existedOrder == null)
+            {
+                return new BaseResponseViewModel<OrderResponseModel>
                 {
-                    return new BaseResponseViewModel<OrderResponseModel>
+                    Code = StatusCodes.Status404NotFound,
+                    Message = "Not found",
+                };
+            }
+
+            if (existedOrder.Status == (int)OrderStatusEnums.Ready && status == (int)OrderStatusEnums.Cancel)
+            {
+                throw new ErrorResponse(StatusCodes.Status400BadRequest, 400,
+                    "Order is waiting for ship, you can not cancel order");
+            }
+
+            existedOrder.Status = status;
+            existedOrder.UpdatedAt = TimeUtils.GetCurrentSEATime();
+
+            var stringStatus = Commons.ConvertIntOrderStatusToString(existedOrder.Status);
+
+            var employee = await _unitOfWork.Repository<Employee>().AsQueryable(x => x.Id == existedOrder.EmployeeId).FirstOrDefaultAsync();
+
+            var accountEmp = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == employee.AccountId)
+                .Include(x => x.Wallets)
+                .FirstOrDefaultAsync();
+
+            var empNotification = new DataTier.Models.Notification()
+            {
+                Id = Guid.NewGuid(),
+                Title = "Cập nhật trạng thái đơn hàng",
+                Description = "Đơn hàng của bạn đã chuyển sang trạng thái: " + stringStatus,
+                OrderId = existedOrder.Id,
+                IsRead = false,
+                CreatedAt = TimeUtils.GetCurrentSEATime(),
+                AccountId = accountEmp.Id
+            };
+
+            // send noti
+            if (accountEmp.FcmToken != null && !String.IsNullOrWhiteSpace(accountEmp.FcmToken))
+            {
+                var messaging = FirebaseMessaging.DefaultInstance;
+                var response = await messaging.SendAsync(new Message
+                {
+                    Token = accountEmp.FcmToken,
+                    Notification = new FirebaseAdmin.Messaging.Notification
                     {
-                        Code = StatusCodes.Status404NotFound,
-                        Message = "Not found",
-                    };
-                }
-
-                if (existedOrder.Status == (int)OrderStatusEnums.Ready && status == (int)OrderStatusEnums.Cancel)
+                        Title = "Cập nhật trạng thái đơn hàng",
+                        Body = "Đơn hàng của bạn đã chuyển sang trạng thái: " + stringStatus,
+                    },
+                });
+                if (response == null)
                 {
-                    throw new ErrorResponse(StatusCodes.Status400BadRequest, 400,
-                        "Order is waiting for ship, you can not cancel order");
+                    System.Console.WriteLine("Send noti failed");
                 }
-                
-                existedOrder.Status = status;
-                existedOrder.UpdatedAt = TimeUtils.GetCurrentSEATime();
+            }
 
-                var stringStatus = Commons.ConvertIntOrderStatusToString(existedOrder.Status);
-
-                var employee = await _unitOfWork.Repository<Employee>().AsQueryable(x => x.Id == existedOrder.EmployeeId).FirstOrDefaultAsync();
-
-                var accountEmp = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == employee.AccountId)
+            if (existedOrder.Status == (int)OrderStatusEnums.Cancel)
+            {
+                var eaAccount = await _unitOfWork.Repository<Account>().AsQueryable()
+                    .Include(x => x.Enterprises)
                     .Include(x => x.Wallets)
+                    .Where(x => x.Enterprises.Select(x => x.CompanyId).FirstOrDefault() == existedOrder.CompanyId)
                     .FirstOrDefaultAsync();
-
-                var empNotification = new DataTier.Models.Notification()
+                var eaNotification = new DataTier.Models.Notification()
                 {
                     Id = Guid.NewGuid(),
-                    Title = "Cập nhật trạng thái đơn hàng",
-                    Description = "Đơn hàng của bạn đã chuyển sang trạng thái: " + stringStatus,
+                    Title = "",
+                    Description = "Đơn hàng của " + accountEmp.Name + "đã bị hủy",
                     OrderId = existedOrder.Id,
                     IsRead = false,
                     CreatedAt = TimeUtils.GetCurrentSEATime(),
-                    AccountId = accountEmp.Id
+                    AccountId = eaAccount.Id
                 };
+                await _unitOfWork.Repository<DataTier.Models.Notification>().InsertAsync(eaNotification);
 
-                // send noti
-                if (accountEmp.FcmToken != null && !String.IsNullOrWhiteSpace(accountEmp.FcmToken))
+                #region Hoàn tiền emp
+
+                var cashBackTotal = existedOrder.Total - Constants.ServiceFee;
+                accountEmp.Wallets.First().Balance += cashBackTotal;
+                var walletTransaction = new Transaction()
                 {
-                    var messaging = FirebaseMessaging.DefaultInstance;
-                    var response = await messaging.SendAsync(new Message
-                    {
-                        Token = accountEmp.FcmToken,
-                        Notification = new FirebaseAdmin.Messaging.Notification
-                        {
-                            Title = "Cập nhật trạng thái đơn hàng",
-                            Body = "Đơn hàng của bạn đã chuyển sang trạng thái: " + stringStatus,
-                        },
-                    });
-                    if (response == null)
-                    {
-                        System.Console.WriteLine("Send noti failed");
-                    }
-                }
-
-                if(existedOrder.Status == (int)OrderStatusEnums.Cancel)
-                {
-                   var eaAccount = await _unitOfWork.Repository<Account>().AsQueryable()
-                       .Include(x => x.Enterprises)
-                       .Include(x => x.Wallets)
-                       .Where(x => x.Enterprises.Select(x => x.CompanyId).FirstOrDefault() == existedOrder.CompanyId)
-                       .FirstOrDefaultAsync();
-                    var eaNotification = new DataTier.Models.Notification()
-                    {
-                        Id = Guid.NewGuid(),
-                        Title = "",
-                        Description = "Đơn hàng của " + accountEmp.Name + "đã bị hủy",
-                        OrderId = existedOrder.Id,
-                        IsRead = false,
-                        CreatedAt = TimeUtils.GetCurrentSEATime(),
-                        AccountId = eaAccount.Id
-                    };
-                    await _unitOfWork.Repository<DataTier.Models.Notification>().InsertAsync(eaNotification);
-
-                    #region Hoàn tiền emp
-
-                    var cashBackTotal = existedOrder.Total - Constants.ServiceFee;
-                    accountEmp.Wallets.First().Balance += cashBackTotal;
-                    var walletTransaction = new Transaction()
-                    {
-                        Id = Guid.NewGuid(),
-                        WalletId = accountEmp.Wallets.First().Id,
-                        Type = (int)WalletTransactionTypeEnums.AddWelfare,
-                        Description = $"Hoàn {cashBackTotal} từ đơn hàng {existedOrder.OrderCode}",
-                        OrderId = existedOrder.Id,
-                        RecieveId = accountEmp.Id,
-                        Total = (double)cashBackTotal,
-                        CompanyId = employee.CompanyId,
-                        CreatedAt = TimeUtils.GetCurrentSEATime(),
-                    };
-                    await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransaction);
-
-                    #endregion
-                } else if (existedOrder.Status == (int)OrderStatusEnums.Ready)
-                {
-                    var eaAccount = await _unitOfWork.Repository<Account>().AsQueryable()
-                        .Include(x => x.Enterprises)
-                        .Include(x => x.Wallets)
-                        .Where(x => x.Enterprises.Select(x => x.CompanyId).FirstOrDefault() == existedOrder.CompanyId)
-                        .FirstOrDefaultAsync();
-                    var useTotal = existedOrder.Total + Constants.ServiceFee;
-                    eaAccount.Wallets.First().Used += useTotal;
-                    eaAccount.UpdatedAt = TimeUtils.GetCurrentSEATime();
-
-                    await _unitOfWork.Repository<Account>().UpdateDetached(eaAccount);
-                }
-                await _unitOfWork.Repository<DataTier.Models.Notification>().InsertAsync(empNotification);
-                await _unitOfWork.Repository<Order>().UpdateDetached(existedOrder);
-                await _unitOfWork.CommitAsync();
-
-                return new BaseResponseViewModel<OrderResponseModel>
-                {
-                    Code = StatusCodes.Status204NoContent,
-                    Message = "No content",
+                    Id = Guid.NewGuid(),
+                    WalletId = accountEmp.Wallets.First().Id,
+                    Type = (int)WalletTransactionTypeEnums.AddWelfare,
+                    Description = $"Hoàn {cashBackTotal} từ đơn hàng {existedOrder.OrderCode}",
+                    OrderId = existedOrder.Id,
+                    RecieveId = accountEmp.Id,
+                    Total = (double)cashBackTotal,
+                    CompanyId = employee.CompanyId,
+                    CreatedAt = TimeUtils.GetCurrentSEATime(),
                 };
+                await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransaction);
+
+                #endregion
+            }
+            else if (existedOrder.Status == (int)OrderStatusEnums.Ready)
+            {
+                var eaAccount = await _unitOfWork.Repository<Account>().AsQueryable()
+                    .Include(x => x.Enterprises)
+                    .Include(x => x.Wallets)
+                    .Where(x => x.Enterprises.Select(x => x.CompanyId).FirstOrDefault() == existedOrder.CompanyId)
+                    .FirstOrDefaultAsync();
+                var useTotal = existedOrder.Total + Constants.ServiceFee;
+                eaAccount.Wallets.First().Used += useTotal;
+                eaAccount.UpdatedAt = TimeUtils.GetCurrentSEATime();
+
+                await _unitOfWork.Repository<Account>().UpdateDetached(eaAccount);
+            }
+            await _unitOfWork.Repository<DataTier.Models.Notification>().InsertAsync(empNotification);
+            await _unitOfWork.Repository<Order>().UpdateDetached(existedOrder);
+            await _unitOfWork.CommitAsync();
+
+            return new BaseResponseViewModel<OrderResponseModel>
+            {
+                Code = StatusCodes.Status204NoContent,
+                Message = "No content",
+            };
         }
 
         public async Task<BaseResponseViewModel<OrderResponseModel>> CreateOrder(List<OrderDetailsRequestModel> orderDetails, string? note)
@@ -442,6 +445,43 @@ namespace CES.BusinessTier.Services
                 return user.CompanyId;
             }
             return 0;
+        }
+        public async Task<DynamicResponse<OrderResponseModel>> GetsBySupplierId(Guid id, PagingModel paging)
+        {
+            var orders = _unitOfWork.Repository<Order>().AsQueryable().Include(x => x.OrderDetails).ThenInclude(x => x.Product)
+                                                        .Where(x => x.OrderDetails.FirstOrDefault().Product.SupplierId == id)
+                                                        .ProjectTo<OrderResponseModel>(_mapper.ConfigurationProvider)
+                                                        .DynamicSort(paging.Sort, paging.Order)
+                                                        .PagingQueryable(paging.Page, paging.Size);
+            //if (orders.Item1 == 0)
+            //{
+            //    return new DynamicResponse<OrderResponseModel>()
+            //    {
+            //        Code = StatusCodes.Status404NotFound,
+            //        SystemCode = "...",
+            //        Message = "...",
+            //        MetaData = new PagingMetaData()
+            //        {
+            //            Page = 1,
+            //            Size = 1,
+            //            Total = 0
+            //        },
+            //    };
+            //}
+            return new DynamicResponse<OrderResponseModel>()
+            {
+                Code = StatusCodes.Status200OK,
+                SystemCode = "...",
+                Message = "...",
+                MetaData = new PagingMetaData()
+                {
+                    Page = paging.Page,
+                    Size = paging.Size,
+                    Total = orders.Item1
+                },
+                Data = _mapper.Map<List<OrderResponseModel>>(orders.Item2)
+            };
+
         }
 
     }

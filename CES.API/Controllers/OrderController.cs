@@ -48,7 +48,13 @@ namespace CES.API.Controllers
             var result = await _orderServices.GetById(id);
             return Ok(result);
         }
-
+        [HttpGet("supplier/{supplierId}")]
+        [Authorize(Roles = "System Admin, Supplier Admin")]
+        public async Task<IActionResult> GetBySupplierId(Guid supplierId, [FromQuery] PagingModel paging)
+        {
+            var result = await _orderServices.GetsBySupplierId(supplierId, paging);
+            return StatusCode((int)result.Code, result);
+        }
         [HttpPost]
         [Authorize(Roles = "Employee")]
         public async Task<ActionResult> Post([FromBody] List<OrderDetailsRequestModel>? orderDetails, [FromQuery] string? notes)
