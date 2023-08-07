@@ -20,7 +20,7 @@ namespace CES.BusinessTier.Services
 {
     public interface ICategoryService
     {
-        Task<DynamicResponse<CategoryResponseModel>> GetAllCategoryAsync(CategoryResponseModel filter, Guid? supplierId, PagingModel paging);
+        Task<DynamicResponse<CategoryResponseModel>> GetAllCategoryAsync(CategoryResponseModel filter, Guid supplierId, PagingModel paging);
         Task<BaseResponseViewModel<CategoryResponseModel>> GetCategoryAsync(int categoryId, CategoryResponseModel filter);
         Task<BaseResponseViewModel<CategoryResponseModel>> CreateCategoryAsync(CategoryRequestModel category);
         Task<BaseResponseViewModel<CategoryResponseModel>> UpdateCategoryAsync(int categoryId, CategoryUpdateModel categoryUpdate);
@@ -87,14 +87,14 @@ namespace CES.BusinessTier.Services
             return true;
         }
 
-        public async Task<DynamicResponse<CategoryResponseModel>> GetAllCategoryAsync(CategoryResponseModel filter, Guid? supplierId, PagingModel paging)
+        public async Task<DynamicResponse<CategoryResponseModel>> GetAllCategoryAsync(CategoryResponseModel filter, Guid supplierId, PagingModel paging)
         {
             var result = _unitOfWork.Repository<Category>().AsQueryable(x => x.Status == (int)Status.Active)
                 .ProjectTo<CategoryResponseModel>(_mapper.ConfigurationProvider)
                 .DynamicFilter(filter)
                 .DynamicSort(paging.Sort, paging.Order)
                 .PagingQueryable(paging.Page, paging.Size);
-            if (supplierId != null)
+            if (supplierId != Guid.Empty)
             {
                 result = _unitOfWork.Repository<Category>().AsQueryable().Include(x => x.Products).Where(x => x.Products.FirstOrDefault().SupplierId == supplierId)
                 .ProjectTo<CategoryResponseModel>(_mapper.ConfigurationProvider)

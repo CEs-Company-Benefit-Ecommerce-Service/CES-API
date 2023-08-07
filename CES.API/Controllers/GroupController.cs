@@ -148,7 +148,7 @@ namespace CES.API.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [Authorize(Roles = "Enterprise Admin")]
+        [Authorize(Roles = "Enterprise Admin, System Admin")]
         [HttpGet("{id}/employees")]
         public async Task<ActionResult<DynamicResponse<AccountResponseModel>>> GetAccountsByGroupId(Guid id, [FromQuery] PagingModel paging)
         {
@@ -159,6 +159,19 @@ namespace CES.API.Controllers
             // }
 
             var result = await _groupAccountServices.GetAccountsByGroupId(id, paging);
+            return StatusCode((int)result.Code, result);
+        }
+        [Authorize(Roles = "Enterprise Admin, System Admin")]
+        [HttpGet("employees-not-in-group")]
+        public async Task<ActionResult<DynamicResponse<AccountResponseModel>>> GetAccountsNotInGroup([FromQuery] PagingModel paging)
+        {
+            // var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value.ToString();
+            // if (role != Roles.EnterpriseAdmin.GetDisplayName())
+            // {
+            //     return StatusCode(401);
+            // }
+
+            var result = await _groupAccountServices.GetAllAccountsNotInGroup(paging);
             return StatusCode((int)result.Code, result);
         }
 
