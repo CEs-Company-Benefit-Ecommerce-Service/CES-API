@@ -43,7 +43,7 @@ namespace CES.BusinessTier.Services
         {
             if (category == null)
             {
-                throw new ErrorResponse(StatusCodes.Status400BadRequest, (int)CategoryErrorEnums.INVALID_CATEGORY, CategoryErrorEnums.INVALID_CATEGORY.GetDisplayName());
+                throw new ErrorResponse(StatusCodes.Status400BadRequest, 024, CategoryErrorEnums.INVALID_CATEGORY.GetDisplayName());
             }
             var newCategory = _mapper.Map<Category>(category);
             newCategory.Status = (int)Status.Active;
@@ -53,6 +53,7 @@ namespace CES.BusinessTier.Services
             return new BaseResponseViewModel<CategoryResponseModel>
             {
                 Code = StatusCodes.Status200OK,
+                SystemCode = "022",
                 Message = "OK",
                 Data = _mapper.Map<CategoryResponseModel>(newCategory),
             };
@@ -61,13 +62,14 @@ namespace CES.BusinessTier.Services
         public async Task<BaseResponseViewModel<CategoryResponseModel>> DeleteCategoryAsync(int categoryId)
         {
             var category = await _unitOfWork.Repository<Category>().AsQueryable(x => x.Id == categoryId && x.Status == (int)Status.Active).FirstOrDefaultAsync();
-            if (category == null) throw new ErrorResponse(StatusCodes.Status404NotFound, (int)CategoryErrorEnums.NOT_FOUND_CATEGORY, CategoryErrorEnums.NOT_FOUND_CATEGORY.GetDisplayName());
+            if (category == null) throw new ErrorResponse(StatusCodes.Status404NotFound, 024, CategoryErrorEnums.NOT_FOUND_CATEGORY.GetDisplayName());
             category.Status = (int)Status.Inactive;
             await _unitOfWork.Repository<Category>().UpdateDetached(_mapper.Map<Category>(category));
             await _unitOfWork.CommitAsync();
             return new BaseResponseViewModel<CategoryResponseModel>
             {
                 Code = StatusCodes.Status200OK,
+                SystemCode = "023",
                 Message = "OK",
                 Data = _mapper.Map<CategoryResponseModel>(category),
             };
@@ -104,6 +106,7 @@ namespace CES.BusinessTier.Services
             return new DynamicResponse<CategoryResponseModel>
             {
                 Code = StatusCodes.Status200OK,
+                SystemCode = "000",
                 Message = "OK",
                 MetaData = new PagingMetaData
                 {
@@ -121,10 +124,11 @@ namespace CES.BusinessTier.Services
                 .ProjectTo<CategoryResponseModel>(_mapper.ConfigurationProvider)
                 .DynamicFilter(filter)
                 .FirstOrDefaultAsync();
-            if (category == null) throw new ErrorResponse(StatusCodes.Status404NotFound, (int)CategoryErrorEnums.NOT_FOUND_CATEGORY, CategoryErrorEnums.NOT_FOUND_CATEGORY.GetDisplayName());
+            if (category == null) throw new ErrorResponse(StatusCodes.Status404NotFound, 024, CategoryErrorEnums.NOT_FOUND_CATEGORY.GetDisplayName());
             return new BaseResponseViewModel<CategoryResponseModel>
             {
                 Code = StatusCodes.Status200OK,
+                SystemCode = "000",
                 Message = "OK",
                 Data = category
             };
@@ -133,13 +137,14 @@ namespace CES.BusinessTier.Services
         public async Task<BaseResponseViewModel<CategoryResponseModel>> UpdateCategoryAsync(int categoryId, CategoryUpdateModel categoryUpdate)
         {
             var category = await _unitOfWork.Repository<Category>().AsQueryable(x => x.Id == categoryId && x.Status == (int)Status.Active).FirstOrDefaultAsync();
-            if (category == null) throw new ErrorResponse(StatusCodes.Status404NotFound, (int)CategoryErrorEnums.NOT_FOUND_CATEGORY, CategoryErrorEnums.NOT_FOUND_CATEGORY.GetDisplayName());
+            if (category == null) throw new ErrorResponse(StatusCodes.Status404NotFound, 024, CategoryErrorEnums.NOT_FOUND_CATEGORY.GetDisplayName());
             category.UpdatedAt = TimeUtils.GetCurrentSEATime();
             await _unitOfWork.Repository<Category>().UpdateDetached(_mapper.Map<CategoryUpdateModel, Category>(categoryUpdate, category));
             await _unitOfWork.CommitAsync();
             return new BaseResponseViewModel<CategoryResponseModel>
             {
                 Code = StatusCodes.Status200OK,
+                SystemCode = "025",
                 Message = "OK",
                 Data = _mapper.Map<CategoryResponseModel>(category),
             };

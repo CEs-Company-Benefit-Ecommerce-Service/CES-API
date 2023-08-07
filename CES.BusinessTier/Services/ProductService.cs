@@ -59,7 +59,7 @@ namespace CES.BusinessTier.Services
             }
             if (product == null)
             {
-                throw new ErrorResponse(StatusCodes.Status400BadRequest, (int)ProductErrorEnums.INVALID_PRODUCT, ProductErrorEnums.INVALID_PRODUCT.GetDisplayName());
+                throw new ErrorResponse(StatusCodes.Status400BadRequest, 035, ProductErrorEnums.INVALID_PRODUCT.GetDisplayName());
             }
 
             if (product.CategoryId != null)
@@ -80,6 +80,7 @@ namespace CES.BusinessTier.Services
             return new BaseResponseViewModel<ProductResponseModel>
             {
                 Code = StatusCodes.Status200OK,
+                SystemCode = "036",
                 Message = "OK",
                 Data = _mapper.Map<ProductResponseModel>(newProduct),
             };
@@ -88,13 +89,14 @@ namespace CES.BusinessTier.Services
         public async Task<BaseResponseViewModel<ProductResponseModel>> DeleteProductAsync(Guid productId)
         {
             var product = await _unitOfWork.Repository<Product>().AsQueryable(x => x.Id == productId && x.Status == (int)Status.Active).FirstOrDefaultAsync();
-            if (product == null) throw new ErrorResponse(StatusCodes.Status404NotFound, (int)CategoryErrorEnums.NOT_FOUND_CATEGORY, CategoryErrorEnums.NOT_FOUND_CATEGORY.GetDisplayName());
+            if (product == null) throw new ErrorResponse(StatusCodes.Status404NotFound, 038, CategoryErrorEnums.NOT_FOUND_CATEGORY.GetDisplayName());
             product.Status = (int)Status.Inactive;
             await _unitOfWork.Repository<Product>().UpdateDetached(_mapper.Map<Product>(product));
             await _unitOfWork.CommitAsync();
             return new BaseResponseViewModel<ProductResponseModel>
             {
                 Code = StatusCodes.Status200OK,
+                SystemCode = "037",
                 Message = "OK",
                 Data = _mapper.Map<ProductResponseModel>(product),
             };
@@ -147,6 +149,7 @@ namespace CES.BusinessTier.Services
                 return new DynamicResponse<ProductResponseModel>
                 {
                     Code = StatusCodes.Status200OK,
+                    SystemCode = "000",
                     Message = "OK",
                     MetaData = new PagingMetaData
                     {
@@ -162,6 +165,7 @@ namespace CES.BusinessTier.Services
                 return new DynamicResponse<ProductResponseModel>
                 {
                     Code = StatusCodes.Status400BadRequest,
+                    SystemCode = "038",
                     Message = ex.Message,
                     MetaData = new PagingMetaData
                     {
@@ -185,6 +189,7 @@ namespace CES.BusinessTier.Services
             return new BaseResponseViewModel<ProductResponseModel>
             {
                 Code = StatusCodes.Status200OK,
+                SystemCode = "000",
                 Message = "OK",
                 Data = product
             };
@@ -200,6 +205,7 @@ namespace CES.BusinessTier.Services
             return new BaseResponseViewModel<ProductResponseModel>
             {
                 Code = StatusCodes.Status200OK,
+                SystemCode = "039",
                 Message = "OK",
                 Data = _mapper.Map<ProductResponseModel>(product),
             };

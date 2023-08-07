@@ -55,6 +55,7 @@ namespace CES.BusinessTier.Services
                 return new DynamicResponse<DebtTicketResponseModel>
                 {
                     Code = StatusCodes.Status200OK,
+                    SystemCode = "000",
                     Message = "Ok",
                     MetaData = new PagingMetaData
                     {
@@ -85,6 +86,7 @@ namespace CES.BusinessTier.Services
                 return new DynamicResponse<DebtTicketResponseModel>
                 {
                     Code = StatusCodes.Status200OK,
+                    SystemCode = "000",
                     Message = "Ok",
                     MetaData =
                 {
@@ -98,6 +100,7 @@ namespace CES.BusinessTier.Services
             return new DynamicResponse<DebtTicketResponseModel>
             {
                 Code = StatusCodes.Status200OK,
+                SystemCode = "000",
                 Message = "Ok",
                 MetaData = new PagingMetaData
                 {
@@ -119,12 +122,14 @@ namespace CES.BusinessTier.Services
                 return new BaseResponseViewModel<DebtTicketResponseModel>()
                 {
                     Code = StatusCodes.Status404NotFound,
+                    SystemCode = "026",
                     Message = "Not Found",
                 };
             }
             return new BaseResponseViewModel<DebtTicketResponseModel>()
             {
                 Code = StatusCodes.Status200OK,
+                SystemCode = "000",
                 Message = "OK",
                 Data = _mapper.Map<DebtTicketResponseModel>(debt)
             };
@@ -142,6 +147,7 @@ namespace CES.BusinessTier.Services
                 return new BaseResponseViewModel<DebtTicketResponseModel>
                 {
                     Code = StatusCodes.Status200OK,
+                    SystemCode = "027",
                     Message = "This company have not debt",
                 };
             }
@@ -165,6 +171,7 @@ namespace CES.BusinessTier.Services
                 return new BaseResponseViewModel<DebtTicketResponseModel>
                 {
                     Code = StatusCodes.Status200OK,
+                    SystemCode = "027",
                     Message = "OK",
                     Data = _mapper.Map<DebtTicketResponseModel>(debt)
                 };
@@ -174,6 +181,7 @@ namespace CES.BusinessTier.Services
                 return new BaseResponseViewModel<DebtTicketResponseModel>
                 {
                     Code = StatusCodes.Status400BadRequest,
+                    SystemCode = "028",
                     Message = "Bad Request" + "||" + ex.Message,
                 };
             }
@@ -220,6 +228,7 @@ namespace CES.BusinessTier.Services
                 return new BaseResponseViewModel<DebtTicketResponseModel>()
                 {
                     Code = StatusCodes.Status404NotFound,
+                    SystemCode = "026",
                     Message = "Not Found",
                 };
             }
@@ -232,6 +241,7 @@ namespace CES.BusinessTier.Services
                 return new BaseResponseViewModel<DebtTicketResponseModel>()
                 {
                     Code = StatusCodes.Status204NoContent,
+                    SystemCode = "029",
                     Message = "No content",
                 };
             }
@@ -240,6 +250,7 @@ namespace CES.BusinessTier.Services
                 return new BaseResponseViewModel<DebtTicketResponseModel>
                 {
                     Code = StatusCodes.Status400BadRequest,
+                    SystemCode = "030",
                     Message = "Bad Request" + "||" + ex.Message,
                 };
             }
@@ -278,6 +289,7 @@ namespace CES.BusinessTier.Services
             return new BaseResponseViewModel<ListOrderToPaymentResponse>
             {
                 Code = StatusCodes.Status200OK,
+                SystemCode = "000",
                 Message = "OK",
                 Data = bill
             };

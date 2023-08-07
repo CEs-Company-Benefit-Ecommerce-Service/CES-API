@@ -80,6 +80,7 @@ namespace CES.BusinessTier.Services
                 return new DynamicResponse<OrderResponseModel>
                 {
                     Code = StatusCodes.Status200OK,
+                    SystemCode = "000",
                     Message = "OK",
                     MetaData = new PagingMetaData
                     {
@@ -104,6 +105,7 @@ namespace CES.BusinessTier.Services
                 return new DynamicResponse<OrderResponseModel>
                 {
                     Code = StatusCodes.Status200OK,
+                    SystemCode = "000",
                     Message = "OK",
                     MetaData = new PagingMetaData
                     {
@@ -140,6 +142,7 @@ namespace CES.BusinessTier.Services
             return new BaseResponseViewModel<OrderResponseModel>
             {
                 Code = StatusCodes.Status200OK,
+                SystemCode = "000",
                 Message = "OK",
                 Data = _mapper.Map<OrderResponseModel>(orderDetail)
             };
@@ -152,6 +155,7 @@ namespace CES.BusinessTier.Services
                 return new BaseResponseViewModel<OrderResponseModel>
                 {
                     Code = StatusCodes.Status404NotFound,
+                    SystemCode = "031",
                     Message = "Not found",
                 };
             }
@@ -262,6 +266,7 @@ namespace CES.BusinessTier.Services
             return new BaseResponseViewModel<OrderResponseModel>
             {
                 Code = StatusCodes.Status204NoContent,
+                SystemCode = "032",
                 Message = "No content",
             };
         }
@@ -349,6 +354,7 @@ namespace CES.BusinessTier.Services
                     return new BaseResponseViewModel<OrderResponseModel>
                     {
                         Code = StatusCodes.Status400BadRequest,
+                        SystemCode = "033",
                         Message = "Create order details failed",
                     };
                 }
@@ -404,6 +410,7 @@ namespace CES.BusinessTier.Services
                 return new BaseResponseViewModel<OrderResponseModel>
                 {
                     Code = StatusCodes.Status200OK,
+                    SystemCode = "034",
                     Message = "OK",
                 };
             }
@@ -412,6 +419,7 @@ namespace CES.BusinessTier.Services
                 return new BaseResponseViewModel<OrderResponseModel>
                 {
                     Code = StatusCodes.Status400BadRequest,
+                    SystemCode = "033",
                     Message = "Something was wrong!",
                 };
 
