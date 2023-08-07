@@ -16,7 +16,7 @@ namespace CES.API.Controllers
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
-        
+
         public CategoryController(ICategoryService categoryService)
         {
             _categoryService = categoryService;
@@ -25,9 +25,9 @@ namespace CES.API.Controllers
         [SwaggerOperation(summary: "Get categories", description: "Sort: {Parameter}, Order: asc || desc")]
         [HttpGet]
         [Authorize(Roles = "System Admin, Supplier Admin, Employee")]
-        public async Task<ActionResult<DynamicResponse<CategoryResponseModel>>> GetAllCategory([FromQuery] CategoryResponseModel filter, [FromQuery] PagingModel paging)
+        public async Task<ActionResult<DynamicResponse<CategoryResponseModel>>> GetAllCategory([FromQuery] CategoryResponseModel filter, [FromQuery] Guid supplierId, [FromQuery] PagingModel paging)
         {
-            return Ok(await _categoryService.GetAllCategoryAsync(filter, paging));
+            return Ok(await _categoryService.GetAllCategoryAsync(filter, supplierId, paging));
         }
 
         // GET api/<CategoryController>/5

@@ -20,7 +20,7 @@ namespace CES.BusinessTier.Services
 {
     public interface ICategoryService
     {
-        Task<DynamicResponse<CategoryResponseModel>> GetAllCategoryAsync(CategoryResponseModel filter, PagingModel paging);
+        Task<DynamicResponse<CategoryResponseModel>> GetAllCategoryAsync(CategoryResponseModel filter, Guid? supplierId, PagingModel paging);
         Task<BaseResponseViewModel<CategoryResponseModel>> GetCategoryAsync(int categoryId, CategoryResponseModel filter);
         Task<BaseResponseViewModel<CategoryResponseModel>> CreateCategoryAsync(CategoryRequestModel category);
         Task<BaseResponseViewModel<CategoryResponseModel>> UpdateCategoryAsync(int categoryId, CategoryUpdateModel categoryUpdate);
@@ -85,14 +85,22 @@ namespace CES.BusinessTier.Services
             return true;
         }
 
-        public async Task<DynamicResponse<CategoryResponseModel>> GetAllCategoryAsync(CategoryResponseModel filter, PagingModel paging)
+        public async Task<DynamicResponse<CategoryResponseModel>> GetAllCategoryAsync(CategoryResponseModel filter, Guid? supplierId, PagingModel paging)
         {
             var result = _unitOfWork.Repository<Category>().AsQueryable(x => x.Status == (int)Status.Active)
                 .ProjectTo<CategoryResponseModel>(_mapper.ConfigurationProvider)
                 .DynamicFilter(filter)
                 .DynamicSort(paging.Sort, paging.Order)
                 .PagingQueryable(paging.Page, paging.Size);
-            var test = _unitOfWork.Repository<Category>().AsQueryable(x => x.Status == (int)Status.Active);
+            if (supplierId != null)
+            {
+                result = _unitOfWork.Repository<Category>().AsQueryable().Include(x => x.Products).Where(x => x.Products.FirstOrDefault().SupplierId == supplierId)
+                .ProjectTo<CategoryResponseModel>(_mapper.ConfigurationProvider)
+                .DynamicFilter(filter)
+                .DynamicSort(paging.Sort, paging.Order)
+                .PagingQueryable(paging.Page, paging.Size);
+            }
+            //var test = _unitOfWork.Repository<Category>().AsQueryable(x => x.Status == (int)Status.Active);
             return new DynamicResponse<CategoryResponseModel>
             {
                 Code = StatusCodes.Status200OK,
