@@ -162,8 +162,8 @@ namespace CES.API.Controllers
             return StatusCode((int)result.Code, result);
         }
         [Authorize(Roles = "Enterprise Admin, System Admin")]
-        [HttpGet("employees-not-in-group")]
-        public async Task<ActionResult<DynamicResponse<AccountResponseModel>>> GetAccountsNotInGroup([FromQuery] PagingModel paging)
+        [HttpGet("employees-not-in-group/{benefitId}")]
+        public async Task<ActionResult<DynamicResponse<AccountResponseModel>>> GetAccountsNotInGroupByBenefitId([FromQuery] UserResponseModel filter, Guid benefitId, [FromQuery] PagingModel paging)
         {
             // var role = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role).Value.ToString();
             // if (role != Roles.EnterpriseAdmin.GetDisplayName())
@@ -171,7 +171,7 @@ namespace CES.API.Controllers
             //     return StatusCode(401);
             // }
 
-            var result = await _groupAccountServices.GetAllAccountsNotInGroup(paging);
+            var result = await _groupAccountServices.GetAllAccountsNotInGroup(filter, benefitId, paging);
             return StatusCode((int)result.Code, result);
         }
 

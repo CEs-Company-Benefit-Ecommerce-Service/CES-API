@@ -29,7 +29,7 @@ namespace CES.BusinessTier.Services
         public IEnumerable<Group> Gets(PagingModel paging);
         Task<bool> CheckAccountInGroup(Guid employId, Guid projectId);
         Task<DynamicResponse<AccountResponseModel>> GetAccountsByGroupId(Guid benefitId, PagingModel paging);
-        Task<DynamicResponse<UserResponseModel>> GetAllAccountsNotInGroup(PagingModel paging);
+        Task<DynamicResponse<UserResponseModel>> GetAllAccountsNotInGroup(UserResponseModel filter, Guid benefitId, PagingModel paging);
         Task UpdateBalanceForAccountsInGroup(Guid id, Guid enterpriseId);
         Task<bool> ScheduleUpdateBalanceForAccountsInGroup(Guid id, Guid enterpriseId);
     }
@@ -134,7 +134,7 @@ namespace CES.BusinessTier.Services
             var listAccount = new List<AccountResponseModel>();
             Dictionary<Guid, bool> groupEmployeeReceiveStatus = new Dictionary<Guid, bool>();
             int enterpriseCompanyId = group.FirstOrDefault().Benefit.CompanyId;
-           
+
             foreach (var groupEmployee in groupEmployees.Item2)
             {
                 listEmployeeId.Add(groupEmployee.EmployeeId.ToString());
@@ -196,15 +196,30 @@ namespace CES.BusinessTier.Services
                 Data = listAccount
             };
         }
-        public async Task<DynamicResponse<UserResponseModel>> GetAllAccountsNotInGroup(PagingModel paging)
+        public async Task<DynamicResponse<UserResponseModel>> GetAllAccountsNotInGroup(UserResponseModel filter, Guid benefitId, PagingModel paging)
         {
+            var group = await _unitOfWork.Repository<Group>()
+                //.AsQueryable(x => x.Id == id && x.Status == (int)Status.Active)
+                .AsQueryable()
+                .Include(x => x.Benefit)
+                .Where(x => x.BenefitId == benefitId).ToListAsync();
             var employees = _unitOfWork.Repository<Employee>().AsQueryable()
                                        .Include(x => x.Account).Include(x => x.EmployeeGroupMappings)
-                                       .Where(w => w.EmployeeGroupMappings.Any(a => a.EmployeeId == w.Id) == false)
+                                       .Where(w => w.CompanyId == group.FirstOrDefault().Benefit.CompanyId)
                                        .ProjectTo<UserResponseModel>(_mapper.ConfigurationProvider)
+                                       .DynamicFilter(filter)
                                        .DynamicSort(paging.Sort, paging.Order)
                                        .PagingQueryable(paging.Page, paging.Size);
-
+            var groupMapping = _unitOfWork.Repository<EmployeeGroupMapping>().AsQueryable(x => x.GroupId == group.FirstOrDefault().Id);
+            var listResult = new List<UserResponseModel>();
+            foreach(var employee in employees.Item2)
+            {
+                var check = groupMapping.Any(a => a.EmployeeId == employee.Id);
+                if (!check)
+                {
+                    listResult.Add(employee);
+                }
+            }
             return new DynamicResponse<UserResponseModel>()
             {
                 Code = StatusCodes.Status200OK,
@@ -213,9 +228,9 @@ namespace CES.BusinessTier.Services
                 {
                     Page = paging.Page,
                     Size = paging.Size,
-                    Total = employees.Item1
+                    Total = listResult.Count()
                 },
-                Data = await employees.Item2.ToListAsync()
+                Data = listResult
             };
         }
 
