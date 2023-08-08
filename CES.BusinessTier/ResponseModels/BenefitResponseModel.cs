@@ -19,5 +19,6 @@ namespace CES.BusinessTier.ResponseModels
         public DateTime? UpdatedAt { get; set; }
         public int? CompanyId { get; set; }
         public CompanyResponseModel? Company { get; set; }
+        public ICollection<GroupResponseModel>? Groups { get; set; }
     }
 }
