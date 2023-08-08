@@ -61,6 +61,13 @@ namespace CES.BusinessTier.Services
                            .DynamicFilter(filter)
                            .DynamicSort(paging.Sort, paging.Order)
                            .PagingQueryable(paging.Page, paging.Size);
+            DateTime? from = new DateTime();
+            DateTime? to = new DateTime();
+            if (paging.Sort == "CreatedAt" && paging.Order == "DESC" && filter.DebtStatus == 0)
+            {
+                from = order.Item2.LastOrDefault().CreatedAt;
+                to = order.Item2.FirstOrDefault().CreatedAt;
+            }
             if (accountId != Guid.Empty)
             {
                 order = _unitOfWork.Repository<Order>().AsQueryable()
@@ -129,7 +136,7 @@ namespace CES.BusinessTier.Services
             return new DynamicResponse<OrderResponseModel>
             {
                 Code = StatusCodes.Status200OK,
-                Message = "OK",
+                Message = from.ToString() + "-" + to.ToString(),
                 MetaData = new PagingMetaData
                 {
                     Page = paging.Page,
