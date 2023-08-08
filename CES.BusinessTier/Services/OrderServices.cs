@@ -23,7 +23,7 @@ namespace CES.BusinessTier.Services
 {
     public interface IOrderServices
     {
-        Task<DynamicResponse<OrderResponseModel>> GetsAsync(OrderResponseModel filter, PagingModel paging, int? type, FilterFromTo filterFromTo);
+        Task<DynamicResponse<OrderResponseModel>> GetsAsync(OrderResponseModel filter, PagingModel paging, int? type, FilterFromTo filterFromTo, Guid accountId);
         Task<BaseResponseViewModel<OrderResponseModel>> UpdateOrderStatus(Guid orderId, int status);
         Task<BaseResponseViewModel<OrderResponseModel>> CreateOrder(List<OrderDetailsRequestModel> orderDetails, string? note);
         Task<BaseResponseViewModel<OrderResponseModel>> GetById(Guid id);
@@ -52,16 +52,26 @@ namespace CES.BusinessTier.Services
             _walletServices = walletServices;
         }
 
-        public async Task<DynamicResponse<OrderResponseModel>> GetsAsync(OrderResponseModel filter, PagingModel paging, int? type, FilterFromTo filterFromTo)
+        public async Task<DynamicResponse<OrderResponseModel>> GetsAsync(OrderResponseModel filter, PagingModel paging, int? type, FilterFromTo filterFromTo, Guid accountId)
         {
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
             var order = _unitOfWork.Repository<Order>().AsQueryable()
+                           .Include(x => x.Employee)
                            .ProjectTo<OrderResponseModel>(_mapper.ConfigurationProvider)
                            .DynamicFilter(filter)
                            .DynamicSort(paging.Sort, paging.Order)
                            .PagingQueryable(paging.Page, paging.Size);
+            if (accountId != Guid.Empty)
+            {
+                order = _unitOfWork.Repository<Order>().AsQueryable()
+                           .Include(x => x.Employee)
+                           .Where(w => w.Employee.AccountId == accountId)
+                           .ProjectTo<OrderResponseModel>(_mapper.ConfigurationProvider)
+                           .DynamicFilter(filter)
+                           .DynamicSort(paging.Sort, paging.Order)
+                           .PagingQueryable(paging.Page, paging.Size);
+            }
             var account = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Employees).FirstOrDefaultAsync();
-
             if (filterFromTo.To != null && filterFromTo.From != null)
             {
                 order.Item2 = order.Item2.Where(x => x.CreatedAt.Value >= filterFromTo.From && x.CreatedAt.Value <= TimeUtils.GetEndOfDate((DateTime)filterFromTo.To));
