@@ -172,19 +172,6 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/CompanyServices.cs</url>
-          <line>80</line>
-          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/CompanyServices.cs" initialLine="76" containingFunctionPresentation="Method 'CreateNew'">
-            <startOffsets>
-              <option value="3246" />
-            </startOffsets>
-            <endOffsets>
-              <option value="3293" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="31" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/ZaloPayPaymentStrategy.cs</url>
           <line>29</line>
           <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/ZaloPayPaymentStrategy.cs" initialLine="23" containingFunctionPresentation="Method 'ExecutePayment'">
@@ -224,19 +211,6 @@
             </endOffsets>
           </properties>
           <option name="timeStamp" value="67" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/AccountServices.cs</url>
-          <line>516</line>
-          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/AccountServices.cs" initialLine="513" containingFunctionPresentation="Method 'HandleAccountRole'">
-            <startOffsets>
-              <option value="23016" />
-            </startOffsets>
-            <endOffsets>
-              <option value="23156" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="69" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/GroupServices.cs</url>
@@ -279,59 +253,33 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/ProductService.cs</url>
-          <line>106</line>
+          <line>108</line>
           <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/ProductService.cs" initialLine="106" containingFunctionPresentation="Method 'GetAllProductAsync'">
             <startOffsets>
-              <option value="5138" />
-              <option value="5202" />
+              <option value="5136" />
+              <option value="5200" />
             </startOffsets>
             <endOffsets>
-              <option value="5464" />
-              <option value="5232" />
+              <option value="5462" />
+              <option value="5230" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="75" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs</url>
-          <line>54</line>
-          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs" initialLine="54" containingFunctionPresentation="Method 'GetsAsync'">
-            <startOffsets>
-              <option value="2455" />
-            </startOffsets>
-            <endOffsets>
-              <option value="2576" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="78" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/CompanyServices.cs</url>
           <line>112</line>
           <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/CompanyServices.cs" initialLine="112" containingFunctionPresentation="Method 'Update'">
             <startOffsets>
-              <option value="4737" />
-              <option value="4800" />
+              <option value="4717" />
+              <option value="4780" />
             </startOffsets>
             <endOffsets>
-              <option value="4958" />
-              <option value="4866" />
+              <option value="4938" />
+              <option value="4846" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="85" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/BenefitServices.cs</url>
-          <line>96</line>
-          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/BenefitServices.cs" initialLine="96" containingFunctionPresentation="Method 'CreateAsync'">
-            <startOffsets>
-              <option value="4219" />
-            </startOffsets>
-            <endOffsets>
-              <option value="4250" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="86" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/GroupServices.cs</url>
@@ -348,7 +296,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/BenefitServices.cs</url>
-          <line>158</line>
+          <line>170</line>
           <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/BenefitServices.cs" initialLine="158" containingFunctionPresentation="Method 'UpdateAsync'">
             <startOffsets>
               <option value="6494" />
@@ -363,7 +311,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs</url>
-          <line>280</line>
+          <line>288</line>
           <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs" initialLine="291" containingFunctionPresentation="Method 'CreateOrder'">
             <startOffsets>
               <option value="13950" />

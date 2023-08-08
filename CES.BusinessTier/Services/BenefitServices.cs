@@ -114,15 +114,15 @@ namespace CES.BusinessTier.Services
                 case (int)GroupTypes.Daily:
                     break;
                 case (int)GroupTypes.Weekly:
-                    if (request.DateFilter == null)
+                    if (request.DayFilter == null)
                     {
-                        throw new ErrorResponse(StatusCodes.Status400BadRequest, 016, "Please provide Date");
+                        throw new ErrorResponse(StatusCodes.Status400BadRequest, 016, "Please provide Day");
                     }
                     break;
                 case (int)GroupTypes.Monthly:
-                    if (request.DayFilter == null)
+                    if (request.DateFilter == null)
                     {
-                        throw new ErrorResponse(StatusCodes.Status400BadRequest, 017, "Please provide Day");
+                        throw new ErrorResponse(StatusCodes.Status400BadRequest, 017, "Please provide Date");
                     }
                     break;
             }

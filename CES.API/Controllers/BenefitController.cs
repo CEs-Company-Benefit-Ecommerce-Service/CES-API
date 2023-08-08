@@ -41,11 +41,11 @@ namespace CES.API.Controllers
         /// 1 - Active, 2 -  InActive \
         /// Type: 1 - Daily, 2 - Weekly, 3- Monthly \
         /// TimeFiler: 0: 00:00, 1: 01:00,.... 23: 23:00 \
-        /// DateFilter: 1: Monday, 2: Tuesday,.... 7: Sunday \
-        /// DayFilter: 1,.....31 \
+        /// DayFilter: 1: Monday, 2: Tuesday,.... 7: Sunday \
+        /// DateFilter: 1,.....31 \
         /// Type 1 require Timefilter \
-        /// Type 2 require TimeFilter, DateFilter \
-        /// Type 3 require TimeFilter, DayFilter
+        /// Type 2 require TimeFilter, DayFilter \
+        /// Type 3 require TimeFilter, DateFilter
         /// </remarks>
         /// <param name="id"></param>
         /// <param name="request"></param>

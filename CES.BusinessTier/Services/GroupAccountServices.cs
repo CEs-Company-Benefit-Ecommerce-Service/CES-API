@@ -429,12 +429,12 @@ namespace CES.BusinessTier.Services
                     }
                     break;
                 case (int)GroupTypes.Weekly:
-                    if (group.DateFilter == null)
+                    if (group.DayFilter == null)
                     {
-                        throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "Please provide Date");
+                        throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "Please provide Day");
                     }
                     int currentDayOfWeekValue = (int)formattedDateTime.DayOfWeek;
-                    int daysToAdd = ((int)group.DateFilter - currentDayOfWeekValue + 7) % 7;
+                    int daysToAdd = ((int)group.DayFilter - currentDayOfWeekValue + 7) % 7;
                     DateTime resultDate = formattedDateTime;
                     DateTimeOffset dateTimeOffsetWeekly = new DateTimeOffset(resultDate);
                     if (formattedDateTime > now)
@@ -465,12 +465,12 @@ namespace CES.BusinessTier.Services
                     }
                     break;
                 case (int)GroupTypes.Monthly:
-                    if (group.DayFilter == null)
+                    if (group.DateFilter == null)
                     {
-                        throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "Please provide Day");
+                        throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "Please provide Date");
                     }
                     DateTime resultDateMonthly = formattedDateTime.AddMonths(1);
-                    DateTime formattedDayOfMonthly = new DateTime(resultDateMonthly.Year, resultDateMonthly.Month, (int)group.DayFilter, resultDateMonthly.Hour, resultDateMonthly.Minute, resultDateMonthly.Second);
+                    DateTime formattedDayOfMonthly = new DateTime(resultDateMonthly.Year, resultDateMonthly.Month, (int)group.DateFilter, resultDateMonthly.Hour, resultDateMonthly.Minute, resultDateMonthly.Second);
                     DateTimeOffset nowDateTimeOffsetMonthly = new DateTimeOffset(now);
                     DateTimeOffset nowFormattedDateTimeOffsetMonthly = new DateTimeOffset(formattedDateTime);
                     DateTimeOffset dateTimeOffsetMonthly = new DateTimeOffset(formattedDayOfMonthly);
