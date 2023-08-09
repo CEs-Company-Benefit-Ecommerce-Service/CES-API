@@ -170,7 +170,7 @@ public class TransactionService : ITransactionService
             await _unitOfWork.Repository<Transaction>().UpdateDetached(transaction);
             //await _unitOfWork.Repository<Transaction>().UpdateDetached(_mapper.Map<TransactionUpdateModel, Transaction>(request, transaction));
 
-            if (transaction.Status == (int)OrderStatusEnums.Complete)
+            if (transaction.Status == (int)DebtStatusEnums.Complete)
             {
                 var result = _walletServices.ResetAllAfterEAPayment((int)transaction.CompanyId).Result;
                 if (result.Code != 200)
@@ -336,7 +336,7 @@ public class TransactionService : ITransactionService
         var transaction = _mapper.Map<Transaction>(request);
         transaction.Id = Guid.NewGuid();
         transaction.Type = (int)WalletTransactionTypeEnums.Bank;
-        transaction.Status = (int)OrderStatusEnums.New;
+        transaction.Status = (int)DebtStatusEnums.Progressing;
         transaction.CreatedAt = TimeUtils.GetCurrentSEATime();
         transaction.CompanyId = companyId;
         transaction.SenderId = accountLoginId;
