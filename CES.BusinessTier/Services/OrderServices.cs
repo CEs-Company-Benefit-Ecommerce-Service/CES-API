@@ -251,7 +251,7 @@ namespace CES.BusinessTier.Services
                 {
                     Id = Guid.NewGuid(),
                     WalletId = accountEmp.Wallets.First().Id,
-                    Type = (int)WalletTransactionTypeEnums.AddWelfare,
+                    Type = (int)WalletTransactionTypeEnums.CashBack,
                     Description = $"Hoàn {cashBackTotal} từ đơn hàng {existedOrder.OrderCode}",
                     OrderId = existedOrder.Id,
                     RecieveId = accountEmp.Id,
