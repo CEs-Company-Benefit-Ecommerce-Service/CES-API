@@ -214,4 +214,12 @@ namespace CES.BusinessTier.Utilities
         [Display(Name = "Weekly")] Weekly = 2,
         [Display(Name = "Monthly")] Monthly = 3
     }
+
+    public enum ExpireDateNotifices
+    {
+        [Display(Name = "25")] First = 1,
+        [Display(Name = "27")] Second = 2,
+        [Display(Name = "1")] Third = 3,
+        [Display(Name = "Current expire date")] Current = 4
+    }
 }

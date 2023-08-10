@@ -1,4 +1,5 @@
 using CES.BusinessTier.Services;
+using CES.BusinessTier.Utilities;
 using Hangfire;
 
 namespace CES.API.AppStarts;
@@ -15,9 +16,21 @@ public static class BackgroundJobs
         //
         // var corn3 = Cron.Daily(23,55);  // "55 23 * * *"
         // RecurringJob.AddOrUpdate<IAccountServices>(x => x.GetAccountByEmail("asdasdasd"), "* 9 * * *");
+        
+        //PaymentDueNotice1 = "0 7 25 * *"
+        //PaymentDueNotice1 = "0 7 27 * *"
+        //PaymentDueNotice1 = "0 7 30 * *"
 
         var corn = Cron.Daily();
+        var firstNotiForExpireDate = "0 0 25 * *";
+        var secondNotiForExpireDate = "0 0 27 * *";
+        var thirdNotiForExpireDate = "0 0 1 * *";
+        var everyLastDateOfMonthNotiExpireDate = "0 0 28-31 * *";
         RecurringJob.AddOrUpdate<IWalletServices>(x => x.ResetAllAfterExpired(), corn);
         RecurringJob.AddOrUpdate<INotificationServices>(x => x.CreateNotificationForEmployeesInActive(), corn);
+        // RecurringJob.AddOrUpdate<INotificationServices>(x => x.ScheduleNotificationWhenExpireDateIsComming((int)ExpireDateNotifices.First), firstNotiForExpireDate);
+        // RecurringJob.AddOrUpdate<INotificationServices>(x => x.ScheduleNotificationWhenExpireDateIsComming((int)ExpireDateNotifices.Second), secondNotiForExpireDate);
+        // RecurringJob.AddOrUpdate<INotificationServices>(x => x.ScheduleNotificationWhenExpireDateIsComming((int)ExpireDateNotifices.Third), thirdNotiForExpireDate);
+        // RecurringJob.AddOrUpdate<INotificationServices>(x => x.ScheduleNotificationWhenExpireDateIsComming((int)ExpireDateNotifices.Current), everyLastDateOfMonthNotiExpireDate);
     }
 }
