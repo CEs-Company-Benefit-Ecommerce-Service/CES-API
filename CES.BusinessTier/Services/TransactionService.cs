@@ -203,6 +203,10 @@ public class TransactionService : ITransactionService
                 await _unitOfWork.CommitAsync();
                 // todo cập nhật lại balance EA, kiểm tra các đơn hàng có debtid chưa hoàn thành cộng vào used và trừ balance
             }
+            else
+            {
+                await _unitOfWork.CommitAsync();
+            }
             return new BaseResponseViewModel<TransactionResponseModel>
             {
                 Code = StatusCodes.Status200OK,
