@@ -267,12 +267,62 @@ namespace CES.BusinessTier.Services
             {
                 var eaAccount = await _unitOfWork.Repository<Account>().AsQueryable()
                     .Include(x => x.Enterprises)
+                    .ThenInclude(x => x.Company)
                     .Include(x => x.Wallets)
                     .Where(x => x.Enterprises.Select(x => x.CompanyId).FirstOrDefault() == existedOrder.CompanyId)
                     .FirstOrDefaultAsync();
                 var useTotal = existedOrder.Total + Constants.ServiceFee;
                 eaAccount.Wallets.First().Used += useTotal;
                 eaAccount.UpdatedAt = TimeUtils.GetCurrentSEATime();
+
+                var limit = eaAccount.Enterprises.First().Company.Limits;
+                var fiftyPercent = 50 / 100;
+                var seventyFivePercent = 75 / 100;
+                var onehundredPercent = 100 / 100;
+                var halfOfLimit =  limit / 2;
+
+                if (useTotal >= halfOfLimit)
+                {
+                    var usedPercent = useTotal / limit;
+                    if (usedPercent >= onehundredPercent)
+                    {
+                        var eaNotification = new DataTier.Models.Notification()
+                        {
+                            Id = Guid.NewGuid(),
+                            Title = "Đã sử dụng 100% giá trị của hạn mức",
+                            Description = "Đã sử dụng 100% giá trị của hạn mức",
+                            IsRead = false,
+                            CreatedAt = TimeUtils.GetCurrentSEATime(),
+                            AccountId = eaAccount.Id
+                        };
+                        await _unitOfWork.Repository<DataTier.Models.Notification>().UpdateDetached(eaNotification);
+                    } else if (usedPercent >= seventyFivePercent)
+                    {
+                        var eaNotification = new DataTier.Models.Notification()
+                        {
+                            Id = Guid.NewGuid(),
+                            Title = "Đã sử dụng 75% giá trị của hạn mức",
+                            Description = "Đã sử dụng 75% giá trị của hạn mức",
+                            IsRead = false,
+                            CreatedAt = TimeUtils.GetCurrentSEATime(),
+                            AccountId = eaAccount.Id
+                        };
+                        await _unitOfWork.Repository<DataTier.Models.Notification>().UpdateDetached(eaNotification);
+                    }
+                    else
+                    {
+                        var eaNotification = new DataTier.Models.Notification()
+                        {
+                            Id = Guid.NewGuid(),
+                            Title = "Đã sử dụng 50% giá trị của hạn mức",
+                            Description = "Đã sử dụng 50% giá trị của hạn mức",
+                            IsRead = false,
+                            CreatedAt = TimeUtils.GetCurrentSEATime(),
+                            AccountId = eaAccount.Id
+                        };
+                        await _unitOfWork.Repository<DataTier.Models.Notification>().UpdateDetached(eaNotification);
+                    }
+                }
 
                 await _unitOfWork.Repository<Account>().UpdateDetached(eaAccount);
             }
