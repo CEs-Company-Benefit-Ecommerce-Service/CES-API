@@ -29,6 +29,7 @@ namespace CES.BusinessTier.Services
         Task<DynamicResponse<NotificationResponseModel>> GetsAsync(NotificationResponseModel filter, PagingModel paging);
         Task<BaseResponseViewModel<NotificationResponseModel>> GetAsync(Guid id);
         Task CreateNotificationForEmployeesInActive();
+        Task ScheduleNotificationWhenExpireDateIsComming(int type);
     }
     public class NotificationServices : INotificationServices
     {
@@ -159,6 +160,79 @@ namespace CES.BusinessTier.Services
                     }
                 }
             }
+        }
+
+        public async Task ScheduleNotificationWhenExpireDateIsComming(int type)
+        {
+            var lastDateOfCurrentMonth = TimeUtils.GetLastAndFirstDateInCurrentMonth().Item2.GetEndOfDate();
+            var companies = await _unitOfWork.Repository<Company>()
+                .AsQueryable(x => x.ExpiredDate <= lastDateOfCurrentMonth && x.Status == (int)Status.Active)
+                .Include(x => x.Enterprises)
+                .ToListAsync();
+            switch (type)
+            {
+                case (int)ExpireDateNotifices.First:
+                case (int)ExpireDateNotifices.Second:
+                    foreach (var company in companies)
+                    {
+                        var enterpriseAccountId = company.Enterprises.First().AccountId;
+                        var eaNotification = new DataTier.Models.Notification()
+                        {
+                            Id = Guid.NewGuid(),
+                            Title = "Sắp đến hạn thanh toán",
+                            Description = "Sắp đến hạn thanh toán, vui lòng thanh toán trước khi hết hạn để không gián đoạn quá trình sử dụng.",
+                            IsRead = false,
+                            CreatedAt = TimeUtils.GetCurrentSEATime(),
+                            AccountId = enterpriseAccountId
+                        };
+                        await _unitOfWork.Repository<DataTier.Models.Notification>().UpdateDetached(eaNotification);
+                    }
+                    break;
+                case (int)ExpireDateNotifices.Third:
+                    foreach (var company in companies)
+                    {
+                        var enterpriseAccountId = company.Enterprises.First().AccountId;
+                        var eaNotification = new DataTier.Models.Notification()
+                        {
+                            Id = Guid.NewGuid(),
+                            Title = "Quá hạn thanh toán",
+                            Description = "Đã quá hạn thanh toán, vui lòng thanh toán để tiếp tục sử dụng.",
+                            IsRead = false,
+                            CreatedAt = TimeUtils.GetCurrentSEATime(),
+                            AccountId = enterpriseAccountId
+                        };
+                        // var account = await _unitOfWork.Repository<Account>()
+                        //     .AsQueryable(x => x.Id == enterpriseAccountId).FirstOrDefaultAsync();
+                        // account.Status = (int)Status.Inactive;
+                        //
+                        // await _unitOfWork.Repository<Account>().UpdateDetached(account);
+                        await _unitOfWork.Repository<DataTier.Models.Notification>().UpdateDetached(eaNotification);
+                    }
+                    break;
+                case (int)ExpireDateNotifices.Current:
+                    foreach (var company in companies)
+                    {
+                        if (((DateTime)company.ExpiredDate).Date == lastDateOfCurrentMonth.Date)
+                        {
+                            var enterpriseAccountId = company.Enterprises.First().AccountId;
+                            var eaNotification = new DataTier.Models.Notification()
+                            {
+                                Id = Guid.NewGuid(),
+                                Title = "Đã đến hạn thanh toán",
+                                Description = "Đã đến hạn thanh toán, vui lòng thanh toán trong hôm nay để không gián đoạn quá trình sử dụng.",
+                                IsRead = false,
+                                CreatedAt = TimeUtils.GetCurrentSEATime(),
+                                AccountId = enterpriseAccountId
+                            };
+                            await _unitOfWork.Repository<DataTier.Models.Notification>().UpdateDetached(eaNotification);
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            await _unitOfWork.CommitAsync();
         }
     }
 }
