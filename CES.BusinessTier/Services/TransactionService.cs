@@ -134,7 +134,7 @@ public class TransactionService : ITransactionService
     public async Task<BaseResponseViewModel<Transaction>> GetById(Guid id)
     {
         var transaction = await _unitOfWork.Repository<Transaction>().AsQueryable().Where(x => x.Id == id)
-            .ProjectTo<Transaction>(_mapper.ConfigurationProvider)
+            //.ProjectTo<Transaction>(_mapper.ConfigurationProvider)
             .FirstOrDefaultAsync();
 
         return new BaseResponseViewModel<Transaction>
