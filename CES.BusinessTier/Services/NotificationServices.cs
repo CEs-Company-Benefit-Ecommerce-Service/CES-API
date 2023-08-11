@@ -30,6 +30,10 @@ namespace CES.BusinessTier.Services
         Task<BaseResponseViewModel<NotificationResponseModel>> GetAsync(Guid id);
         Task CreateNotificationForEmployeesInActive();
         Task ScheduleNotificationWhenExpireDateIsComming(int type);
+        Task ScheduleFirstNotificationWhenExpireDateIsComming();
+        Task ScheduleSecondNotificationWhenExpireDateIsComming();
+        Task ScheduleThirdNotificationWhenExpireDateIsComming();
+        Task ScheduleCurrentNotificationWhenExpireDateIsComming();
     }
     public class NotificationServices : INotificationServices
     {
@@ -232,6 +236,113 @@ namespace CES.BusinessTier.Services
                     break;
             }
 
+            await _unitOfWork.CommitAsync();
+        }
+
+        public async Task ScheduleFirstNotificationWhenExpireDateIsComming()
+        {
+            var lastDateOfCurrentMonth = TimeUtils.GetLastAndFirstDateInCurrentMonth().Item2.GetEndOfDate();
+            var companies = await _unitOfWork.Repository<Company>()
+                .AsQueryable(x => x.ExpiredDate <= lastDateOfCurrentMonth && x.Status == (int)Status.Active)
+                .Include(x => x.Enterprises)
+                .ToListAsync();
+            
+            foreach (var company in companies)
+            {
+                var enterpriseAccountId = company.Enterprises.First().AccountId;
+                var eaNotification = new DataTier.Models.Notification()
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Sắp đến hạn thanh toán",
+                    Description = "Sắp đến hạn thanh toán, vui lòng thanh toán trước khi hết hạn để không gián đoạn quá trình sử dụng.",
+                    IsRead = false,
+                    CreatedAt = TimeUtils.GetCurrentSEATime(),
+                    AccountId = enterpriseAccountId
+                };
+                await _unitOfWork.Repository<DataTier.Models.Notification>().UpdateDetached(eaNotification);
+            }
+            await _unitOfWork.CommitAsync();
+        }
+
+        public async Task ScheduleSecondNotificationWhenExpireDateIsComming()
+        {
+            var lastDateOfCurrentMonth = TimeUtils.GetLastAndFirstDateInCurrentMonth().Item2.GetEndOfDate();
+            var companies = await _unitOfWork.Repository<Company>()
+                .AsQueryable(x => x.ExpiredDate <= lastDateOfCurrentMonth && x.Status == (int)Status.Active)
+                .Include(x => x.Enterprises)
+                .ToListAsync();
+            
+            foreach (var company in companies)
+            {
+                var enterpriseAccountId = company.Enterprises.First().AccountId;
+                var eaNotification = new DataTier.Models.Notification()
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Sắp đến hạn thanh toán",
+                    Description = "Sắp đến hạn thanh toán, vui lòng thanh toán trước khi hết hạn để không gián đoạn quá trình sử dụng.",
+                    IsRead = false,
+                    CreatedAt = TimeUtils.GetCurrentSEATime(),
+                    AccountId = enterpriseAccountId
+                };
+                await _unitOfWork.Repository<DataTier.Models.Notification>().UpdateDetached(eaNotification);
+            }
+            await _unitOfWork.CommitAsync();
+        }
+
+        public async Task ScheduleThirdNotificationWhenExpireDateIsComming()
+        {
+            var lastDateOfCurrentMonth = TimeUtils.GetLastAndFirstDateInCurrentMonth().Item2.GetEndOfDate();
+            var companies = await _unitOfWork.Repository<Company>()
+                .AsQueryable(x => x.ExpiredDate <= lastDateOfCurrentMonth && x.Status == (int)Status.Active)
+                .Include(x => x.Enterprises)
+                .ToListAsync();
+            
+            foreach (var company in companies)
+            {
+                var enterpriseAccountId = company.Enterprises.First().AccountId;
+                var eaNotification = new DataTier.Models.Notification()
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Quá hạn thanh toán",
+                    Description = "Đã quá hạn thanh toán, vui lòng thanh toán để tiếp tục sử dụng.",
+                    IsRead = false,
+                    CreatedAt = TimeUtils.GetCurrentSEATime(),
+                    AccountId = enterpriseAccountId
+                };
+                var account = await _unitOfWork.Repository<Account>()
+                    .AsQueryable(x => x.Id == enterpriseAccountId).FirstOrDefaultAsync();
+                account.Status = (int)Status.Inactive;
+                
+                await _unitOfWork.Repository<Account>().UpdateDetached(account);
+                await _unitOfWork.Repository<DataTier.Models.Notification>().UpdateDetached(eaNotification);
+            }
+            await _unitOfWork.CommitAsync();
+        }
+
+        public async Task ScheduleCurrentNotificationWhenExpireDateIsComming()
+        {
+            var lastDateOfCurrentMonth = TimeUtils.GetLastAndFirstDateInCurrentMonth().Item2.GetEndOfDate();
+            var companies = await _unitOfWork.Repository<Company>()
+                .AsQueryable(x => x.ExpiredDate <= lastDateOfCurrentMonth && x.Status == (int)Status.Active)
+                .Include(x => x.Enterprises)
+                .ToListAsync();
+            foreach (var company in companies)
+            {
+                if (((DateTime)company.ExpiredDate).Date == lastDateOfCurrentMonth.Date)
+                {
+                    var enterpriseAccountId = company.Enterprises.First().AccountId;
+                    var eaNotification = new DataTier.Models.Notification()
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Đã đến hạn thanh toán",
+                        Description = "Đã đến hạn thanh toán, vui lòng thanh toán trong hôm nay để không gián đoạn quá trình sử dụng.",
+                        IsRead = false,
+                        CreatedAt = TimeUtils.GetCurrentSEATime(),
+                        AccountId = enterpriseAccountId
+                    };
+                    await _unitOfWork.Repository<DataTier.Models.Notification>().UpdateDetached(eaNotification);
+                }
+            }
             await _unitOfWork.CommitAsync();
         }
     }

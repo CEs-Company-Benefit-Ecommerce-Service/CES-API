@@ -28,9 +28,9 @@ public static class BackgroundJobs
         var everyLastDateOfMonthNotiExpireDate = "0 0 28-31 * *";
         RecurringJob.AddOrUpdate<IWalletServices>(x => x.ResetAllAfterExpired(), corn);
         RecurringJob.AddOrUpdate<INotificationServices>(x => x.CreateNotificationForEmployeesInActive(), corn);
-        // RecurringJob.AddOrUpdate<INotificationServices>(x => x.ScheduleNotificationWhenExpireDateIsComming((int)ExpireDateNotifices.First), firstNotiForExpireDate);
-        // RecurringJob.AddOrUpdate<INotificationServices>(x => x.ScheduleNotificationWhenExpireDateIsComming((int)ExpireDateNotifices.Second), secondNotiForExpireDate);
-        // RecurringJob.AddOrUpdate<INotificationServices>(x => x.ScheduleNotificationWhenExpireDateIsComming((int)ExpireDateNotifices.Third), thirdNotiForExpireDate);
-        // RecurringJob.AddOrUpdate<INotificationServices>(x => x.ScheduleNotificationWhenExpireDateIsComming((int)ExpireDateNotifices.Current), everyLastDateOfMonthNotiExpireDate);
+        RecurringJob.AddOrUpdate<INotificationServices>(x => x.ScheduleFirstNotificationWhenExpireDateIsComming(), firstNotiForExpireDate);
+        RecurringJob.AddOrUpdate<INotificationServices>(x => x.ScheduleSecondNotificationWhenExpireDateIsComming(), secondNotiForExpireDate);
+        RecurringJob.AddOrUpdate<INotificationServices>(x => x.ScheduleThirdNotificationWhenExpireDateIsComming(), thirdNotiForExpireDate);
+        RecurringJob.AddOrUpdate<INotificationServices>(x => x.ScheduleCurrentNotificationWhenExpireDateIsComming(), everyLastDateOfMonthNotiExpireDate);
     }
 }
