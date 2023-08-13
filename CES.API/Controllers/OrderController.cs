@@ -42,7 +42,7 @@ namespace CES.API.Controllers
             return Ok(result);
         }
         [HttpGet("{id}")]
-        [Authorize(Roles = "System Admin, Supplier Admin, Employee, Enterprise Admin")]
+        [Authorize(Roles = "System Admin, Supplier Admin, Employee, Enterprise Admin, Shipper")]
         public async Task<ActionResult> Get(Guid id)
         {
             var result = await _orderServices.GetById(id);
