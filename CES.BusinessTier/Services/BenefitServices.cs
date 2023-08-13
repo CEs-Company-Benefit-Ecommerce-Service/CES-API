@@ -106,7 +106,8 @@ namespace CES.BusinessTier.Services
 
             if (request.TimeFilter == null)
             {
-                request.TimeFilter = 0;
+                var now = TimeUtils.GetCurrentSEATime();
+                request.TimeFilter = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
             }
 
             switch (request.Type)
@@ -189,7 +190,7 @@ namespace CES.BusinessTier.Services
                 var group = await _unitOfWork.Repository<Group>().AsQueryable(x => x.BenefitId == benefitId).FirstOrDefaultAsync();
                 GroupUpdateModel groupUpdate = new GroupUpdateModel()
                 {
-                    Status = existedBenefit.Status
+                    Status = temp.Status
                 };
                 _ = await _groupServices.Update(group.Id, groupUpdate);
 

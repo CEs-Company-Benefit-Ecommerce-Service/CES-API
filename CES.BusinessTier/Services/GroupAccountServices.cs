@@ -399,7 +399,7 @@ namespace CES.BusinessTier.Services
                 .Include(x => x.Benefit)
                 .FirstOrDefaultAsync();
             var now = TimeUtils.GetCurrentSEATime();
-            var formattedDateTime = new DateTime(now.Year, now.Month, now.Day, (int)group.TimeFilter, 0, 0);
+            var formattedDateTime = new DateTime(now.Year, now.Month, now.Day, group.TimeFilter.Value.Hour, group.TimeFilter.Value.Minute, group.TimeFilter.Value.Second);
             switch (group.Type)
             {
                 case (int)GroupTypes.Daily:
