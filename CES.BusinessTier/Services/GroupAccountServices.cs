@@ -408,9 +408,13 @@ namespace CES.BusinessTier.Services
                     if (dateTimeOffset <= nowDateTimeOffset)
                     {
                         // dateTimeOffset = dateTimeOffset.AddDays(1);
-                        dateTimeOffset = dateTimeOffset.AddDays(1).AddHours(-7);
+                        dateTimeOffset = dateTimeOffset.AddDays(1);
                     }
-                    dateTimeOffset = dateTimeOffset.AddHours(-7);
+                    else
+                    {
+                        dateTimeOffset = dateTimeOffset.AddHours(-7);
+                    }
+                    
                     if (group.EndDate == null || (group.EndDate != null && group.EndDate > formattedDateTime))
                     {
                         BackgroundJob.Schedule(() => UpdateBalanceForAccountsInGroup(group.Id, enterpriseId),
