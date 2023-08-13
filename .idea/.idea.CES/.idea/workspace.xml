@@ -9,10 +9,8 @@
   <component name="ChangeListManager">
     <list default="true" id="c33e2030-59db-4d3d-a633-8e65857e01e7" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/BenefitRequestModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/RequestModels/BenefitRequestModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/BenefitServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/BenefitServices.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupAccountServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupAccountServices.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.DataTier/Models/Group.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.DataTier/Models/Group.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,6 +43,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/9156f7f7d7fe31ecb86103c74e89e22a5242a153d4ccf14e354685cb3fb7b5/Task.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/a8d75b28dec5e779cd4bf572bf3e5b2e7ab41689581f58caeb251b564d3cd78d/SelectExpression.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/af5e8f58e0cd43a56f652468b1080bbdbf4276e50cddad25571e6f22556715/EntityFrameworkQueryableExtensions.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/beb9de248d23e38ea4ff4d1233bf5681324b6caac12b72d62457917392f3/Future.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/cca1ba972b1688eae194a0392d162c7bdc684bb0d227b0dc259343876eb0231b/DefaultCredentialProvider.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/d1f68ef86315497c7b39ddb155d5cf3ace964abca69857f9943cd58479799/ServiceProvider.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
@@ -320,10 +319,10 @@
           <line>305</line>
           <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs" initialLine="291" containingFunctionPresentation="Method 'CreateOrder'">
             <startOffsets>
-              <option value="13950" />
+              <option value="13925" />
             </startOffsets>
             <endOffsets>
-              <option value="14071" />
+              <option value="14046" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="97" />
@@ -342,17 +341,45 @@
           <option name="timeStamp" value="113" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/GroupAccountServices.cs</url>
-          <line>401</line>
-          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupAccountServices.cs" initialLine="401" containingFunctionPresentation="Method 'ScheduleUpdateBalanceForAccountsInGroup'">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs</url>
+          <line>355</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs" initialLine="355" containingFunctionPresentation="Method 'CreateOrder'">
             <startOffsets>
-              <option value="18358" />
+              <option value="17394" />
             </startOffsets>
             <endOffsets>
-              <option value="18516" />
+              <option value="17515" />
             </endOffsets>
           </properties>
-          <option name="timeStamp" value="116" />
+          <option name="timeStamp" value="117" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs</url>
+          <line>168</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs" initialLine="168" containingFunctionPresentation="Method 'UpdateOrderStatus'">
+            <startOffsets>
+              <option value="8433" />
+              <option value="8507" />
+            </startOffsets>
+            <endOffsets>
+              <option value="8546" />
+              <option value="8522" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="118" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/GroupAccountServices.cs</url>
+          <line>400</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupAccountServices.cs" initialLine="400" containingFunctionPresentation="Method 'ScheduleUpdateBalanceForAccountsInGroup'">
+            <startOffsets>
+              <option value="18305" />
+            </startOffsets>
+            <endOffsets>
+              <option value="18345" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="121" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

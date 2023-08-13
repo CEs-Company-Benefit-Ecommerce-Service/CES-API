@@ -177,7 +177,7 @@ namespace CES.BusinessTier.Services
                 };
             }
 
-            if (existedOrder.Status == (int)OrderStatusEnums.Ready && status == (int)OrderStatusEnums.Cancel)
+            if (existedOrder.Status != (int)OrderStatusEnums.New && status == (int)OrderStatusEnums.Cancel)
             {
                 throw new ErrorResponse(StatusCodes.Status400BadRequest, 400,
                     "Order is waiting for ship, you can not cancel order");
@@ -271,7 +271,7 @@ namespace CES.BusinessTier.Services
                     .Include(x => x.Wallets)
                     .Where(x => x.Enterprises.Select(x => x.CompanyId).FirstOrDefault() == existedOrder.CompanyId)
                     .FirstOrDefaultAsync();
-                var useTotal = existedOrder.Total + Constants.ServiceFee;
+                var useTotal = existedOrder.Total;
                 eaAccount.Wallets.First().Used += useTotal;
                 eaAccount.UpdatedAt = TimeUtils.GetCurrentSEATime();
 
