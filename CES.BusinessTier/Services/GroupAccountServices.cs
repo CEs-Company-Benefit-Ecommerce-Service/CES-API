@@ -29,9 +29,14 @@ namespace CES.BusinessTier.Services
         public IEnumerable<Group> Gets(PagingModel paging);
         Task<bool> CheckAccountInGroup(Guid employId, Guid projectId);
         Task<DynamicResponse<AccountResponseModel>> GetAccountsByGroupId(Guid benefitId, PagingModel paging);
-        Task<DynamicResponse<UserResponseModel>> GetAllAccountsNotInGroup(UserResponseModel filter, Guid benefitId, PagingModel paging);
+
+        Task<DynamicResponse<UserResponseModel>> GetAllAccountsNotInGroup(UserResponseModel filter, Guid benefitId,
+            PagingModel paging);
+
         Task UpdateBalanceForAccountsInGroup(Guid id, Guid enterpriseId);
         Task<bool> ScheduleUpdateBalanceForAccountsInGroup(Guid id, Guid enterpriseId);
+
+        Task ResetIsReceiveInLastOfDay();
     }
 
     public class GroupAccountServices : IGroupAccountServices
@@ -111,7 +116,8 @@ namespace CES.BusinessTier.Services
             return false;
         }
 
-        public async Task<DynamicResponse<AccountResponseModel>> GetAccountsByGroupId(Guid benefitId, PagingModel paging)
+        public async Task<DynamicResponse<AccountResponseModel>> GetAccountsByGroupId(Guid benefitId,
+            PagingModel paging)
         {
             var group = await _unitOfWork.Repository<Group>()
                 //.AsQueryable(x => x.Id == id && x.Status == (int)Status.Active)
@@ -196,7 +202,9 @@ namespace CES.BusinessTier.Services
                 Data = listAccount
             };
         }
-        public async Task<DynamicResponse<UserResponseModel>> GetAllAccountsNotInGroup(UserResponseModel filter, Guid benefitId, PagingModel paging)
+
+        public async Task<DynamicResponse<UserResponseModel>> GetAllAccountsNotInGroup(UserResponseModel filter,
+            Guid benefitId, PagingModel paging)
         {
             var group = await _unitOfWork.Repository<Group>()
                 //.AsQueryable(x => x.Id == id && x.Status == (int)Status.Active)
@@ -204,15 +212,16 @@ namespace CES.BusinessTier.Services
                 .Include(x => x.Benefit)
                 .Where(x => x.BenefitId == benefitId).ToListAsync();
             var employees = _unitOfWork.Repository<Employee>().AsQueryable()
-                                       .Include(x => x.Account).Include(x => x.EmployeeGroupMappings)
-                                       .Where(w => w.CompanyId == group.FirstOrDefault().Benefit.CompanyId)
-                                       .ProjectTo<UserResponseModel>(_mapper.ConfigurationProvider)
-                                       .DynamicFilter(filter)
-                                       .DynamicSort(paging.Sort, paging.Order)
-                                       .PagingQueryable(paging.Page, paging.Size);
-            var groupMapping = _unitOfWork.Repository<EmployeeGroupMapping>().AsQueryable(x => x.GroupId == group.FirstOrDefault().Id);
+                .Include(x => x.Account).Include(x => x.EmployeeGroupMappings)
+                .Where(w => w.CompanyId == group.FirstOrDefault().Benefit.CompanyId)
+                .ProjectTo<UserResponseModel>(_mapper.ConfigurationProvider)
+                .DynamicFilter(filter)
+                .DynamicSort(paging.Sort, paging.Order)
+                .PagingQueryable(paging.Page, paging.Size);
+            var groupMapping = _unitOfWork.Repository<EmployeeGroupMapping>()
+                .AsQueryable(x => x.GroupId == group.FirstOrDefault().Id);
             var listResult = new List<UserResponseModel>();
-            foreach(var employee in employees.Item2)
+            foreach (var employee in employees.Item2)
             {
                 var check = groupMapping.Any(a => a.EmployeeId == employee.Id);
                 if (!check)
@@ -220,6 +229,7 @@ namespace CES.BusinessTier.Services
                     listResult.Add(employee);
                 }
             }
+
             return new DynamicResponse<UserResponseModel>()
             {
                 Code = StatusCodes.Status200OK,
@@ -304,86 +314,80 @@ namespace CES.BusinessTier.Services
                     .FirstOrDefault();
                 if (account != null)
                 {
-                    var isReceived = account.Employees.First().EmployeeGroupMappings.Where(x => x.GroupId == id).First()
-                        .IsReceived;
-                    if (isReceived == false || isReceived == null)
+                    account.Wallets.First().Balance += group.Benefit.UnitPrice;
+                    enterpriseWalletBalance -= group.Benefit.UnitPrice;
+                    //enterpriseAccount.Wallets.First().Used += group.Benefit.UnitPrice;
+
+                    account.Employees.First().EmployeeGroupMappings.Where(x => x.GroupId == id).First()
+                        .IsReceived = true;
+
+                    var walletTransactionForReceiver = new Transaction()
                     {
-                        account.Wallets.First().Balance += group.Benefit.UnitPrice;
-                        enterpriseWalletBalance -= group.Benefit.UnitPrice;
-                        //enterpriseAccount.Wallets.First().Used += group.Benefit.UnitPrice;
+                        Id = Guid.NewGuid(),
+                        SenderId = enterpriseId,
+                        RecieveId = account.Id,
+                        WalletId = account.Wallets.First().Id,
+                        Type = (int)WalletTransactionTypeEnums.AddWelfare,
+                        Description = "Nhận tiền từ " + group.Benefit.Name,
+                        Total = group.Benefit.UnitPrice,
+                        CreatedAt = TimeUtils.GetCurrentSEATime(),
+                        CompanyId = group.Benefit.CompanyId,
+                    };
 
-                        account.Employees.First().EmployeeGroupMappings.Where(x => x.GroupId == id).First()
-                            .IsReceived = true;
+                    var walletTransactionForSender = new Transaction()
+                    {
+                        Id = Guid.NewGuid(),
+                        SenderId = enterpriseId,
+                        RecieveId = account.Id,
+                        WalletId = enterpriseAccount.Wallets.First().Id,
+                        Type = (int)WalletTransactionTypeEnums.AllocateWelfare,
+                        Description = "Chuyển tiền cho " + account.Name,
+                        Total = group.Benefit.UnitPrice,
+                        CreatedAt = TimeUtils.GetCurrentSEATime(),
+                        CompanyId = group.Benefit.CompanyId,
+                    };
+                    var empNotification = new Notification()
+                    {
+                        Id = Guid.NewGuid(),
+                        AccountId = account.Id,
+                        TransactionId = walletTransactionForReceiver.Id,
+                        Title = "Bạn đã nhận được tiền từ " + group.Benefit.Name,
+                        Description = "Số tiền nhận được: " + String.Format(cul, "{0:c}", group.Benefit.UnitPrice),
+                        IsRead = false,
+                        CreatedAt = TimeUtils.GetCurrentSEATime(),
+                    };
 
-                        var walletTransactionForReceiver = new Transaction()
+                    // send noti
+                    var messaging = FirebaseMessaging.DefaultInstance;
+                    if (account.FcmToken != null && !String.IsNullOrWhiteSpace(account.FcmToken))
+                    {
+                        var response = await messaging.SendAsync(new Message
                         {
-                            Id = Guid.NewGuid(),
-                            SenderId = enterpriseId,
-                            RecieveId = account.Id,
-                            WalletId = account.Wallets.First().Id,
-                            Type = (int)WalletTransactionTypeEnums.AddWelfare,
-                            Description = "Nhận tiền từ " + group.Benefit.Name,
-                            Total = group.Benefit.UnitPrice,
-                            CreatedAt = TimeUtils.GetCurrentSEATime(),
-                            CompanyId = group.Benefit.CompanyId,
-                        };
-
-                        var walletTransactionForSender = new Transaction()
-                        {
-                            Id = Guid.NewGuid(),
-                            SenderId = enterpriseId,
-                            RecieveId = account.Id,
-                            WalletId = enterpriseAccount.Wallets.First().Id,
-                            Type = (int)WalletTransactionTypeEnums.AllocateWelfare,
-                            Description = "Chuyển tiền cho " + account.Name,
-                            Total = group.Benefit.UnitPrice,
-                            CreatedAt = TimeUtils.GetCurrentSEATime(),
-                            CompanyId = group.Benefit.CompanyId,
-                        };
-                        var empNotification = new Notification()
-                        {
-                            Id = Guid.NewGuid(),
-                            AccountId = account.Id,
-                            TransactionId = walletTransactionForReceiver.Id,
-                            Title = "Bạn đã nhận được tiền từ " + group.Benefit.Name,
-                            Description = "Số tiền nhận được: " + String.Format(cul, "{0:c}", group.Benefit.UnitPrice),
-                            IsRead = false,
-                            CreatedAt = TimeUtils.GetCurrentSEATime(),
-                        };
-
-                        // send noti
-                        var messaging = FirebaseMessaging.DefaultInstance;
-                        if (account.FcmToken != null && !String.IsNullOrWhiteSpace(account.FcmToken))
-                        {
-                            var response = await messaging.SendAsync(new Message
+                            Token = account.FcmToken,
+                            Notification = new FirebaseAdmin.Messaging.Notification
                             {
-                                Token = account.FcmToken,
-                                Notification = new FirebaseAdmin.Messaging.Notification
-                                {
-                                    Title = "Ting Ting",
-                                    Body = "Bạn vừa nhận được số tiền: " +
-                                           String.Format(cul, "{0:c}", group.Benefit.UnitPrice),
-                                },
-                            });
-                        }
+                                Title = "Ting Ting",
+                                Body = "Bạn vừa nhận được số tiền: " +
+                                       String.Format(cul, "{0:c}", group.Benefit.UnitPrice),
+                            },
+                        });
+                    }
 
-                        try
-                        {
-                            await _unitOfWork.Repository<Account>().UpdateDetached(account);
+                    try
+                    {
+                        await _unitOfWork.Repository<Account>().UpdateDetached(account);
 
-                            await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransactionForReceiver);
-                            await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransactionForSender);
-                            await _unitOfWork.Repository<Notification>().InsertAsync(empNotification);
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e);
-                            throw;
-                        }
+                        await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransactionForReceiver);
+                        await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransactionForSender);
+                        await _unitOfWork.Repository<Notification>().InsertAsync(empNotification);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        throw;
                     }
                 }
             }
-
 
 
             enterpriseAccount.Wallets.First().Balance = enterpriseWalletBalance;
@@ -399,7 +403,8 @@ namespace CES.BusinessTier.Services
                 .Include(x => x.Benefit)
                 .FirstOrDefaultAsync();
             var now = TimeUtils.GetCurrentSEATime();
-            var formattedDateTime = new DateTime(now.Year, now.Month, now.Day, group.TimeFilter.Value.Hour, group.TimeFilter.Value.Minute, group.TimeFilter.Value.Second);
+            var formattedDateTime = new DateTime(now.Year, now.Month, now.Day, group.TimeFilter.Value.Hour,
+                group.TimeFilter.Value.Minute, group.TimeFilter.Value.Second);
             switch (group.Type)
             {
                 case (int)GroupTypes.Daily:
@@ -410,6 +415,7 @@ namespace CES.BusinessTier.Services
                         // dateTimeOffset = dateTimeOffset.AddDays(1);
                         dateTimeOffset = dateTimeOffset.AddDays(1);
                     }
+
                     dateTimeOffset = dateTimeOffset.AddHours(-7);
                     if (group.EndDate == null || (group.EndDate != null && group.EndDate > formattedDateTime))
                     {
@@ -427,12 +433,14 @@ namespace CES.BusinessTier.Services
                         await _unitOfWork.Repository<Group>().UpdateDetached(group);
                         await _unitOfWork.CommitAsync();
                     }
+
                     break;
                 case (int)GroupTypes.Weekly:
                     if (group.DayFilter == null)
                     {
                         throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "Please provide Day");
                     }
+
                     int currentDayOfWeekValue = (int)formattedDateTime.DayOfWeek;
                     int daysToAdd = ((int)group.DayFilter - currentDayOfWeekValue + 7) % 7;
                     DateTime resultDate = formattedDateTime;
@@ -463,14 +471,18 @@ namespace CES.BusinessTier.Services
                         await _unitOfWork.Repository<Group>().UpdateDetached(group);
                         await _unitOfWork.CommitAsync();
                     }
+
                     break;
                 case (int)GroupTypes.Monthly:
                     if (group.DateFilter == null)
                     {
                         throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "Please provide Date");
                     }
+
                     DateTime resultDateMonthly = formattedDateTime.AddMonths(1);
-                    DateTime formattedDayOfMonthly = new DateTime(resultDateMonthly.Year, resultDateMonthly.Month, (int)group.DateFilter, resultDateMonthly.Hour, resultDateMonthly.Minute, resultDateMonthly.Second);
+                    DateTime formattedDayOfMonthly = new DateTime(resultDateMonthly.Year, resultDateMonthly.Month,
+                        (int)group.DateFilter, resultDateMonthly.Hour, resultDateMonthly.Minute,
+                        resultDateMonthly.Second);
                     DateTimeOffset nowDateTimeOffsetMonthly = new DateTimeOffset(now);
                     DateTimeOffset nowFormattedDateTimeOffsetMonthly = new DateTimeOffset(formattedDateTime);
                     DateTimeOffset dateTimeOffsetMonthly = new DateTimeOffset(formattedDayOfMonthly);
@@ -496,9 +508,24 @@ namespace CES.BusinessTier.Services
                         await _unitOfWork.Repository<Group>().UpdateDetached(group);
                         await _unitOfWork.CommitAsync();
                     }
+
                     break;
             }
+
             return false;
+        }
+
+        public async Task ResetIsReceiveInLastOfDay()
+        {
+            var employees = _unitOfWork.Repository<EmployeeGroupMapping>()
+                .AsQueryable();
+            foreach (var employee in employees)
+            {
+                employee.IsReceived = false;
+                await _unitOfWork.Repository<EmployeeGroupMapping>().UpdateDetached(employee);
+            }
+
+            await _unitOfWork.CommitAsync();
         }
         //public async Task<bool> DeleteRange(Guid projectId)
         //{

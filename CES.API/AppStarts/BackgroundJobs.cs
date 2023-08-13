@@ -26,11 +26,13 @@ public static class BackgroundJobs
         var secondNotiForExpireDate = "0 0 27 * *";
         var thirdNotiForExpireDate = "0 0 1 * *";
         var everyLastDateOfMonthNotiExpireDate = "0 0 28-31 * *";
-        RecurringJob.AddOrUpdate<IWalletServices>(x => x.ResetAllAfterExpired(), corn);
+        var everyLastOfDay = "59 16 * * *";
+        // RecurringJob.AddOrUpdate<IWalletServices>(x => x.ResetAllAfterExpired(), corn);
         RecurringJob.AddOrUpdate<INotificationServices>(x => x.CreateNotificationForEmployeesInActive(), corn);
         RecurringJob.AddOrUpdate<INotificationServices>(x => x.ScheduleFirstNotificationWhenExpireDateIsComming(), firstNotiForExpireDate);
         RecurringJob.AddOrUpdate<INotificationServices>(x => x.ScheduleSecondNotificationWhenExpireDateIsComming(), secondNotiForExpireDate);
         RecurringJob.AddOrUpdate<INotificationServices>(x => x.ScheduleThirdNotificationWhenExpireDateIsComming(), thirdNotiForExpireDate);
         RecurringJob.AddOrUpdate<INotificationServices>(x => x.ScheduleCurrentNotificationWhenExpireDateIsComming(), everyLastDateOfMonthNotiExpireDate);
+        RecurringJob.AddOrUpdate<IGroupAccountServices>(x => x.ResetIsReceiveInLastOfDay(), everyLastOfDay);
     }
 }
