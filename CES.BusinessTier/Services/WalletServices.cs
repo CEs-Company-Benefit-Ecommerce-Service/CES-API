@@ -534,7 +534,7 @@ namespace CES.BusinessTier.Services
                         Description = "Reset",
                         RecieveId = enterprise.AccountId,
                         SenderId = emp.AccountId,
-                        Total = (double)total,
+                        Total = -(double)total,
                         CompanyId = companyId,
                         CreatedAt = TimeUtils.GetCurrentSEATime(),
                     };
