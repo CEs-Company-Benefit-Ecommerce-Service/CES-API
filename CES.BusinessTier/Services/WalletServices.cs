@@ -519,12 +519,37 @@ namespace CES.BusinessTier.Services
                 foreach (var emp in employees)
                 {
                     var empWallet = emp.Account.Wallets.FirstOrDefault();
-                    empWallet.Balance = 0;
+                    var total = empWallet.Balance;
+                    
                     // emp.EmployeeGroupMappings.Where(x => x.)
                     foreach (var group in emp.EmployeeGroupMappings)
                     {
                         group.IsReceived = false;
                     }
+                    var walletTransaction = new Transaction()
+                    {
+                        Id = Guid.NewGuid(),
+                        WalletId = empWallet.Id,
+                        Type = (int)WalletTransactionTypeEnums.AddWelfare,
+                        Description = "Reset",
+                        RecieveId = enterprise.AccountId,
+                        SenderId = emp.AccountId,
+                        Total = (double)total,
+                        CompanyId = companyId,
+                        CreatedAt = TimeUtils.GetCurrentSEATime(),
+                    };
+                    var empNotification = new DataTier.Models.Notification()
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Reset theo định kỳ",
+                        Description = "Số tiền trong ví bạn đã được cập nhật",
+                        AccountId = emp.AccountId,
+                        IsRead = false,
+                        CreatedAt = TimeUtils.GetCurrentSEATime(),
+                    };
+                    empWallet.Balance = 0;
+                    await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransaction);
+                    await _unitOfWork.Repository<Notification>().InsertAsync(empNotification);
                     await _unitOfWork.Repository<Employee>().UpdateDetached(emp);
                     await _unitOfWork.Repository<Wallet>().UpdateDetached(empWallet);
                 }

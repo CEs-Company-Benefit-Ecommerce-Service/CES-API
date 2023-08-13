@@ -119,7 +119,7 @@ namespace CES.BusinessTier.Services
                 var updateGroup = _mapper.Map<GroupUpdateModel, Group>(request, existedGroup);
                 await _unitOfWork.Repository<Group>().UpdateDetached(updateGroup);
                 await _unitOfWork.CommitAsync();
-                
+
                 if (updateGroup.Status == (int)Status.Active)
                 {
                     Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value);
@@ -213,6 +213,18 @@ namespace CES.BusinessTier.Services
         }
         public async Task<BaseResponseViewModel<GroupResponseModel>> AddEmployee(GroupMemberRequestModel requestModel)
         {
+            // check total balance in group when allocate
+            var memberInGroup = _unitOfWork.Repository<EmployeeGroupMapping>().AsQueryable(x => x.GroupId == requestModel.GroupId).Count();
+            var group = await _unitOfWork.Repository<Group>().AsQueryable(x => x.Id == requestModel.GroupId).Include(x => x.Benefit).FirstOrDefaultAsync();
+            var eaWallet = await _unitOfWork.Repository<Benefit>().AsQueryable(x => x.Id == group.BenefitId).Include(x => x.Company).ThenInclude(x => x.Enterprises).ThenInclude(x => x.Account).ThenInclude(x => x.Wallets).Select(x => x.Company.Enterprises.FirstOrDefault().Account.Wallets.FirstOrDefault()).FirstOrDefaultAsync();
+            if (group.Benefit.UnitPrice * memberInGroup > eaWallet.Balance)
+            {
+                return new BaseResponseViewModel<GroupResponseModel>()
+                {
+                    Code = 400,
+                    Message = "Total balance to allocate was higher than your balance!",
+                };
+            }
             foreach (var accountId in requestModel.AccountId)
             {
                 var employee = _unitOfWork.Repository<Employee>().GetWhere(x => x.AccountId == accountId).Result.FirstOrDefault();
@@ -236,7 +248,7 @@ namespace CES.BusinessTier.Services
                 }
             }
 
-            //var project = await Get(requestModel.Select(x => x.GroupId).FirstOrDefault());
+
 
             return new BaseResponseViewModel<GroupResponseModel>()
             {

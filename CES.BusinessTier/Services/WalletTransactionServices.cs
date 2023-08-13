@@ -104,7 +104,7 @@ namespace CES.BusinessTier.Services
             }
             else if (accountLogin.Role.Equals(Roles.Employee.GetDisplayName()))
             {
-                var transactions = _unitOfWork.Repository<Transaction>().AsQueryable(x => x.RecieveId == accountLoginId && (x.Type == (int)WalletTransactionTypeEnums.AddWelfare || x.Type == (int)WalletTransactionTypeEnums.Order))
+                var transactions = _unitOfWork.Repository<Transaction>().AsQueryable(x => (x.RecieveId == accountLoginId || x.SenderId == accountLoginId)  && (x.Type == (int)WalletTransactionTypeEnums.AddWelfare || x.Type == (int)WalletTransactionTypeEnums.Order))
                        .ProjectTo<TransactionResponseModel>(_mapper.ConfigurationProvider)
                        .DynamicFilter<TransactionResponseModel>(filter)
                        .DynamicSort<TransactionResponseModel>(paging.Sort, paging.Order)
