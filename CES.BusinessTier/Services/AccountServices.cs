@@ -105,6 +105,8 @@ namespace CES.BusinessTier.Services
                     Message = "Get Success",
                     MetaData = new PagingMetaData()
                     {
+                        Page = paging.Page,
+                        Size = paging.Size,
                         Total = emplAccounts.Count()
                     },
                     Data = emplAccounts
@@ -127,7 +129,8 @@ namespace CES.BusinessTier.Services
                     Message = "Get Success",
                     MetaData = new PagingMetaData()
                     {
-
+                        Page = paging.Page,
+                        Size = paging.Size,
                         Total = accounts.Item1
                     },
                     Data = accounts.Item2.ToList()
@@ -147,6 +150,8 @@ namespace CES.BusinessTier.Services
                     Message = "Get Success",
                     MetaData = new PagingMetaData()
                     {
+                        Page = paging.Page,
+                        Size = paging.Size,
                         Total = accounts.Item1
                     },
                     Data = accounts.Item2.ToList()
