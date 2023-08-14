@@ -56,6 +56,14 @@ namespace CES.API.Controllers
             return StatusCode((int)result.Code, result);
         }
 
+        [SwaggerOperation(summary: "Read all noti of current login account")]
+        [Authorize]
+        [HttpGet("me/notification/read-all")]
+        public async Task<ActionResult<AccountResponseModel>> ReadAllNoti()
+        {
+            var result = _notificationServices.ReadAllNoti().Result;
+            return StatusCode((int)result.Code, result);
+        }
         [HttpPost("testnotification")]
         public async Task CreateNotificationForEmployeesInActive()
         {

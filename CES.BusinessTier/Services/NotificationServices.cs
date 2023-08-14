@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -28,6 +29,7 @@ namespace CES.BusinessTier.Services
     {
         Task<DynamicResponse<NotificationResponseModel>> GetsAsync(NotificationResponseModel filter, PagingModel paging);
         Task<BaseResponseViewModel<NotificationResponseModel>> GetAsync(Guid id);
+        Task<BaseResponseViewModel<bool>> ReadAllNoti();
         Task CreateNotificationForEmployeesInActive();
         Task ScheduleNotificationWhenExpireDateIsComming(int type);
         Task ScheduleFirstNotificationWhenExpireDateIsComming();
@@ -109,6 +111,37 @@ namespace CES.BusinessTier.Services
                 Data = result
             };
         }
+        public async Task<BaseResponseViewModel<bool>> ReadAllNoti()
+        {
+            Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
+
+            var notifications = _unitOfWork.Repository<DataTier.Models.Notification>().AsQueryable(x => x.AccountId == accountLoginId);
+            try
+            {
+                foreach (var notification in notifications)
+                {
+                    notification.IsRead = true;
+                    await _unitOfWork.Repository<DataTier.Models.Notification>().UpdateDetached(notification);
+                }
+                await _unitOfWork.CommitAsync();
+                return new BaseResponseViewModel<bool>
+                {
+                    Code = StatusCodes.Status200OK,
+                    Message = "OK",
+                    Data = true
+                };
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponseViewModel<bool>
+                {
+                    Code = StatusCodes.Status400BadRequest,
+                    Message = "Bad request",
+                    Data = false
+                };
+            }
+
+        }
 
         public async Task CreateNotificationForEmployeesInActive()
         {
@@ -120,7 +153,7 @@ namespace CES.BusinessTier.Services
                 if (order == null)
                 {
                     var account = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == employee.AccountId).FirstOrDefaultAsync();
-                    if(account.FcmToken != null)
+                    if (account.FcmToken != null)
                     {
                         var response = messaging.SendAsync(new Message
                         {
@@ -136,7 +169,8 @@ namespace CES.BusinessTier.Services
                             System.Console.WriteLine("Send noti failed");
                         }
                     }
-                } else if (order.CreatedAt < TimeUtils.GetCurrentSEATime().AddDays(-5))
+                }
+                else if (order.CreatedAt < TimeUtils.GetCurrentSEATime().AddDays(-5))
                 {
                     //var empNotification = new DataTier.Models.Notification()
                     //{
@@ -246,7 +280,7 @@ namespace CES.BusinessTier.Services
                 .AsQueryable(x => x.ExpiredDate <= lastDateOfCurrentMonth && x.Status == (int)Status.Active)
                 .Include(x => x.Enterprises)
                 .ToListAsync();
-            
+
             foreach (var company in companies)
             {
                 var enterpriseAccountId = company.Enterprises.First().AccountId;
@@ -271,7 +305,7 @@ namespace CES.BusinessTier.Services
                 .AsQueryable(x => x.ExpiredDate <= lastDateOfCurrentMonth && x.Status == (int)Status.Active)
                 .Include(x => x.Enterprises)
                 .ToListAsync();
-            
+
             foreach (var company in companies)
             {
                 var enterpriseAccountId = company.Enterprises.First().AccountId;
@@ -296,7 +330,7 @@ namespace CES.BusinessTier.Services
                 .AsQueryable(x => x.ExpiredDate <= lastDateOfCurrentMonth && x.Status == (int)Status.Active)
                 .Include(x => x.Enterprises)
                 .ToListAsync();
-            
+
             foreach (var company in companies)
             {
                 var enterpriseAccountId = company.Enterprises.First().AccountId;
@@ -312,7 +346,7 @@ namespace CES.BusinessTier.Services
                 var account = await _unitOfWork.Repository<Account>()
                     .AsQueryable(x => x.Id == enterpriseAccountId).FirstOrDefaultAsync();
                 account.Status = (int)Status.Inactive;
-                
+
                 await _unitOfWork.Repository<Account>().UpdateDetached(account);
                 await _unitOfWork.Repository<DataTier.Models.Notification>().UpdateDetached(eaNotification);
             }
