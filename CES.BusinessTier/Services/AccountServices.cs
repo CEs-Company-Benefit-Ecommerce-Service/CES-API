@@ -86,7 +86,7 @@ namespace CES.BusinessTier.Services
                 foreach (var employee in employees.Item2.ToList())
                 {
                     var emplAccount = _unitOfWork.Repository<Account>()
-                        .GetAll()
+                        .AsQueryable()
                         .Where(x => x.Id == employee.AccountId && x.Status == (int)Status.Active)
                         .ProjectTo<AccountAllResponseModel>(_mapper.ConfigurationProvider)
                         .DynamicFilter(filter)
@@ -107,7 +107,7 @@ namespace CES.BusinessTier.Services
                     {
                         Page = paging.Page,
                         Size = paging.Size,
-                        Total = emplAccounts.Count()
+                        Total = employees.Item1
                     },
                     Data = emplAccounts
                 };
@@ -116,7 +116,7 @@ namespace CES.BusinessTier.Services
             {
                 var roleFilter = Commons.ConvertIntRoleToString((int)filter.Role);
                 filter.Role = null;
-                var accounts = _unitOfWork.Repository<Account>().GetAll()
+                var accounts = _unitOfWork.Repository<Account>().AsQueryable()
                    .Where(x => x.Role == roleFilter)
                    .ProjectTo<AccountAllResponseModel>(_mapper.ConfigurationProvider)
                    .DynamicFilter(filter)
@@ -138,11 +138,11 @@ namespace CES.BusinessTier.Services
             }
             else
             {
-                var accounts = _unitOfWork.Repository<Account>().GetAll()
+                var accounts = _unitOfWork.Repository<Account>().AsQueryable()
                    //.Where(x => x.Role == Roles.EnterpriseAdmin.GetDisplayName() || x.Role == Roles.SupplierAdmin.GetDisplayName() || x.Role == Roles.Shipper.GetDisplayName())
                    .ProjectTo<AccountAllResponseModel>(_mapper.ConfigurationProvider)
                    .DynamicFilter(filter)
-                   .PagingQueryable(paging.Page, paging.Size, Constants.LimitPaging, Constants.DefaultPaging);
+                   .PagingQueryable(paging.Page, paging.Size);
                 return new DynamicResponse<AccountAllResponseModel>
                 {
                     Code = 200,
