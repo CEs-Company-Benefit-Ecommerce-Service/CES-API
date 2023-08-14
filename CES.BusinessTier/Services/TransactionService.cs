@@ -200,11 +200,36 @@ public class TransactionService : ITransactionService
                     enterprise.Account.Wallets.FirstOrDefault().Used += sumOrderPrice;
                     await _unitOfWork.Repository<Wallet>().UpdateDetached(enterprise.Account.Wallets.FirstOrDefault());
                 }
+                var eaNotification = new DataTier.Models.Notification()
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Thanh toán hệ thống",
+                    Description = "Bạn đã thanh toán thành công",
+                    AccountId = enterprise.AccountId,
+                    TransactionId = transaction.Id,
+                    IsRead = false,
+                    CreatedAt = TimeUtils.GetCurrentSEATime(),
+                };
+                await _unitOfWork.Repository<Notification>().InsertAsync(eaNotification);
                 await _unitOfWork.CommitAsync();
+
                 // todo cập nhật lại balance EA, kiểm tra các đơn hàng có debtid chưa hoàn thành cộng vào used và trừ balance
             }
             else
             {
+                var enterprise = await _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.CompanyId == transaction.CompanyId)
+                                                            .Include(x => x.Account).ThenInclude(x => x.Wallets).FirstOrDefaultAsync();
+                var eaNotification = new DataTier.Models.Notification()
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Thanh toán hệ thống",
+                    Description = "Bạn đã thanh toán thất bại",
+                    AccountId = enterprise.AccountId,
+                    TransactionId = transaction.Id,
+                    IsRead = false,
+                    CreatedAt = TimeUtils.GetCurrentSEATime(),
+                };
+                await _unitOfWork.Repository<Notification>().InsertAsync(eaNotification);
                 await _unitOfWork.CommitAsync();
             }
             return new BaseResponseViewModel<TransactionResponseModel>
