@@ -216,12 +216,11 @@ namespace CES.BusinessTier.Services
                 .Where(w => w.CompanyId == group.FirstOrDefault().Benefit.CompanyId)
                 .ProjectTo<UserResponseModel>(_mapper.ConfigurationProvider)
                 .DynamicFilter(filter)
-                .DynamicSort(paging.Sort, paging.Order)
-                .PagingQueryable(paging.Page, paging.Size);
+                .DynamicSort(paging.Sort, paging.Order);
             var groupMapping = _unitOfWork.Repository<EmployeeGroupMapping>()
                 .AsQueryable(x => x.GroupId == group.FirstOrDefault().Id);
             var listResult = new List<UserResponseModel>();
-            foreach (var employee in employees.Item2)
+            foreach (var employee in employees)
             {
                 var check = groupMapping.Any(a => a.EmployeeId == employee.Id);
                 if (!check)
@@ -229,7 +228,7 @@ namespace CES.BusinessTier.Services
                     listResult.Add(employee);
                 }
             }
-
+            var result = listResult.AsQueryable().PagingQueryable(paging.Page, paging.Size);
             return new DynamicResponse<UserResponseModel>()
             {
                 Code = StatusCodes.Status200OK,
@@ -238,9 +237,9 @@ namespace CES.BusinessTier.Services
                 {
                     Page = paging.Page,
                     Size = paging.Size,
-                    Total = listResult.Count()
+                    Total = result.Item1
                 },
-                Data = listResult
+                Data = result.Item2.ToList()
             };
         }
 
