@@ -72,7 +72,7 @@ public class ExcelService : IExcelService
                         Status = (int)Status.Active,
                         CreatedAt = TimeUtils.GetCurrentSEATime(),
                         Role = Roles.Employee.GetDisplayName(),
-                        Password = Authen.HashPassword("DefaultPassword")
+                        Password = Authen.HashPassword("123456")
                     };
 
                     var existAccount = await _unitOfWork.Repository<Account>()
@@ -376,51 +376,45 @@ public class ExcelService : IExcelService
             ws.Cells["D1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["D1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
-            ws.Cells["E1"].Value = "Service Duration";
+            ws.Cells["E1"].Value = "Category Id*";
             ws.Cells["E1"].Style.Font.Bold = true;
             ws.Cells["E1"].Style.Font.Size = 16;
             ws.Cells["E1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             ws.Cells["E1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-            ws.Cells["F1"].Value = "Type*";
-            ws.Cells["F1"].Style.Font.Bold = true;
-            ws.Cells["F1"].Style.Font.Size = 16;
-            ws.Cells["F1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            ws.Cells["F1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-            ws.Cells["G1"].Value = "Category Id*";
-            ws.Cells["G1"].Style.Font.Bold = true;
-            ws.Cells["G1"].Style.Font.Size = 16;
-            ws.Cells["G1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            ws.Cells["G1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-            ExcelWorksheet wsCate = package.Workbook.Worksheets.Add("Categories");
-            wsCate.Cells["A1"].Value = "Id";
-            wsCate.Cells["A1"].Style.Font.Bold = true;
-            wsCate.Cells["A1"].Style.Font.Size = 16;
-            wsCate.Cells["A1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            wsCate.Cells["A1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-            wsCate.Cells["B1"].Value = "Name";
-            wsCate.Cells["B1"].Style.Font.Bold = true;
-            wsCate.Cells["B1"].Style.Font.Size = 16;
-            wsCate.Cells["B1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            wsCate.Cells["B1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-            wsCate.Cells["C1"].Value = "Description";
-            wsCate.Cells["C1"].Style.Font.Bold = true;
-            wsCate.Cells["C1"].Style.Font.Size = 16;
-            wsCate.Cells["C1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            wsCate.Cells["C1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            
+            ws.Cells["I1"].Value = "Category:";
+            ws.Cells["I1"].Style.Font.Size = 14;
+            ws.Cells["I1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            ws.Cells["I1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            
+            ws.Cells["J1"].Value = "Id";
+            ws.Cells["J1"].Style.Font.Bold = true;
+            ws.Cells["J1"].Style.Font.Size = 14;
+            ws.Cells["J1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            ws.Cells["J1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            
+            ws.Cells["K1"].Value = "Name";
+            ws.Cells["K1"].Style.Font.Bold = true;
+            ws.Cells["K1"].Style.Font.Size = 14;
+            ws.Cells["K1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            ws.Cells["K1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            
+            ws.Cells["L1"].Value = "Description";
+            ws.Cells["L1"].Style.Font.Bold = true;
+            ws.Cells["L1"].Style.Font.Size = 14;
+            ws.Cells["L1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            ws.Cells["L1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
             for (int i = 0; i < categories.Count; i++)
             {
-                wsCate.Cells[i + 2, 1].Value = categories[i].Id;
-                wsCate.Cells[i + 2, 2].Value = categories[i].Name;
-                wsCate.Cells[i + 2, 3].Value = categories[i].Description;
+                ws.Cells[i + 2, 10].Value = categories[i].Id;
+                ws.Cells[i + 2, 10].Style.Font.Size = 16;
+                ws.Cells[i + 2, 11].Value = categories[i].Name;
+                ws.Cells[i + 2, 11].Style.Font.Size = 16;
+                ws.Cells[i + 2, 12].Value = categories[i].Description;
+                ws.Cells[i + 2, 12].Style.Font.Size = 16;
             }
             ws.Cells.AutoFitColumns();
-            wsCate.Cells.AutoFitColumns();
 
             var stream = new MemoryStream(package.GetAsByteArray());
 
@@ -433,45 +427,45 @@ public class ExcelService : IExcelService
 
     public async Task<DynamicResponse<Product>> ImportProductList(IFormFile file)
     {
-        //if (file != null && file.Length > 0)
-        //{
-        //    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-        //    using (var package = new ExcelPackage(file.OpenReadStream()))
-        //    {
-        //        var worksheet = package.Workbook.Worksheets[0]; // Assuming data is on the first sheet
-        //        var records = new List<Product>();
+        if (file != null && file.Length > 0)
+        {
+            var accountId = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            using (var package = new ExcelPackage(file.OpenReadStream()))
+            {
+                var worksheet = package.Workbook.Worksheets[0]; // Assuming data is on the first sheet
+                var records = new List<Product>();
 
-        //        for (int row = 2; row <= worksheet.Dimension.End.Row; row++)
-        //        {
+                for (int row = 2; row <= worksheet.Dimension.End.Row; row++)
+                {
 
-        //            var product = new Product()
-        //            {
-        //                Id = Guid.NewGuid(),
-        //                Name = worksheet.Cells[row, 1].Value?.ToString(),
-        //                Price = Double.Parse(worksheet.Cells[row, 2].Value?.ToString()),
-        //                Quantity = Int32.Parse(worksheet.Cells[row, 3].Value?.ToString()),
-        //                Description = worksheet.Cells[row, 4].Value?.ToString(),
-        //                ServiceDuration = worksheet.Cells[row, 5].Value?.ToString(),
-        //                Type = Int32.Parse(worksheet.Cells[row, 6].Value?.ToString()),
-        //                CategoryId = Int32.Parse(worksheet.Cells[row, 7].Value?.ToString()),
-        //                Status = (int)Status.Active,
-        //                CreatedAt = TimeUtils.GetCurrentSEATime()
-        //            };
+                    var product = new Product()
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = worksheet.Cells[row, 1].Value?.ToString(),
+                        Price = Double.Parse(worksheet.Cells[row, 2].Value?.ToString()),
+                        Quantity = Int32.Parse(worksheet.Cells[row, 3].Value?.ToString()),
+                        Description = worksheet.Cells[row, 4].Value?.ToString(),
+                        CategoryId = Int32.Parse(worksheet.Cells[row, 5].Value?.ToString()),
+                        Status = (int)Status.Active,
+                        CreatedAt = TimeUtils.GetCurrentSEATime(),
+                        SupplierId = Guid.Parse(accountId)
+                    };
 
-        //            records.Add(product);
-        //        }
+                    records.Add(product);
+                }
 
-        //        await _unitOfWork.Repository<Product>().AddRangeAsync(records);
-        //        await _unitOfWork.CommitAsync();
+                await _unitOfWork.Repository<Product>().AddRangeAsync(records);
+                await _unitOfWork.CommitAsync();
 
-        //        return new DynamicResponse<Product>()
-        //        {
-        //            Code = StatusCodes.Status200OK,
-        //            Message = "Ok",
-        //            Data = records
-        //        };
-        //    }
-        //}
+                return new DynamicResponse<Product>()
+                {
+                    Code = StatusCodes.Status200OK,
+                    Message = "Ok",
+                    Data = records
+                };
+            }
+        }
 
         return new DynamicResponse<Product>()
         {

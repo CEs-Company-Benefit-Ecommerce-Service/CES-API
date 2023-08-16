@@ -69,6 +69,7 @@ namespace CES.BusinessTier.Utilities
         [Display(Name = "VnPay")] VnPay = 5, // EA
         [Display(Name = "Bank")] Bank = 6, // EA
         [Display(Name = "Cash back")] CashBack = 7,
+        [Display(Name = "Reset")] Reset = 8,
     }
 
     public enum TransactionTypeEnums

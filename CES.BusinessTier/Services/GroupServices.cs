@@ -215,9 +215,10 @@ namespace CES.BusinessTier.Services
         {
             // check total balance in group when allocate
             var memberInGroup = _unitOfWork.Repository<EmployeeGroupMapping>().AsQueryable(x => x.GroupId == requestModel.GroupId).Count();
+            var newMembers = requestModel.AccountId.Count();
             var group = await _unitOfWork.Repository<Group>().AsQueryable(x => x.Id == requestModel.GroupId).Include(x => x.Benefit).FirstOrDefaultAsync();
             var eaWallet = await _unitOfWork.Repository<Benefit>().AsQueryable(x => x.Id == group.BenefitId).Include(x => x.Company).ThenInclude(x => x.Enterprises).ThenInclude(x => x.Account).ThenInclude(x => x.Wallets).Select(x => x.Company.Enterprises.FirstOrDefault().Account.Wallets.FirstOrDefault()).FirstOrDefaultAsync();
-            if (group.Benefit.UnitPrice * memberInGroup > eaWallet.Balance)
+            if (group.Benefit.UnitPrice * (memberInGroup + newMembers) > eaWallet.Balance)
             {
                 return new BaseResponseViewModel<GroupResponseModel>()
                 {

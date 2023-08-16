@@ -530,7 +530,7 @@ namespace CES.BusinessTier.Services
                     {
                         Id = Guid.NewGuid(),
                         WalletId = empWallet.Id,
-                        Type = (int)WalletTransactionTypeEnums.AddWelfare,
+                        Type = (int)WalletTransactionTypeEnums.Reset,
                         Description = "Reset",
                         RecieveId = enterprise.AccountId,
                         SenderId = emp.AccountId,
