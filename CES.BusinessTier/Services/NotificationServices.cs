@@ -188,8 +188,8 @@ namespace CES.BusinessTier.Services
                         Token = account.FcmToken,
                         Notification = new FirebaseAdmin.Messaging.Notification
                         {
-                            Title = "Trở lại mua hàng nào bạn ơi",
-                            Body = "Bạn đã không mua hàng đã lâu, nhiều món hàng đang chờ bạn"
+                            Title = "Come back for shopping",
+                            Body = "You are not go shopping very long time, many special items are waiting for you"
                         },
                     });
                     if (response.Result == null)
@@ -217,8 +217,8 @@ namespace CES.BusinessTier.Services
                         var eaNotification = new DataTier.Models.Notification()
                         {
                             Id = Guid.NewGuid(),
-                            Title = "Sắp đến hạn thanh toán",
-                            Description = "Sắp đến hạn thanh toán, vui lòng thanh toán trước khi hết hạn để không gián đoạn quá trình sử dụng.",
+                            Title = "Payment due soon",
+                            Description = "Payment is coming due, please pay before expiration so as not to interrupt the usage process.",
                             IsRead = false,
                             CreatedAt = TimeUtils.GetCurrentSEATime(),
                             AccountId = enterpriseAccountId
@@ -233,8 +233,8 @@ namespace CES.BusinessTier.Services
                         var eaNotification = new DataTier.Models.Notification()
                         {
                             Id = Guid.NewGuid(),
-                            Title = "Quá hạn thanh toán",
-                            Description = "Đã quá hạn thanh toán, vui lòng thanh toán để tiếp tục sử dụng.",
+                            Title = "Payment overdue",
+                            Description = "Payment is overdue, please pay to continue using.",
                             IsRead = false,
                             CreatedAt = TimeUtils.GetCurrentSEATime(),
                             AccountId = enterpriseAccountId
@@ -256,8 +256,8 @@ namespace CES.BusinessTier.Services
                             var eaNotification = new DataTier.Models.Notification()
                             {
                                 Id = Guid.NewGuid(),
-                                Title = "Đã đến hạn thanh toán",
-                                Description = "Đã đến hạn thanh toán, vui lòng thanh toán trong hôm nay để không gián đoạn quá trình sử dụng.",
+                                Title = "Payment is due",
+                                Description = "Payment is due, please pay today so as not to interrupt the use process.",
                                 IsRead = false,
                                 CreatedAt = TimeUtils.GetCurrentSEATime(),
                                 AccountId = enterpriseAccountId
@@ -287,8 +287,8 @@ namespace CES.BusinessTier.Services
                 var eaNotification = new DataTier.Models.Notification()
                 {
                     Id = Guid.NewGuid(),
-                    Title = "Sắp đến hạn thanh toán",
-                    Description = "Sắp đến hạn thanh toán, vui lòng thanh toán trước khi hết hạn để không gián đoạn quá trình sử dụng.",
+                    Title = "Payment due soon",
+                    Description = "Payment is coming due, please pay before expiration so as not to interrupt the usage process.",
                     IsRead = false,
                     CreatedAt = TimeUtils.GetCurrentSEATime(),
                     AccountId = enterpriseAccountId
@@ -312,8 +312,8 @@ namespace CES.BusinessTier.Services
                 var eaNotification = new DataTier.Models.Notification()
                 {
                     Id = Guid.NewGuid(),
-                    Title = "Sắp đến hạn thanh toán",
-                    Description = "Sắp đến hạn thanh toán, vui lòng thanh toán trước khi hết hạn để không gián đoạn quá trình sử dụng.",
+                    Title = "Payment due soon",
+                    Description = "Payment is coming due, please pay before expiration so as not to interrupt the usage process.",
                     IsRead = false,
                     CreatedAt = TimeUtils.GetCurrentSEATime(),
                     AccountId = enterpriseAccountId
@@ -337,8 +337,8 @@ namespace CES.BusinessTier.Services
                 var eaNotification = new DataTier.Models.Notification()
                 {
                     Id = Guid.NewGuid(),
-                    Title = "Quá hạn thanh toán",
-                    Description = "Đã quá hạn thanh toán, vui lòng thanh toán để tiếp tục sử dụng.",
+                    Title = "Payment overdue",
+                    Description = "Payment is overdue, please pay to continue using.",
                     IsRead = false,
                     CreatedAt = TimeUtils.GetCurrentSEATime(),
                     AccountId = enterpriseAccountId
@@ -368,8 +368,8 @@ namespace CES.BusinessTier.Services
                     var eaNotification = new DataTier.Models.Notification()
                     {
                         Id = Guid.NewGuid(),
-                        Title = "Đã đến hạn thanh toán",
-                        Description = "Đã đến hạn thanh toán, vui lòng thanh toán trong hôm nay để không gián đoạn quá trình sử dụng.",
+                        Title = "Payment is due",
+                        Description = "Payment is due, please pay today so as not to interrupt the use process.",
                         IsRead = false,
                         CreatedAt = TimeUtils.GetCurrentSEATime(),
                         AccountId = enterpriseAccountId

@@ -289,8 +289,8 @@ namespace CES.BusinessTier.Services
                         var eaNotification = new DataTier.Models.Notification()
                         {
                             Id = Guid.NewGuid(),
-                            Title = "Đã sử dụng 100% giá trị của hạn mức",
-                            Description = "Đã sử dụng 100% giá trị của hạn mức",
+                            Title = "Used 100% of the value of the limit",
+                            Description = "Used 100% of the value of the limit",
                             IsRead = false,
                             CreatedAt = TimeUtils.GetCurrentSEATime(),
                             AccountId = eaAccount.Id
@@ -301,8 +301,8 @@ namespace CES.BusinessTier.Services
                         var eaNotification = new DataTier.Models.Notification()
                         {
                             Id = Guid.NewGuid(),
-                            Title = "Đã sử dụng 75% giá trị của hạn mức",
-                            Description = "Đã sử dụng 75% giá trị của hạn mức",
+                            Title = "75% of the value of the limit has been used",
+                            Description = "75% of the value of the limit has been used",
                             IsRead = false,
                             CreatedAt = TimeUtils.GetCurrentSEATime(),
                             AccountId = eaAccount.Id
@@ -314,8 +314,8 @@ namespace CES.BusinessTier.Services
                         var eaNotification = new DataTier.Models.Notification()
                         {
                             Id = Guid.NewGuid(),
-                            Title = "Đã sử dụng 50% giá trị của hạn mức",
-                            Description = "Đã sử dụng 50% giá trị của hạn mức",
+                            Title = "Used 50% of the value of the limit",
+                            Description = "Used 50% of the value of the limit",
                             IsRead = false,
                             CreatedAt = TimeUtils.GetCurrentSEATime(),
                             AccountId = eaAccount.Id
@@ -439,7 +439,7 @@ namespace CES.BusinessTier.Services
                     Id = Guid.NewGuid(),
                     WalletId = wallet.Id,
                     Type = (int)WalletTransactionTypeEnums.Order,
-                    Description = "Mua đồ ",
+                    Description = "Shopping",
                     OrderId = newOrder.Id,
                     RecieveId = accountLoginId,
                     Total = (double)finalTotal,
@@ -456,8 +456,8 @@ namespace CES.BusinessTier.Services
                 var empNotification = new DataTier.Models.Notification()
                 {
                     Id = Guid.NewGuid(),
-                    Title = "Mua hàng",
-                    Description = "Bạn đã đặt thành công 1 đơn hàng",
+                    Title = "Shopping",
+                    Description = "You have successfully placed an order",
                     AccountId = accountLoginId,
                     OrderId = newOrder.Id,
                     IsRead = false,

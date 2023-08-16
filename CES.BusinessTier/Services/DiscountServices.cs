@@ -76,12 +76,12 @@ public class DiscountServices : IDiscountServices
             .AsQueryable(x => x.ExpiredDate > TimeUtils.GetCurrentSEATime() && x.Status == (int)Status.Active && x.ProductId == discount.ProductId).Any();
         if (activeDiscountOfProduct)
         {
-            throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "");
+            throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "Some benefit still available");
         }
 
         if (discount.ExpiredDate < TimeUtils.GetCurrentSEATime())
         {
-            throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "");
+            throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "ExpireDate is invalid");
         }
         var newDiscount = _mapper.Map<Discount>(discount);
         newDiscount.Status = (int)Status.Active;

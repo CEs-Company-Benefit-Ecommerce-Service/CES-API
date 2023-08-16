@@ -301,7 +301,7 @@ public class TransactionService : ITransactionService
             //     paymentStrategy = new CashPaymentStrategy(updatedTransaction, _unitOfWork, _distributedCache);
             //     return await paymentStrategy.ExecutePayment();
             default:
-                throw new BadHttpRequestException("Không tìm thấy payment provider");
+                throw new BadHttpRequestException("Payment provider not found");
         }
 
         throw new NotImplementedException();
@@ -322,7 +322,7 @@ public class TransactionService : ITransactionService
 
         if (status != 1)
         {
-            paymentTransaction.Description = "Thanh toán detb ZaloPay thất bại";
+            paymentTransaction.Description = "ZaloPay detb payment failed";
             paymentTransaction.Status = (int)DebtStatusEnums.Cancel;
 
 
@@ -330,7 +330,7 @@ public class TransactionService : ITransactionService
         }
         else
         {
-            paymentTransaction.Description = "Thanh toán detb ZaloPay thành công";
+            paymentTransaction.Description = "ZaloPay detb payment successful";
             paymentTransaction.Status = (int)DebtStatusEnums.Complete;
 
             await _unitOfWork.Repository<Transaction>().UpdateDetached(paymentTransaction);
@@ -410,7 +410,7 @@ public class TransactionService : ITransactionService
 
         if (!status.Equals("00"))
         {
-            paymentTransaction.Description = "Thanh toán detb VnPay thất bại";
+            paymentTransaction.Description = "VnPay detb payment failed";
             paymentTransaction.Status = (int)DebtStatusEnums.Cancel;
 
 
@@ -418,7 +418,7 @@ public class TransactionService : ITransactionService
         }
         else
         {
-            paymentTransaction.Description = "Thanh toán detb VnPay thành công";
+            paymentTransaction.Description = "VnPay detb payment successful";
             paymentTransaction.Status = (int)DebtStatusEnums.Complete;
 
             await _unitOfWork.Repository<Transaction>().UpdateDetached(paymentTransaction);

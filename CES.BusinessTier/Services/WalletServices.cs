@@ -241,7 +241,7 @@ namespace CES.BusinessTier.Services
                 RecieveId = existedWallet.Account.Id,
                 WalletId = existedWallet.Id,
                 Type = (int)WalletTransactionTypeEnums.AddWelfare,
-                Description = "Nhận tiền từ " + benefit.Name,
+                Description = "Receive money from " + benefit.Name,
                 Total = benefit.UnitPrice,
                 CreatedAt = TimeUtils.GetCurrentSEATime(),
                 CompanyId = benefit.CompanyId,
@@ -253,7 +253,7 @@ namespace CES.BusinessTier.Services
                 RecieveId = existedWallet.Account.Id,
                 WalletId = accountLoginWallet.Id,
                 Type = (int)WalletTransactionTypeEnums.AllocateWelfare,
-                Description = "Chuyển tiền cho " + existedWallet.Account.Name + " - " + benefit.Name,
+                Description = "Transfer money to " + existedWallet.Account.Name + " - " + benefit.Name,
                 Total = benefit.UnitPrice,
                 CreatedAt = TimeUtils.GetCurrentSEATime(),
                 CompanyId = benefit.CompanyId,
@@ -263,8 +263,8 @@ namespace CES.BusinessTier.Services
                 Id = Guid.NewGuid(),
                 AccountId = existedWallet.AccountId,
                 TransactionId = walletTransactionForReceiver.Id,
-                Title = "Bạn đã nhận được tiền từ " + benefit.Name,
-                Description = "Số tiền nhận được: " + String.Format(cul, "{0:c}", benefit.UnitPrice),
+                Title = "You have received money from " + benefit.Name,
+                Description = "Amount received: " + String.Format(cul, "{0:c}", benefit.UnitPrice),
                 IsRead = false,
                 CreatedAt = TimeUtils.GetCurrentSEATime(),
             };
@@ -277,7 +277,7 @@ namespace CES.BusinessTier.Services
                 Notification = new FirebaseAdmin.Messaging.Notification
                 {
                     Title = "Ting Ting",
-                    Body = "Bạn vừa nhận được số tiền: " + String.Format(cul, "{0:c}", benefit.UnitPrice),
+                    Body = "You just received the amount: " + String.Format(cul, "{0:c}", benefit.UnitPrice),
                 },
             });
 
@@ -399,7 +399,7 @@ namespace CES.BusinessTier.Services
                                 RecieveId = wallet.Account.Id,
                                 WalletId = wallet.Id,
                                 Type = (int)WalletTransactionTypeEnums.AllocateWelfare,
-                                Description = "Chuyển tiền cho " + wallet.Account.Name + " - " + benefit.Name,
+                                Description = "Transfers money for " + wallet.Account.Name + " - " + benefit.Name,
                                 Total = benefit.UnitPrice,
                                 CreatedAt = TimeUtils.GetCurrentSEATime(),
                                 CompanyId = benefit.CompanyId,
@@ -411,7 +411,7 @@ namespace CES.BusinessTier.Services
                                 RecieveId = wallet.AccountId,
                                 WalletId = wallet.Id,
                                 Type = (int)WalletTransactionTypeEnums.AddWelfare,
-                                Description = "Nhận tiền từ " + benefit.Description,
+                                Description = "Get money from " + benefit.Description,
                                 Total = request.Balance,
                                 CreatedAt = TimeUtils.GetCurrentSEATime(),
                                 CompanyId = benefit.CompanyId,
@@ -421,8 +421,8 @@ namespace CES.BusinessTier.Services
                                 Id = Guid.NewGuid(),
                                 AccountId = wallet.AccountId,
                                 TransactionId = walletTransaction.Id,
-                                Title = "Bạn đã nhận được tiền từ " + benefit.Name,
-                                Description = "Số tiền nhận được: " + benefit.UnitPrice + " VNĐ",
+                                Title = "You have received money from " + benefit.Name,
+                                Description = "Amount received: " + benefit.UnitPrice + " VNĐ",
                                 IsRead = false,
                                 CreatedAt = TimeUtils.GetCurrentSEATime(),
                             };
@@ -434,7 +434,7 @@ namespace CES.BusinessTier.Services
                                 Notification = new FirebaseAdmin.Messaging.Notification
                                 {
                                     Title = "Ting Ting",
-                                    Body = "Bạn vừa nhận được số tiền: " + benefit.UnitPrice + " VNĐ",
+                                    Body = "You just received the amount: " + benefit.UnitPrice + " VNĐ",
                                 },
                             });
 
@@ -463,7 +463,7 @@ namespace CES.BusinessTier.Services
                                     RecieveId = wallet.AccountId,
                                     WalletId = wallet.Id,
                                     Type = (int)WalletTransactionTypeEnums.AddWelfare,
-                                    Description = "Nhận tiền từ " + benefit.Description,
+                                    Description = "Get money from " + benefit.Description,
                                     Total = request.Balance,
                                     CreatedAt = TimeUtils.GetCurrentSEATime(),
                                     CompanyId = benefit.CompanyId,
@@ -541,8 +541,8 @@ namespace CES.BusinessTier.Services
                     var empNotification = new DataTier.Models.Notification()
                     {
                         Id = Guid.NewGuid(),
-                        Title = "Reset theo định kỳ",
-                        Description = "Số tiền trong ví bạn đã được cập nhật",
+                        Title = "Reset periodically",
+                        Description = "The amount in your wallet has been updated",
                         AccountId = emp.AccountId,
                         IsRead = false,
                         CreatedAt = TimeUtils.GetCurrentSEATime(),

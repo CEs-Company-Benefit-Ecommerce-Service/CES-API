@@ -232,7 +232,7 @@ namespace CES.BusinessTier.Services
             return new DynamicResponse<UserResponseModel>()
             {
                 Code = StatusCodes.Status200OK,
-                Message = "...",
+                Message = "OK",
                 MetaData = new PagingMetaData
                 {
                     Page = paging.Page,
@@ -249,14 +249,14 @@ namespace CES.BusinessTier.Services
                 .AsQueryable(x => x.Id == id && x.Status == (int)Status.Active)
                 .Include(x => x.Benefit)
                 .FirstOrDefaultAsync();
-            if (group == null) throw new ErrorResponse(StatusCodes.Status404NotFound, 404, "");
+            if (group == null) throw new ErrorResponse(StatusCodes.Status404NotFound, 404, "Group was not found");
             var enterprise = await _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.AccountId == enterpriseId)
                 .FirstOrDefaultAsync();
             var enterpriseAccount = await _unitOfWork.Repository<Account>()
                 .AsQueryable(x => x.Id == enterprise.AccountId && x.Status == (int)Status.Active)
                 .Include(x => x.Wallets)
                 .FirstOrDefaultAsync();
-            if (enterpriseAccount == null) throw new ErrorResponse(StatusCodes.Status404NotFound, 404, "");
+            if (enterpriseAccount == null) throw new ErrorResponse(StatusCodes.Status404NotFound, 404, "Enterprise account was not found");
             double enterpriseWalletBalance = (double)enterpriseAccount.Wallets.First().Balance;
 
             var groupEmployees = _unitOfWork.Repository<EmployeeGroupMapping>()
@@ -299,7 +299,7 @@ namespace CES.BusinessTier.Services
             //check balance
             var totalMoneyNeedTransfer = group.Benefit.UnitPrice * listAccountId.Count;
             if (enterpriseWalletBalance < totalMoneyNeedTransfer)
-                throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "");
+                throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "Balance is not enough");
 
             //transfer money to employee
             CultureInfo cul = CultureInfo.GetCultureInfo("vi-VN");
@@ -327,7 +327,7 @@ namespace CES.BusinessTier.Services
                         RecieveId = account.Id,
                         WalletId = account.Wallets.First().Id,
                         Type = (int)WalletTransactionTypeEnums.AddWelfare,
-                        Description = "Nhận tiền từ " + group.Benefit.Name,
+                        Description = "Receive money from " + group.Benefit.Name,
                         Total = group.Benefit.UnitPrice,
                         CreatedAt = TimeUtils.GetCurrentSEATime(),
                         CompanyId = group.Benefit.CompanyId,
@@ -340,7 +340,7 @@ namespace CES.BusinessTier.Services
                         RecieveId = account.Id,
                         WalletId = enterpriseAccount.Wallets.First().Id,
                         Type = (int)WalletTransactionTypeEnums.AllocateWelfare,
-                        Description = "Chuyển tiền cho " + account.Name,
+                        Description = "Transfer money to " + account.Name,
                         Total = group.Benefit.UnitPrice,
                         CreatedAt = TimeUtils.GetCurrentSEATime(),
                         CompanyId = group.Benefit.CompanyId,
@@ -350,8 +350,8 @@ namespace CES.BusinessTier.Services
                         Id = Guid.NewGuid(),
                         AccountId = account.Id,
                         TransactionId = walletTransactionForReceiver.Id,
-                        Title = "Bạn đã nhận được tiền từ " + group.Benefit.Name,
-                        Description = "Số tiền nhận được: " + String.Format(cul, "{0:c}", group.Benefit.UnitPrice),
+                        Title = "You received money from " + group.Benefit.Name,
+                        Description = "Total money: " + String.Format(cul, "{0:c}", group.Benefit.UnitPrice),
                         IsRead = false,
                         CreatedAt = TimeUtils.GetCurrentSEATime(),
                     };
@@ -366,7 +366,7 @@ namespace CES.BusinessTier.Services
                             Notification = new FirebaseAdmin.Messaging.Notification
                             {
                                 Title = "Ting Ting",
-                                Body = "Bạn vừa nhận được số tiền: " +
+                                Body = "You receive money: " +
                                        String.Format(cul, "{0:c}", group.Benefit.UnitPrice),
                             },
                         });
