@@ -520,7 +520,7 @@ namespace CES.BusinessTier.Services
                 {
                     var empWallet = emp.Account.Wallets.FirstOrDefault();
                     var total = empWallet.Balance;
-                    
+
                     // emp.EmployeeGroupMappings.Where(x => x.)
                     foreach (var group in emp.EmployeeGroupMappings)
                     {
@@ -534,7 +534,7 @@ namespace CES.BusinessTier.Services
                         Description = "Reset",
                         RecieveId = enterprise.AccountId,
                         SenderId = emp.AccountId,
-                        Total = -(double)total,
+                        Total = (double)total,
                         CompanyId = companyId,
                         CreatedAt = TimeUtils.GetCurrentSEATime(),
                     };
