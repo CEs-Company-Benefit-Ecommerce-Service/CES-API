@@ -388,6 +388,19 @@
           </properties>
           <option name="timeStamp" value="127" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/BenefitServices.cs</url>
+          <line>107</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/BenefitServices.cs" initialLine="107" containingFunctionPresentation="Method 'CreateAsync'">
+            <startOffsets>
+              <option value="4683" />
+            </startOffsets>
+            <endOffsets>
+              <option value="4714" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="128" />
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
     <pin-to-top-manager>
