@@ -401,6 +401,10 @@ namespace CES.BusinessTier.Services
                 .AsQueryable(x => x.Id == id && x.Status == (int)Status.Active)
                 .Include(x => x.Benefit)
                 .FirstOrDefaultAsync();
+            if (group == null)
+            {
+                return false;
+            }
             var now = TimeUtils.GetCurrentSEATime();
             var formattedDateTime = new DateTime(now.Year, now.Month, now.Day, group.TimeFilter.Value.Hour,
                 group.TimeFilter.Value.Minute, group.TimeFilter.Value.Second);
