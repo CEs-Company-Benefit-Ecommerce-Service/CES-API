@@ -375,6 +375,19 @@
           </properties>
           <option name="timeStamp" value="126" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/GroupAccountServices.cs</url>
+          <line>412</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupAccountServices.cs" initialLine="412" containingFunctionPresentation="Method 'ScheduleUpdateBalanceForAccountsInGroup'">
+            <startOffsets>
+              <option value="18107" />
+            </startOffsets>
+            <endOffsets>
+              <option value="18126" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="127" />
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
     <pin-to-top-manager>

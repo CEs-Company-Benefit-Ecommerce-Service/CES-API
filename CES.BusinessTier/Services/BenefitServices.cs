@@ -108,7 +108,7 @@ namespace CES.BusinessTier.Services
             if (request.TimeFilter == null)
             {
                 request.TimeFilter = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
-            } else if (request.TimeFilter.Value.Hour > now.Hour)
+            } else if (request.TimeFilter.Value.Hour >= now.Hour && request.TimeFilter.Value.Minute > now.Minute)
             {
                 request.TimeFilter = new DateTime(now.Year, now.Month, now.Day, request.TimeFilter.Value.Hour, request.TimeFilter.Value.Minute, request.TimeFilter.Value.Second);
             }
