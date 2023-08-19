@@ -419,14 +419,14 @@ namespace CES.BusinessTier.Services
                     {
                         // dateTimeOffset = dateTimeOffset.AddDays(1);
                         dateTimeOffset = dateTimeOffset.AddDays(1);
+                        group.TimeFilter = formattedDateTime.AddDays(1);
+                        await _unitOfWork.Repository<Group>().UpdateDetached(group);
+                        await _unitOfWork.CommitAsync();
                     }
 
                     dateTimeOffset = dateTimeOffset.AddHours(-7);
                     if (group.EndDate == null || (group.EndDate != null && group.EndDate > formattedDateTime))
                     {
-                        group.TimeFilter = formattedDateTime.AddDays(1);
-                        await _unitOfWork.Repository<Group>().UpdateDetached(group);
-                        await _unitOfWork.CommitAsync();
                         BackgroundJob.Schedule(() => UpdateBalanceForAccountsInGroup(group.Id, enterpriseId),
                             dateTimeOffset);
                         return true;
@@ -501,13 +501,16 @@ namespace CES.BusinessTier.Services
                     {
                         dateTimeOffsetMonthly = new DateTimeOffset(formattedDateTime);
                     }
-
-                    dateTimeOffsetMonthly = dateTimeOffsetMonthly.AddHours(-7);
-                    if (group.EndDate == null || (group.EndDate != null && group.EndDate > formattedDateTime))
+                    else
                     {
                         group.TimeFilter = formattedDateTime.AddMonths(1);
                         await _unitOfWork.Repository<Group>().UpdateDetached(group);
                         await _unitOfWork.CommitAsync();
+                    }
+
+                    dateTimeOffsetMonthly = dateTimeOffsetMonthly.AddHours(-7);
+                    if (group.EndDate == null || (group.EndDate != null && group.EndDate > formattedDateTime))
+                    {
                         BackgroundJob.Schedule(() => UpdateBalanceForAccountsInGroup(group.Id, enterpriseId),
                             dateTimeOffsetMonthly);
                         return true;
