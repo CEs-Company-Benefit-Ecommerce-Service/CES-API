@@ -249,8 +249,9 @@ namespace CES.BusinessTier.Services
                 .AsQueryable(x => x.Id == id && x.Status == (int)Status.Active)
                 .Include(x => x.Benefit)
                 .FirstOrDefaultAsync();
-            if (group == null) throw new ErrorResponse(StatusCodes.Status404NotFound, 404, "Group was not found");
-            var enterprise = await _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.AccountId == enterpriseId)
+            if (group != null)
+            {
+                var enterprise = await _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.AccountId == enterpriseId)
                 .FirstOrDefaultAsync();
             var enterpriseAccount = await _unitOfWork.Repository<Account>()
                 .AsQueryable(x => x.Id == enterprise.AccountId && x.Status == (int)Status.Active)
@@ -393,6 +394,7 @@ namespace CES.BusinessTier.Services
             await _unitOfWork.Repository<Account>().UpdateDetached(enterpriseAccount);
             await _unitOfWork.CommitAsync();
             _ = await ScheduleUpdateBalanceForAccountsInGroup(id, enterpriseId);
+            }
         }
 
         public async Task<bool> ScheduleUpdateBalanceForAccountsInGroup(Guid id, Guid enterpriseId)
@@ -419,7 +421,7 @@ namespace CES.BusinessTier.Services
                         dateTimeOffset = dateTimeOffset.AddDays(1);
                     }
 
-                    // dateTimeOffset = dateTimeOffset.AddHours(-7);
+                    dateTimeOffset = dateTimeOffset.AddHours(-7);
                     if (group.EndDate == null || (group.EndDate != null && group.EndDate > formattedDateTime))
                     {
                         group.TimeFilter = formattedDateTime.AddDays(1);

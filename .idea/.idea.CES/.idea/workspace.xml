@@ -7,9 +7,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c33e2030-59db-4d3d-a633-8e65857e01e7" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="c33e2030-59db-4d3d-a633-8e65857e01e7" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -363,6 +361,19 @@
             </endOffsets>
           </properties>
           <option name="timeStamp" value="124" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CES.BusinessTier/Services/GroupAccountServices.cs</url>
+          <line>247</line>
+          <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupAccountServices.cs" initialLine="247" containingFunctionPresentation="Method 'UpdateBalanceForAccountsInGroup'">
+            <startOffsets>
+              <option value="9931" />
+            </startOffsets>
+            <endOffsets>
+              <option value="10141" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="126" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
