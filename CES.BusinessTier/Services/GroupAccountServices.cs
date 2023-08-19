@@ -419,10 +419,10 @@ namespace CES.BusinessTier.Services
                         dateTimeOffset = dateTimeOffset.AddDays(1);
                     }
 
-                    dateTimeOffset = dateTimeOffset.AddHours(-7);
+                    // dateTimeOffset = dateTimeOffset.AddHours(-7);
                     if (group.EndDate == null || (group.EndDate != null && group.EndDate > formattedDateTime))
                     {
-                        group.TimeFilter = dateTimeOffset.DateTime;
+                        group.TimeFilter = formattedDateTime.AddDays(1);
                         await _unitOfWork.Repository<Group>().UpdateDetached(group);
                         await _unitOfWork.CommitAsync();
                         BackgroundJob.Schedule(() => UpdateBalanceForAccountsInGroup(group.Id, enterpriseId),
