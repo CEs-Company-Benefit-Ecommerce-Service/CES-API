@@ -104,10 +104,13 @@ namespace CES.BusinessTier.Services
             newBenefit.CreatedAt = TimeUtils.GetCurrentSEATime();
             newBenefit.CompanyId = (int)user.CompanyId;
 
+            var now = TimeUtils.GetCurrentSEATime();
             if (request.TimeFilter == null)
             {
-                var now = TimeUtils.GetCurrentSEATime();
                 request.TimeFilter = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
+            } else if (request.TimeFilter.Value.Hour > now.Hour)
+            {
+                request.TimeFilter = new DateTime(now.Year, now.Month, now.Day, request.TimeFilter.Value.Hour, request.TimeFilter.Value.Minute, request.TimeFilter.Value.Second);
             }
 
             switch (request.Type)

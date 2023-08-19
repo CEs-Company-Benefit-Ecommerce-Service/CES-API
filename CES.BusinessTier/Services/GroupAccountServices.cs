@@ -460,14 +460,14 @@ namespace CES.BusinessTier.Services
                     else if (daysToAdd == 0 && formattedDateTime <= now)
                     {
                         dateTimeOffsetWeekly = dateTimeOffsetWeekly.AddDays(7);
+                        group.TimeFilter = formattedDateTime.AddDays(7);
+                        await _unitOfWork.Repository<Group>().UpdateDetached(group);
+                        await _unitOfWork.CommitAsync();
                     }
 
                     dateTimeOffsetWeekly = dateTimeOffsetWeekly.AddHours(-7);
                     if (group.EndDate == null || (group.EndDate != null && group.EndDate > formattedDateTime))
                     {
-                        group.TimeFilter = dateTimeOffsetWeekly.DateTime;
-                        await _unitOfWork.Repository<Group>().UpdateDetached(group);
-                        await _unitOfWork.CommitAsync();
                         BackgroundJob.Schedule(() => UpdateBalanceForAccountsInGroup(group.Id, enterpriseId),
                             dateTimeOffsetWeekly);
                         return true;
@@ -505,7 +505,7 @@ namespace CES.BusinessTier.Services
                     dateTimeOffsetMonthly = dateTimeOffsetMonthly.AddHours(-7);
                     if (group.EndDate == null || (group.EndDate != null && group.EndDate > formattedDateTime))
                     {
-                        group.TimeFilter = dateTimeOffsetMonthly.DateTime;
+                        group.TimeFilter = formattedDateTime.AddMonths(1);
                         await _unitOfWork.Repository<Group>().UpdateDetached(group);
                         await _unitOfWork.CommitAsync();
                         BackgroundJob.Schedule(() => UpdateBalanceForAccountsInGroup(group.Id, enterpriseId),
