@@ -9,8 +9,7 @@
   <component name="ChangeListManager">
     <list default="true" id="c33e2030-59db-4d3d-a633-8e65857e01e7" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/BenefitServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/BenefitServices.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupAccountServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupAccountServices.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/ProductService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/ProductService.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -153,6 +152,7 @@
       <workItem from="1690473407242" duration="1594000" />
       <workItem from="1690475033288" duration="3487000" />
       <workItem from="1691080219788" duration="28412000" />
+      <workItem from="1692505844466" duration="970000" />
     </task>
     <servers />
   </component>

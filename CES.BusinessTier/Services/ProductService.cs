@@ -141,6 +141,15 @@ namespace CES.BusinessTier.Services
                         product.PreDiscount = entityProduct.PreDiscount;
                         product.Price = entityProduct.Price;
                         await _unitOfWork.Repository<Product>().UpdateDetached(entityProduct);
+                    } else if (discount != null && product.PreDiscount != null)
+                    {
+                        var entityProduct = await _unitOfWork.Repository<Product>()
+                            .AsQueryable(x => x.Status == (int)Status.Active && x.Id == product.Id)
+                            .FirstOrDefaultAsync();
+                        entityProduct.Price = (double)entityProduct.PreDiscount - (double)discount.Amount;
+                        product.PreDiscount = entityProduct.PreDiscount;
+                        product.Price = entityProduct.Price;
+                        await _unitOfWork.Repository<Product>().UpdateDetached(entityProduct);
                     }
                 }
 
@@ -186,6 +195,44 @@ namespace CES.BusinessTier.Services
                 .DynamicFilter(filter)
                 .FirstOrDefaultAsync();
             if (product == null) throw new ErrorResponse(StatusCodes.Status404NotFound, (int)ProductErrorEnums.NOT_FOUND_PRODUCT, ProductErrorEnums.NOT_FOUND_PRODUCT.GetDisplayName());
+            
+            var discount = await _unitOfWork.Repository<Discount>()
+                .AsQueryable(x =>
+                    x.ProductId == product.Id && x.Status == (int)Status.Active &&
+                    x.ExpiredDate >= TimeUtils.GetCurrentSEATime())
+                .FirstOrDefaultAsync();
+            if (discount != null && product.PreDiscount == null)
+            {
+                var entityProduct = await _unitOfWork.Repository<Product>()
+                    .AsQueryable(x => x.Status == (int)Status.Active && x.Id == product.Id)
+                    .FirstOrDefaultAsync();
+                entityProduct.PreDiscount = product.Price;
+                entityProduct.Price -= (double)discount.Amount;
+                product.PreDiscount = entityProduct.PreDiscount;
+                product.Price = entityProduct.Price;
+                await _unitOfWork.Repository<Product>().UpdateDetached(entityProduct);
+            }
+            else if(discount == null && product.PreDiscount != null)
+            {
+                var entityProduct = await _unitOfWork.Repository<Product>()
+                    .AsQueryable(x => x.Status == (int)Status.Active && x.Id == product.Id)
+                    .FirstOrDefaultAsync();
+                entityProduct.Price = (double)entityProduct.PreDiscount;
+                entityProduct.PreDiscount = null;
+                product.PreDiscount = entityProduct.PreDiscount;
+                product.Price = entityProduct.Price;
+                await _unitOfWork.Repository<Product>().UpdateDetached(entityProduct);
+            } else if (discount != null && product.PreDiscount != null)
+            {
+                var entityProduct = await _unitOfWork.Repository<Product>()
+                    .AsQueryable(x => x.Status == (int)Status.Active && x.Id == product.Id)
+                    .FirstOrDefaultAsync();
+                entityProduct.Price = (double)entityProduct.PreDiscount - (double)discount.Amount;
+                product.PreDiscount = entityProduct.PreDiscount;
+                product.Price = entityProduct.Price;
+                await _unitOfWork.Repository<Product>().UpdateDetached(entityProduct);
+            }
+            
             return new BaseResponseViewModel<ProductResponseModel>
             {
                 Code = StatusCodes.Status200OK,
