@@ -24,6 +24,7 @@ namespace CES.BusinessTier.ResponseModels
         public int? DateFilter { get; set; }
         public int? DayFilter { get; set; }
         public DateTime? EndDate { get; set; }
+        public DateTime? FirstTime { get; set; }
 
         public BenefitResponseModel? Benefit { get; set; }
         public List<EmployeeGroupMapping>? EmployeeGroupMappings { get; set; }

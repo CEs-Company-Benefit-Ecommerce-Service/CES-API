@@ -25,6 +25,7 @@ namespace CES.DataTier.Models
         public int? DateFilter { get; set; }
         public int? DayFilter { get; set; }
         public DateTime? EndDate { get; set; }
+        public DateTime? FirstTime { get; set; }
 
         public virtual Benefit? Benefit { get; set; }
         public virtual ICollection<EmployeeGroupMapping> EmployeeGroupMappings { get; set; }

@@ -15,7 +15,6 @@ namespace CES.DataTier.Models
         public string? Description { get; set; }
         public int? Type { get; set; }
         public DateTime CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
         public Guid? SenderId { get; set; }
         public Guid? RecieveId { get; set; }
         public Guid? OrderId { get; set; }
@@ -24,8 +23,8 @@ namespace CES.DataTier.Models
         public Guid? PaymentProviderId { get; set; }
         public string? InvoiceId { get; set; }
         public int? Status { get; set; }
-        
         public string? ImageUrl { get; set; }
+        public DateTime? UpdatedAt { get; set; }
 
         public virtual Company? Company { get; set; }
         public virtual PaymentProvider? PaymentProvider { get; set; }

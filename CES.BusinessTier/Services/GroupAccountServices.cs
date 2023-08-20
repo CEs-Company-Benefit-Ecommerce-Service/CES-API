@@ -427,6 +427,12 @@ namespace CES.BusinessTier.Services
                     dateTimeOffset = dateTimeOffset.AddHours(-7);
                     if (group.EndDate == null || (group.EndDate != null && group.EndDate > formattedDateTime))
                     {
+                        if (group.FirstTime == null)
+                        {
+                            group.FirstTime = group.TimeFilter;
+                            await _unitOfWork.Repository<Group>().UpdateDetached(group);
+                            await _unitOfWork.CommitAsync();
+                        }
                         BackgroundJob.Schedule(() => UpdateBalanceForAccountsInGroup(group.Id, enterpriseId),
                             dateTimeOffset);
                         return true;
@@ -468,6 +474,12 @@ namespace CES.BusinessTier.Services
                     dateTimeOffsetWeekly = dateTimeOffsetWeekly.AddHours(-7);
                     if (group.EndDate == null || (group.EndDate != null && group.EndDate > formattedDateTime))
                     {
+                        if (group.FirstTime == null)
+                        {
+                            group.FirstTime = group.TimeFilter;
+                            await _unitOfWork.Repository<Group>().UpdateDetached(group);
+                            await _unitOfWork.CommitAsync();
+                        }
                         BackgroundJob.Schedule(() => UpdateBalanceForAccountsInGroup(group.Id, enterpriseId),
                             dateTimeOffsetWeekly);
                         return true;
@@ -511,6 +523,12 @@ namespace CES.BusinessTier.Services
                     dateTimeOffsetMonthly = dateTimeOffsetMonthly.AddHours(-7);
                     if (group.EndDate == null || (group.EndDate != null && group.EndDate > formattedDateTime))
                     {
+                        if (group.FirstTime == null)
+                        {
+                            group.FirstTime = group.TimeFilter;
+                            await _unitOfWork.Repository<Group>().UpdateDetached(group);
+                            await _unitOfWork.CommitAsync();
+                        }
                         BackgroundJob.Schedule(() => UpdateBalanceForAccountsInGroup(group.Id, enterpriseId),
                             dateTimeOffsetMonthly);
                         return true;

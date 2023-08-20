@@ -40,8 +40,8 @@ namespace CES.DataTier.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-// #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-//                 optionsBuilder.UseSqlServer("Server=35.187.237.212;Database=CEsData_dev_v3;uid=sa;pwd=zaQ@1234");
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Server=35.187.237.212;Database=CEsData_dev_v3;uid=sa;pwd=zaQ@1234");
             }
         }
 
@@ -257,7 +257,11 @@ namespace CES.DataTier.Models
 
                 entity.Property(e => e.EndDate).HasColumnType("datetime");
 
+                entity.Property(e => e.FirstTime).HasColumnType("datetime");
+
                 entity.Property(e => e.Name).HasMaxLength(50);
+
+                entity.Property(e => e.TimeFilter).HasColumnType("datetime");
 
                 entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
@@ -266,7 +270,7 @@ namespace CES.DataTier.Models
                     .HasForeignKey(d => d.BenefitId)
                     .HasConstraintName("FK_Group_Benefit");
             });
-
+            
             modelBuilder.Entity<Notification>(entity =>
             {
                 entity.ToTable("Notification");
@@ -405,11 +409,12 @@ namespace CES.DataTier.Models
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
                 entity.Property(e => e.CreatedAt).HasColumnType("datetime");
-                entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
                 entity.Property(e => e.Description).HasMaxLength(100);
 
                 entity.Property(e => e.InvoiceId).HasMaxLength(100);
+
+                entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
                 entity.HasOne(d => d.Company)
                     .WithMany(p => p.Transactions)
