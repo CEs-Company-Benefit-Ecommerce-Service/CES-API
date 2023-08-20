@@ -98,6 +98,10 @@ namespace CES.BusinessTier.Services
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
             var user = _unitOfWork.Repository<Enterprise>().FindAsync(x => x.AccountId == accountLoginId).Result;
 
+            if (request.EndDate != null)
+            {
+                request.EndDate = new DateTime(request.EndDate.Value.Year, request.EndDate.Value.Month, request.EndDate.Value.Day, 23, 59, 0);
+            }
             var newBenefit = _mapper.Map<Benefit>(request);
             newBenefit.Id = Guid.NewGuid();
             newBenefit.Status = (int)Status.Inactive;
