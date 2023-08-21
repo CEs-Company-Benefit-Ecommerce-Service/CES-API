@@ -247,9 +247,19 @@ namespace CES.BusinessTier.Services
                         Message = "Bad request",
                     };
                 }
+                var empNotification = new DataTier.Models.Notification()
+                {
+                    Id = Guid.NewGuid(),
+                    Title = $"Join {group.Name}",
+                    Description = $"You have just been added to the {group.Name}",
+                    AccountId = accountId,
+                    IsRead = false,
+                    CreatedAt = TimeUtils.GetCurrentSEATime(),
+                };
+                await _unitOfWork.Repository<DataTier.Models.Notification>().InsertAsync(empNotification);
             }
 
-
+            await _unitOfWork.CommitAsync();
 
             return new BaseResponseViewModel<GroupResponseModel>()
             {
