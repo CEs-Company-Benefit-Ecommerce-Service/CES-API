@@ -276,10 +276,10 @@ namespace CES.BusinessTier.Services
                 eaAccount.UpdatedAt = TimeUtils.GetCurrentSEATime();
 
                 var limit = eaAccount.Enterprises.First().Company.Limits;
-                var fiftyPercent = 50 / 100;
-                var seventyFivePercent = 75 / 100;
+                double fiftyPercent = 50 / 100;
+                double seventyFivePercent = 75 / 100;
                 var onehundredPercent = 100 / 100;
-                var halfOfLimit =  limit / 2;
+                var halfOfLimit = limit / 2;
 
                 if (useTotal >= halfOfLimit)
                 {
@@ -295,8 +295,9 @@ namespace CES.BusinessTier.Services
                             CreatedAt = TimeUtils.GetCurrentSEATime(),
                             AccountId = eaAccount.Id
                         };
-                        await _unitOfWork.Repository<DataTier.Models.Notification>().UpdateDetached(eaNotification);
-                    } else if (usedPercent >= seventyFivePercent)
+                        await _unitOfWork.Repository<DataTier.Models.Notification>().InsertAsync(eaNotification);
+                    }
+                    else if (usedPercent >= seventyFivePercent)
                     {
                         var eaNotification = new DataTier.Models.Notification()
                         {
@@ -307,7 +308,7 @@ namespace CES.BusinessTier.Services
                             CreatedAt = TimeUtils.GetCurrentSEATime(),
                             AccountId = eaAccount.Id
                         };
-                        await _unitOfWork.Repository<DataTier.Models.Notification>().UpdateDetached(eaNotification);
+                        await _unitOfWork.Repository<DataTier.Models.Notification>().InsertAsync(eaNotification);
                     }
                     else
                     {
@@ -320,7 +321,7 @@ namespace CES.BusinessTier.Services
                             CreatedAt = TimeUtils.GetCurrentSEATime(),
                             AccountId = eaAccount.Id
                         };
-                        await _unitOfWork.Repository<DataTier.Models.Notification>().UpdateDetached(eaNotification);
+                        await _unitOfWork.Repository<DataTier.Models.Notification>().InsertAsync(eaNotification);
                     }
                 }
 
