@@ -9,7 +9,7 @@
   <component name="ChangeListManager">
     <list default="true" id="c33e2030-59db-4d3d-a633-8e65857e01e7" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CES/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/GroupServices.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -152,7 +152,7 @@
       <workItem from="1690473407242" duration="1594000" />
       <workItem from="1690475033288" duration="3487000" />
       <workItem from="1691080219788" duration="28412000" />
-      <workItem from="1692505844466" duration="7841000" />
+      <workItem from="1692505844466" duration="8815000" />
     </task>
     <servers />
   </component>
@@ -291,10 +291,10 @@
           <line>305</line>
           <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs" initialLine="291" containingFunctionPresentation="Method 'CreateOrder'">
             <startOffsets>
-              <option value="13925" />
+              <option value="13937" />
             </startOffsets>
             <endOffsets>
-              <option value="14046" />
+              <option value="14058" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="97" />
@@ -304,10 +304,10 @@
           <line>355</line>
           <properties documentPath="$PROJECT_DIR$/CES.BusinessTier/Services/OrderServices.cs" initialLine="355" containingFunctionPresentation="Method 'CreateOrder'">
             <startOffsets>
-              <option value="17412" />
+              <option value="17424" />
             </startOffsets>
             <endOffsets>
-              <option value="17533" />
+              <option value="17545" />
             </endOffsets>
           </properties>
           <option name="timeStamp" value="117" />

@@ -197,8 +197,8 @@ namespace CES.BusinessTier.Services
             var empNotification = new DataTier.Models.Notification()
             {
                 Id = Guid.NewGuid(),
-                Title = "Cập nhật trạng thái đơn hàng",
-                Description = "Đơn hàng của bạn đã chuyển sang trạng thái: " + stringStatus,
+                Title = $"Update order status #{existedOrder.OrderCode}",
+                Description = "Your order has been changed to: " + stringStatus,
                 OrderId = existedOrder.Id,
                 IsRead = false,
                 CreatedAt = TimeUtils.GetCurrentSEATime(),
@@ -214,8 +214,8 @@ namespace CES.BusinessTier.Services
                     Token = accountEmp.FcmToken,
                     Notification = new FirebaseAdmin.Messaging.Notification
                     {
-                        Title = "Cập nhật trạng thái đơn hàng",
-                        Body = "Đơn hàng của bạn đã chuyển sang trạng thái: " + stringStatus,
+                        Title = $"Update order status #{existedOrder.OrderCode}",
+                        Body = "Your order has been changed to: " + stringStatus,
                     },
                 });
                 if (response == null)
@@ -234,8 +234,8 @@ namespace CES.BusinessTier.Services
                 var eaNotification = new DataTier.Models.Notification()
                 {
                     Id = Guid.NewGuid(),
-                    Title = "",
-                    Description = "Đơn hàng của " + accountEmp.Name + "đã bị hủy",
+                    Title = $"Order #{existedOrder.OrderCode} has been canceled",
+                    Description = accountEmp.Name + "'s order has been canceled",
                     OrderId = existedOrder.Id,
                     IsRead = false,
                     CreatedAt = TimeUtils.GetCurrentSEATime(),
@@ -252,7 +252,7 @@ namespace CES.BusinessTier.Services
                     Id = Guid.NewGuid(),
                     WalletId = accountEmp.Wallets.First().Id,
                     Type = (int)WalletTransactionTypeEnums.CashBack,
-                    Description = $"Hoàn {cashBackTotal} từ đơn hàng {existedOrder.OrderCode}",
+                    Description = $"Refund {cashBackTotal} from order {existedOrder.OrderCode}",
                     OrderId = existedOrder.Id,
                     RecieveId = accountEmp.Id,
                     Total = (double)cashBackTotal,
