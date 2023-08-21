@@ -276,9 +276,9 @@ namespace CES.BusinessTier.Services
                 eaAccount.UpdatedAt = TimeUtils.GetCurrentSEATime();
 
                 var limit = eaAccount.Enterprises.First().Company.Limits;
-                double fiftyPercent = 50 / 100;
-                double seventyFivePercent = 75 / 100;
-                var onehundredPercent = 100 / 100;
+                var fiftyPercent = 0.5;
+                var seventyFivePercent = 0.75;
+                var onehundredPercent = 1;
                 var halfOfLimit = limit / 2;
 
                 if (useTotal >= halfOfLimit)
