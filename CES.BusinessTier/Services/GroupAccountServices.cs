@@ -454,25 +454,30 @@ namespace CES.BusinessTier.Services
                     {
                         throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "Please provide Day");
                     }
-
-                    int currentDayOfWeekValue = (int)formattedDateTime.DayOfWeek;
+                    var formattedDateTimeWeekly = new DateTime(now.Year, now.Month, now.Day, group.TimeFilter.Value.Hour,
+                        group.TimeFilter.Value.Minute, group.TimeFilter.Value.Second);
+                    int currentDayOfWeekValue = (int)formattedDateTimeWeekly.DayOfWeek;
                     int daysToAdd = ((int)group.DayFilter - currentDayOfWeekValue + 7) % 7;
-                    DateTime resultDate = formattedDateTime;
+                    DateTime resultDate = formattedDateTimeWeekly.AddDays(daysToAdd);
                     DateTimeOffset dateTimeOffsetWeekly = new DateTimeOffset(resultDate);
-                    if (formattedDateTime > now)
+                    if (resultDate > now)
                     {
-                        dateTimeOffsetWeekly = new DateTimeOffset(formattedDateTime);
+                        dateTimeOffsetWeekly = new DateTimeOffset(resultDate);
+                        group.TimeFilter = resultDate;
+                        await _unitOfWork.Repository<Group>().UpdateDetached(group);
+                        await _unitOfWork.CommitAsync();
+                        
                     }
-                    else if (daysToAdd == 0 && formattedDateTime <= now)
+                    else if (daysToAdd == 0 && resultDate <= now)
                     {
                         dateTimeOffsetWeekly = dateTimeOffsetWeekly.AddDays(7);
-                        group.TimeFilter = formattedDateTime.AddDays(7);
+                        group.TimeFilter = resultDate.AddDays(7);
                         await _unitOfWork.Repository<Group>().UpdateDetached(group);
                         await _unitOfWork.CommitAsync();
                     }
 
                     dateTimeOffsetWeekly = dateTimeOffsetWeekly.AddHours(-7);
-                    if (group.EndDate == null || (group.EndDate != null && group.EndDate > formattedDateTime))
+                    if (group.EndDate == null || (group.EndDate != null && group.EndDate > resultDate))
                     {
                         if (group.FirstTime == null)
                         {
@@ -484,7 +489,7 @@ namespace CES.BusinessTier.Services
                             dateTimeOffsetWeekly);
                         return true;
                     }
-                    else if (group.EndDate != null && group.EndDate <= formattedDateTime)
+                    else if (group.EndDate != null && group.EndDate <= resultDate)
                     {
                         var existedBenefit = _unitOfWork.Repository<Benefit>().FindAsync(x => x.Id == group.Benefit.Id)
                             .Result;
@@ -501,27 +506,33 @@ namespace CES.BusinessTier.Services
                     {
                         throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "Please provide Date");
                     }
+                    
+                    var formattedDateTimeMonthly = new DateTime(now.Year, now.Month, (int)group.DateFilter, group.TimeFilter.Value.Hour,
+                        group.TimeFilter.Value.Minute, group.TimeFilter.Value.Second);
 
-                    DateTime resultDateMonthly = formattedDateTime.AddMonths(1);
+                    DateTime resultDateMonthly = formattedDateTimeMonthly.AddMonths(1);
                     DateTime formattedDayOfMonthly = new DateTime(resultDateMonthly.Year, resultDateMonthly.Month,
                         (int)group.DateFilter, resultDateMonthly.Hour, resultDateMonthly.Minute,
                         resultDateMonthly.Second);
                     DateTimeOffset nowDateTimeOffsetMonthly = new DateTimeOffset(now);
-                    DateTimeOffset nowFormattedDateTimeOffsetMonthly = new DateTimeOffset(formattedDateTime);
+                    DateTimeOffset nowFormattedDateTimeOffsetMonthly = new DateTimeOffset(formattedDateTimeMonthly);
                     DateTimeOffset dateTimeOffsetMonthly = new DateTimeOffset(formattedDayOfMonthly);
                     if (nowFormattedDateTimeOffsetMonthly > nowDateTimeOffsetMonthly)
                     {
-                        dateTimeOffsetMonthly = new DateTimeOffset(formattedDateTime);
+                        dateTimeOffsetMonthly = new DateTimeOffset(formattedDateTimeMonthly);
+                        group.TimeFilter = formattedDateTimeMonthly;
+                        await _unitOfWork.Repository<Group>().UpdateDetached(group);
+                        await _unitOfWork.CommitAsync();
                     }
                     else
                     {
-                        group.TimeFilter = formattedDateTime.AddMonths(1);
+                        group.TimeFilter = formattedDateTimeMonthly.AddMonths(1);
                         await _unitOfWork.Repository<Group>().UpdateDetached(group);
                         await _unitOfWork.CommitAsync();
                     }
 
                     dateTimeOffsetMonthly = dateTimeOffsetMonthly.AddHours(-7);
-                    if (group.EndDate == null || (group.EndDate != null && group.EndDate > formattedDateTime))
+                    if (group.EndDate == null || (group.EndDate != null && group.EndDate > formattedDateTimeMonthly))
                     {
                         if (group.FirstTime == null)
                         {
@@ -533,7 +544,7 @@ namespace CES.BusinessTier.Services
                             dateTimeOffsetMonthly);
                         return true;
                     }
-                    else if (group.EndDate != null && group.EndDate <= formattedDateTime)
+                    else if (group.EndDate != null && group.EndDate <= formattedDateTimeMonthly)
                     {
                         var existedBenefit = _unitOfWork.Repository<Benefit>().FindAsync(x => x.Id == group.Benefit.Id)
                             .Result;
