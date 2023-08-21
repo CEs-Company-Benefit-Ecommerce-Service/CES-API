@@ -363,6 +363,7 @@ public class TransactionService : ITransactionService
             .FirstOrDefaultAsync();
         int companyId = Int32.Parse(_contextAccessor.HttpContext?.User.FindFirst("CompanyId").Value);
         var transaction = _mapper.Map<Transaction>(request);
+        transaction.LastPaymentTotal = request.Total;
         transaction.Id = Guid.NewGuid();
         transaction.Type = (int)WalletTransactionTypeEnums.Bank;
         transaction.Status = (int)DebtStatusEnums.Progressing;

@@ -23,5 +23,7 @@ namespace CES.BusinessTier.ResponseModels
         public string? InvoiceId { get; set; }
         public int? Status { get; set; } // 0 = đang thanh toán || 1 = complete || 2 = false
         public string? ImageUrl { get; set; }
+        
+        public double? LastPaymentTotal { get; set; }
     }
 }

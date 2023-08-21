@@ -25,6 +25,8 @@ namespace CES.DataTier.Models
         public int? Status { get; set; }
         public string? ImageUrl { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        
+        public double? LastPaymentTotal { get; set; }
 
         public virtual Company? Company { get; set; }
         public virtual PaymentProvider? PaymentProvider { get; set; }
