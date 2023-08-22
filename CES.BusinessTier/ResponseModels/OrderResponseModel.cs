@@ -46,6 +46,7 @@ namespace CES.BusinessTier.ResponseModels
         public Guid? EmployeeId { get; set; }
         public int? CompanyId { get; set; }
         public ICollection<OrderDetailsResponseModel>? OrderDetails { get; set; }
+        public UserResponseModel? Employee { get; set; }
         public string? EmployeeName { get; set; }
     }
     public class FilterFromTo
