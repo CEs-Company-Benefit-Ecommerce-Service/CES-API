@@ -14,6 +14,8 @@ namespace CES.BusinessTier.ResponseModels
     {
         public double? Used { get; set; }
         public int? OrderCount { get; set; }
+        public int? EmpCount { get; set; }
+        public int? BenefitCount { get; set; }
         //public List<KeyValuePair<Guid, double>>? TopEmpUsed { get; set; }
     }
 
@@ -23,5 +25,6 @@ namespace CES.BusinessTier.ResponseModels
         public double? TotalRevenue { get; set; }
         public double? TotalCompanyUsed { get; set; }
         public int? EmployeeCount { get; set; }
+        public int? InvoiceCount { get; set; }
     }
 }

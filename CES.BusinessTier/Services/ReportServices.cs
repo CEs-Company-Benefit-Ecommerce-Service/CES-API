@@ -7,6 +7,7 @@ using CES.BusinessTier.Utilities;
 using CES.DataTier.Models;
 using LAK.Sdk.Core.Utilities;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -45,22 +46,131 @@ namespace CES.BusinessTier.Services
             int enterpriseCompanyId = Int32.Parse(_contextAccessor.HttpContext?.User.FindFirst("CompanyId").Value);
             var orders = await _unitOfWork.Repository<Order>().AsQueryable(x => x.CompanyId == enterpriseCompanyId && x.Status == (int)OrderStatusEnums.Complete).ToListAsync();
             var orderCount = orders.Count();
-            if (request.From != null || request.To != null)
-            {
-                orderCount = orders.Where(x => x.CreatedAt.GetStartOfDate() >= request.From.GetValueOrDefault().GetStartOfDate() && x.CreatedAt <= request.To.GetValueOrDefault().GetStartOfDate()).Count();
-            }
+            var benefits = await _unitOfWork.Repository<Benefit>().AsQueryable(x => x.CompanyId == enterpriseCompanyId && x.Status == (int)Status.Active).ToListAsync();
+            var benefitCount = benefits.Count();
+            var employees = await _unitOfWork.Repository<Employee>().AsQueryable(x => x.CompanyId == enterpriseCompanyId && x.Status == (int)Status.Active).ToListAsync();
+            var employeesCount = employees.Count();
+            if (request.Type == 1)
+            {// 7 ngày
+                var passive = TimeUtils.GetCurrentSEATime().AddDays(-1);
+                var current = TimeUtils.GetCurrentSEATime();
 
-            var result = new ReportEAResponseModel
+                var ordersPassed = orders.Where(x => x.CreatedAt >= passive);
+                var resultOrderCount = ordersPassed.Count();
+                var benefitPassed = benefits.Where(x => x.CreatedAt >= passive);
+                var resultBenefitCount = benefitPassed.Count();
+                var employeePassed = employees.Where(x => x.CreatedAt >= passive);
+                var resultEmployeeCount = employeePassed.Count();
+
+                var result = new ReportEAResponseModel
+                {
+                    OrderCount = resultOrderCount,
+                    BenefitCount = resultBenefitCount,
+                    EmpCount = resultEmployeeCount,
+                    Used = accountLogin.Wallets.FirstOrDefault().Used
+                };
+
+                return new BaseResponseViewModel<ReportEAResponseModel>
+                {
+                    Code = StatusCodes.Status200OK,
+                    Message = "Ok",
+                    Data = result
+                };
+            } else if (request.Type == 2)
+            {// 14 ngày
+                var passive = TimeUtils.GetCurrentSEATime().AddDays(-14);
+                var current = TimeUtils.GetCurrentSEATime();
+
+                var ordersPassed = orders.Where(x => x.CreatedAt >= passive);
+                var resultOrderCount = ordersPassed.Count();
+                var benefitPassed = benefits.Where(x => x.CreatedAt >= passive);
+                var resultBenefitCount = benefitPassed.Count();
+                var employeePassed = employees.Where(x => x.CreatedAt >= passive);
+                var resultEmployeeCount = employeePassed.Count();
+
+                var result = new ReportEAResponseModel
+                {
+                    OrderCount = resultOrderCount,
+                    BenefitCount = resultBenefitCount,
+                    EmpCount = resultEmployeeCount,
+                    Used = accountLogin.Wallets.FirstOrDefault().Used
+                };
+
+                return new BaseResponseViewModel<ReportEAResponseModel>
+                {
+                    Code = StatusCodes.Status200OK,
+                    Message = "Ok",
+                    Data = result
+                };
+            } else if (request.Type == 3)
+            {// 7 ngày
+                var passive = TimeUtils.GetCurrentSEATime().AddDays(-30);
+                var current = TimeUtils.GetCurrentSEATime();
+
+                var ordersPassed = orders.Where(x => x.CreatedAt >= passive);
+                var resultOrderCount = ordersPassed.Count();
+                var benefitPassed = benefits.Where(x => x.CreatedAt >= passive);
+                var resultBenefitCount = benefitPassed.Count();
+                var employeePassed = employees.Where(x => x.CreatedAt >= passive);
+                var resultEmployeeCount = employeePassed.Count();
+
+                var result = new ReportEAResponseModel
+                {
+                    OrderCount = resultOrderCount,
+                    BenefitCount = resultBenefitCount,
+                    EmpCount = resultEmployeeCount,
+                    Used = accountLogin.Wallets.FirstOrDefault().Used
+                };
+
+                return new BaseResponseViewModel<ReportEAResponseModel>
+                {
+                    Code = StatusCodes.Status200OK,
+                    Message = "Ok",
+                    Data = result
+                };
+            } else if (request.Type == 4)
+            {// 7 ngày
+                var passive = TimeUtils.GetCurrentSEATime().AddDays(-60);
+                var current = TimeUtils.GetCurrentSEATime();
+
+                var ordersPassed = orders.Where(x => x.CreatedAt >= passive);
+                var resultOrderCount = ordersPassed.Count();
+                var benefitPassed = benefits.Where(x => x.CreatedAt >= passive);
+                var resultBenefitCount = benefitPassed.Count();
+                var employeePassed = employees.Where(x => x.CreatedAt >= passive);
+                var resultEmployeeCount = employeePassed.Count();
+
+                var result = new ReportEAResponseModel
+                {
+                    OrderCount = resultOrderCount,
+                    BenefitCount = resultBenefitCount,
+                    EmpCount = resultEmployeeCount,
+                    Used = accountLogin.Wallets.FirstOrDefault().Used
+                };
+
+                return new BaseResponseViewModel<ReportEAResponseModel>
+                {
+                    Code = StatusCodes.Status200OK,
+                    Message = "Ok",
+                    Data = result
+                };
+            }
+            else
             {
-                OrderCount = orderCount,
-                Used = accountLogin.Wallets.FirstOrDefault().Used
-            };
-            return new BaseResponseViewModel<ReportEAResponseModel>
-            {
-                Code = StatusCodes.Status200OK,
-                Message = "Ok",
-                Data = result
-            };
+                var result = new ReportEAResponseModel
+                {
+                    OrderCount = orderCount,
+                    EmpCount = employeesCount,
+                    BenefitCount = benefitCount,
+                    Used = accountLogin.Wallets.FirstOrDefault().Used
+                };
+                return new BaseResponseViewModel<ReportEAResponseModel>
+                {
+                    Code = StatusCodes.Status200OK,
+                    Message = "Ok",
+                    Data = result
+                };
+            }
         }
 
         public async Task<BaseResponseViewModel<ReportSAResponseModel>> GetReportForSA(ReportRequestModel request)
@@ -75,7 +185,36 @@ namespace CES.BusinessTier.Services
 
             var totalCompanyUsed = 0.0;
 
-            var totalRevenue = _unitOfWork.Repository<Transaction>().AsQueryable(x => x.Status == (int)DebtStatusEnums.Complete && (x.Type == (int)WalletTransactionTypeEnums.ZaloPay || x.Type == (int)WalletTransactionTypeEnums.VnPay)).Select(x => x.Total).Sum();
+            var totalRevenue = 0.0;
+            if (request.Type == 1)
+            {
+                var passive = TimeUtils.GetCurrentSEATime().AddDays(-1);
+                var current = TimeUtils.GetCurrentSEATime();
+
+                totalRevenue = _unitOfWork.Repository<Transaction>().AsQueryable(x => x.Status == (int)DebtStatusEnums.Complete && x.CreatedAt >= passive && (x.Type == (int)WalletTransactionTypeEnums.ZaloPay || x.Type == (int)WalletTransactionTypeEnums.VnPay)).Select(x => x.Total).Sum();
+            } else if (request.Type == 2)
+            {
+                var passive = TimeUtils.GetCurrentSEATime().AddDays(-14);
+                var current = TimeUtils.GetCurrentSEATime();
+
+                totalRevenue = _unitOfWork.Repository<Transaction>().AsQueryable(x => x.Status == (int)DebtStatusEnums.Complete && x.CreatedAt >= passive && (x.Type == (int)WalletTransactionTypeEnums.ZaloPay || x.Type == (int)WalletTransactionTypeEnums.VnPay)).Select(x => x.Total).Sum();
+            } else if (request.Type == 3)
+            {
+                var passive = TimeUtils.GetCurrentSEATime().AddDays(-30);
+                var current = TimeUtils.GetCurrentSEATime();
+
+                totalRevenue = _unitOfWork.Repository<Transaction>().AsQueryable(x => x.Status == (int)DebtStatusEnums.Complete && x.CreatedAt >= passive && (x.Type == (int)WalletTransactionTypeEnums.ZaloPay || x.Type == (int)WalletTransactionTypeEnums.VnPay)).Select(x => x.Total).Sum();
+            } else if (request.Type == 4)
+            {
+                var passive = TimeUtils.GetCurrentSEATime().AddDays(-60);
+                var current = TimeUtils.GetCurrentSEATime();
+
+                totalRevenue = _unitOfWork.Repository<Transaction>().AsQueryable(x => x.Status == (int)DebtStatusEnums.Complete && x.CreatedAt >= passive && (x.Type == (int)WalletTransactionTypeEnums.ZaloPay || x.Type == (int)WalletTransactionTypeEnums.VnPay)).Select(x => x.Total).Sum();
+            } else
+            {
+                totalRevenue = _unitOfWork.Repository<Transaction>().AsQueryable(x => x.Status == (int)DebtStatusEnums.Complete && (x.Type == (int)WalletTransactionTypeEnums.ZaloPay || x.Type == (int)WalletTransactionTypeEnums.VnPay)).Select(x => x.Total).Sum();
+            }
+            var invoicesCount = _unitOfWork.Repository<Transaction>().AsQueryable(x => x.Status == (int)DebtStatusEnums.Progressing).Count();
 
             foreach (var company in companies)
             {
