@@ -27,7 +27,7 @@ namespace CES.BusinessTier.Services
     public interface ILoginServices
     {
         Task<BaseResponseViewModel<LoginResponseModel>> Login(LoginModel loginModel);
-        Task<AccountResponseModel> GetCurrentLoginAccount();
+        Task<AccountResponseWithCompany> GetCurrentLoginAccount();
     }
     public class LoginServices : ILoginServices
     {
@@ -46,7 +46,7 @@ namespace CES.BusinessTier.Services
             _mapper = mapper;
         }
 
-        public async Task<AccountResponseModel> GetCurrentLoginAccount()
+        public async Task<AccountResponseWithCompany> GetCurrentLoginAccount()
         {
             Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
             var companyStringId = _contextAccessor.HttpContext?.User.FindFirst("CompanyId").Value;
@@ -59,7 +59,10 @@ namespace CES.BusinessTier.Services
                 company = _unitOfWork.Repository<Company>().GetById(companyId).Result;
 
             }
-            var account = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Wallets).Include(x => x.Enterprises).Include(x => x.Employees).FirstOrDefaultAsync();
+            var account = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Wallets)
+                .Include(x => x.Enterprises)
+                .Include(x => x.Employees)
+                .FirstOrDefaultAsync();
 
             if (account == null)
             {
@@ -67,19 +70,21 @@ namespace CES.BusinessTier.Services
                     AccountErrorEnums.NOT_FOUND_ID.GetDisplayName());
             }
 
-            var result = _mapper.Map<AccountResponseModel>(account);
+            var resultTemp = _mapper.Map<AccountResponseModel>(account);
 
             //get company id in account response for EA and Emp; SA and SupA will get companyId = 0
             if (account.Role.Equals(Roles.EnterpriseAdmin.GetDisplayName()))
             {
-                result.CompanyId = companyId;
-                result.ExpiredDate = company.ExpiredDate;
+                resultTemp.CompanyId = companyId;
+                resultTemp.ExpiredDate = company.ExpiredDate;
                 //result.Wallets.FirstOrDefault().Limits = company.Limits;
             }
             else if (account.Role.Equals(Roles.Employee.GetDisplayName()))
             {
-                result.CompanyId = companyId;
+                resultTemp.CompanyId = companyId;
             }
+            var result = _mapper.Map<AccountResponseWithCompany>(resultTemp);
+            result.Company = _mapper.Map<CompanyResponseModel>(company);
             return result;
         }
 

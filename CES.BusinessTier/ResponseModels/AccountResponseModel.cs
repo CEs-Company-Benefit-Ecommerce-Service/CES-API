@@ -48,4 +48,9 @@ namespace CES.BusinessTier.ResponseModels
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
     }
+
+    public class AccountResponseWithCompany : AccountResponseModel
+    {
+        public CompanyResponseModel? Company { get; set; }
+    }
 }

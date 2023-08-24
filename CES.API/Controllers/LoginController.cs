@@ -33,7 +33,7 @@ namespace CES.API.Controllers
         [SwaggerOperation(summary: "Get current login account")]
         [Authorize]
         [HttpGet("me")]
-        public async Task<ActionResult<AccountResponseModel>> GetCurrentLoginUser()
+        public async Task<ActionResult<AccountResponseWithCompany>> GetCurrentLoginUser()
         {
             return await _loginServices.GetCurrentLoginAccount();
         }
