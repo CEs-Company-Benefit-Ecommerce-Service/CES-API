@@ -14,6 +14,15 @@ namespace CES.BusinessTier.ResponseModels.BaseResponseModels
         public PagingMetaData MetaData { get; set; }
         public List<T> Data { get; set; }
     }
+    
+    public class DynamicResponse2<T>
+    {
+        public int? Code { get; set; }
+        public string? SystemCode { get; set; }
+        public string? Message { get; set; }
+        public PagingMetaData MetaData { get; set; }
+        public T Data { get; set; }
+    }
 
     public class PagingMetaData
     {

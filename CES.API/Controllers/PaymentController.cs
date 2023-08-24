@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CES.BusinessTier.RequestModels;
 using CES.BusinessTier.ResponseModels;
+using CES.BusinessTier.ResponseModels.BaseResponseModels;
 using CES.BusinessTier.Services;
 using CES.BusinessTier.Utilities;
 using Microsoft.AspNetCore.Authorization;
@@ -96,9 +97,9 @@ namespace CES.API.Controllers
         }
 
         [HttpGet("total-order/{companyId}")]
-        public async Task<ActionResult> GetTotalOrder(int companyId)
+        public async Task<ActionResult> GetTotalOrder(int companyId, [FromQuery] PagingModel paging)
         {
-            var result = await _debtServices.GetValueForPayment(companyId);
+            var result = await _debtServices.GetValueForPayment(companyId, paging);
             return StatusCode((int)result.Code, result);
         }
     }

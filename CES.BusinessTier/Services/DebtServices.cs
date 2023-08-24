@@ -26,7 +26,7 @@ namespace CES.BusinessTier.Services
         BaseResponseViewModel<DebtTicketResponseModel> GetById(int id);
         Task<BaseResponseViewModel<DebtTicketResponseModel>> CreateAsync(int companyId);
         Task<BaseResponseViewModel<DebtTicketResponseModel>> DeleteAsync(int debtId);
-        Task<BaseResponseViewModel<ListOrderToPaymentResponse>> GetValueForPayment(int companyId);
+        Task<DynamicResponse2<ListOrderToPaymentResponse>> GetValueForPayment(int companyId, PagingModel paging);
 
     }
     public class DebtServices : IDebtServices
@@ -255,7 +255,7 @@ namespace CES.BusinessTier.Services
                 };
             }
         }
-        public async Task<BaseResponseViewModel<ListOrderToPaymentResponse>> GetValueForPayment(int companyId)
+        public async Task<DynamicResponse2<ListOrderToPaymentResponse>> GetValueForPayment(int companyId, PagingModel paging)
         {
             var enterprise = await _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.CompanyId == companyId)
                                                             .Include(x => x.Account).ThenInclude(x => x.Wallets).FirstOrDefaultAsync();
@@ -268,15 +268,28 @@ namespace CES.BusinessTier.Services
                 .Include(x => x.Employee)
                 .ThenInclude(x => x.Account)
                 .ToListAsync();
+            var result = _unitOfWork.Repository<Order>()
+                .AsQueryable(x => x.CompanyId == companyId && x.DebtStatus == (int)DebtStatusEnums.New)
+                .Include(x => x.Employee)
+                .ThenInclude(x => x.Account)
+                .PagingQueryable(paging.Page, paging.Size);
 
             List<OrderToPaymentResponse> orderToPayment = new List<OrderToPaymentResponse>();
 
-            foreach (var order in orders)
+            var e = await result.Item2.ToListAsync();
+            foreach (var order in e)
             {
                 var orderPayment = _mapper.Map<OrderToPaymentResponse>(order);
                 orderPayment.EmployeeName = order.Employee.Account.Name;
                 orderToPayment.Add(orderPayment);
             }
+
+            // foreach (var order in orders)
+            // {
+            //     var orderPayment = _mapper.Map<OrderToPaymentResponse>(order);
+            //     orderPayment.EmployeeName = order.Employee.Account.Name;
+            //     orderToPayment.Add(orderPayment);
+            // }
 
 
             var bill = new ListOrderToPaymentResponse
@@ -286,11 +299,17 @@ namespace CES.BusinessTier.Services
                 Orders = orderToPayment
             };
 
-            return new BaseResponseViewModel<ListOrderToPaymentResponse>
+            return new DynamicResponse2<ListOrderToPaymentResponse>
             {
                 Code = StatusCodes.Status200OK,
                 SystemCode = "000",
                 Message = "OK",
+                MetaData = new PagingMetaData()
+                {
+                    Page = paging.Page,
+                    Size = paging.Size,
+                    Total = result.Item1
+                },
                 Data = bill
             };
         }
