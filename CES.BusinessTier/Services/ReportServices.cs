@@ -52,7 +52,7 @@ namespace CES.BusinessTier.Services
             var employeesCount = employees.Count();
             if (request.Type == 1)
             {// 7 ngày
-                var passive = TimeUtils.GetCurrentSEATime().AddDays(-1);
+                var passive = TimeUtils.GetCurrentSEATime().AddDays(-7);
                 var current = TimeUtils.GetCurrentSEATime();
 
                 var ordersPassed = orders.Where(x => x.CreatedAt >= passive);
@@ -76,7 +76,8 @@ namespace CES.BusinessTier.Services
                     Message = "Ok",
                     Data = result
                 };
-            } else if (request.Type == 2)
+            }
+            else if (request.Type == 2)
             {// 14 ngày
                 var passive = TimeUtils.GetCurrentSEATime().AddDays(-14);
                 var current = TimeUtils.GetCurrentSEATime();
@@ -102,7 +103,8 @@ namespace CES.BusinessTier.Services
                     Message = "Ok",
                     Data = result
                 };
-            } else if (request.Type == 3)
+            }
+            else if (request.Type == 3)
             {// 7 ngày
                 var passive = TimeUtils.GetCurrentSEATime().AddDays(-30);
                 var current = TimeUtils.GetCurrentSEATime();
@@ -128,7 +130,8 @@ namespace CES.BusinessTier.Services
                     Message = "Ok",
                     Data = result
                 };
-            } else if (request.Type == 4)
+            }
+            else if (request.Type == 4)
             {// 7 ngày
                 var passive = TimeUtils.GetCurrentSEATime().AddDays(-60);
                 var current = TimeUtils.GetCurrentSEATime();
@@ -188,29 +191,33 @@ namespace CES.BusinessTier.Services
             var totalRevenue = 0.0;
             if (request.Type == 1)
             {
-                var passive = TimeUtils.GetCurrentSEATime().AddDays(-1);
+                var passive = TimeUtils.GetCurrentSEATime().AddDays(-7);
                 var current = TimeUtils.GetCurrentSEATime();
 
                 totalRevenue = _unitOfWork.Repository<Transaction>().AsQueryable(x => x.Status == (int)DebtStatusEnums.Complete && x.CreatedAt >= passive && (x.Type == (int)WalletTransactionTypeEnums.ZaloPay || x.Type == (int)WalletTransactionTypeEnums.VnPay)).Select(x => x.Total).Sum();
-            } else if (request.Type == 2)
+            }
+            else if (request.Type == 2)
             {
                 var passive = TimeUtils.GetCurrentSEATime().AddDays(-14);
                 var current = TimeUtils.GetCurrentSEATime();
 
                 totalRevenue = _unitOfWork.Repository<Transaction>().AsQueryable(x => x.Status == (int)DebtStatusEnums.Complete && x.CreatedAt >= passive && (x.Type == (int)WalletTransactionTypeEnums.ZaloPay || x.Type == (int)WalletTransactionTypeEnums.VnPay)).Select(x => x.Total).Sum();
-            } else if (request.Type == 3)
+            }
+            else if (request.Type == 3)
             {
                 var passive = TimeUtils.GetCurrentSEATime().AddDays(-30);
                 var current = TimeUtils.GetCurrentSEATime();
 
                 totalRevenue = _unitOfWork.Repository<Transaction>().AsQueryable(x => x.Status == (int)DebtStatusEnums.Complete && x.CreatedAt >= passive && (x.Type == (int)WalletTransactionTypeEnums.ZaloPay || x.Type == (int)WalletTransactionTypeEnums.VnPay)).Select(x => x.Total).Sum();
-            } else if (request.Type == 4)
+            }
+            else if (request.Type == 4)
             {
                 var passive = TimeUtils.GetCurrentSEATime().AddDays(-60);
                 var current = TimeUtils.GetCurrentSEATime();
 
                 totalRevenue = _unitOfWork.Repository<Transaction>().AsQueryable(x => x.Status == (int)DebtStatusEnums.Complete && x.CreatedAt >= passive && (x.Type == (int)WalletTransactionTypeEnums.ZaloPay || x.Type == (int)WalletTransactionTypeEnums.VnPay)).Select(x => x.Total).Sum();
-            } else
+            }
+            else
             {
                 totalRevenue = _unitOfWork.Repository<Transaction>().AsQueryable(x => x.Status == (int)DebtStatusEnums.Complete && (x.Type == (int)WalletTransactionTypeEnums.ZaloPay || x.Type == (int)WalletTransactionTypeEnums.VnPay)).Select(x => x.Total).Sum();
             }
@@ -234,6 +241,7 @@ namespace CES.BusinessTier.Services
                 EmployeeCount = employeeCount,
                 TotalCompanyUsed = totalCompanyUsed,
                 TotalRevenue = totalRevenue,
+                InvoiceCount = invoicesCount,
             };
 
             return new BaseResponseViewModel<ReportSAResponseModel>
