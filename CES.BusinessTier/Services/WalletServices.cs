@@ -35,6 +35,7 @@ namespace CES.BusinessTier.Services
         Task<BaseResponseViewModel<WalletResponseModel>> UpdateWalletBalanceAsync(WalletUpdateBalanceModel request);
         Task ScheduleUpdateWalletBalanceForGroupAsync(WalletUpdateBalanceModel request, DateTime time);
         Task CreateWalletForAccountDontHaveEnough();
+        Task<BaseResponseViewModel<string>> ResetEmpWallet(int companyId);
         Task<BaseResponseViewModel<string>> ResetAllAfterEAPayment(int companyId);
         Task<BaseResponseViewModel<string>> ResetAllAfterExpired();
     }
@@ -504,9 +505,8 @@ namespace CES.BusinessTier.Services
                 };
             }
         }
-        public async Task<BaseResponseViewModel<string>> ResetAllAfterEAPayment(int companyId)
-        {   // this function will call immediately after EA use payment function
-
+        public async Task<BaseResponseViewModel<string>> ResetEmpWallet(int companyId)
+        {
             var employees = await _unitOfWork.Repository<Employee>().AsQueryable(x => x.CompanyId == companyId)
                                                             .Include(x => x.Account).ThenInclude(x => x.Wallets).Include(x => x.EmployeeGroupMappings).ToListAsync();
             var enterprise = await _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.CompanyId == companyId)
@@ -515,12 +515,13 @@ namespace CES.BusinessTier.Services
 
             try
             {
+                double sum = 0;
                 // Reset balance in Emp wallet = 0
                 foreach (var emp in employees)
                 {
                     var empWallet = emp.Account.Wallets.FirstOrDefault();
                     var total = empWallet.Balance;
-
+                    sum += (double)total;
                     // emp.EmployeeGroupMappings.Where(x => x.)
                     foreach (var group in emp.EmployeeGroupMappings)
                     {
@@ -531,7 +532,7 @@ namespace CES.BusinessTier.Services
                         Id = Guid.NewGuid(),
                         WalletId = empWallet.Id,
                         Type = (int)WalletTransactionTypeEnums.Reset,
-                        Description = "Reset",
+                        Description = "Reset money in wallet",
                         RecieveId = enterprise.AccountId,
                         SenderId = emp.AccountId,
                         Total = (double)total,
@@ -553,9 +554,79 @@ namespace CES.BusinessTier.Services
                     await _unitOfWork.Repository<Employee>().UpdateDetached(emp);
                     await _unitOfWork.Repository<Wallet>().UpdateDetached(empWallet);
                 }
+                var EAWallet = enterprise.Account.Wallets.FirstOrDefault();
+                EAWallet.Balance += sum;
+                await _unitOfWork.Repository<Wallet>().UpdateDetached(EAWallet);
+                await _unitOfWork.CommitAsync();
+                return new BaseResponseViewModel<string>
+                {
+                    Code = StatusCodes.Status200OK,
+                    Message = "OK",
+                    Data = "Reset done!"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponseViewModel<string>
+                {
+                    Code = StatusCodes.Status400BadRequest,
+                    Message = "Bad Request",
+                    Data = ex.Message
+                };
+            }
+        }
+        public async Task<BaseResponseViewModel<string>> ResetAllAfterEAPayment(int companyId)
+        {   // this function will call immediately after EA use payment function
+
+            var employees = await _unitOfWork.Repository<Employee>().AsQueryable(x => x.CompanyId == companyId)
+                                                            .Include(x => x.Account).ThenInclude(x => x.Wallets).Include(x => x.EmployeeGroupMappings).ToListAsync();
+            var enterprise = await _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.CompanyId == companyId)
+                                                            .Include(x => x.Account).ThenInclude(x => x.Wallets).FirstOrDefaultAsync();
+            var company = _unitOfWork.Repository<Company>().GetById(companyId);
+
+            try
+            {
+                //// Reset balance in Emp wallet = 0
+                //foreach (var emp in employees)
+                //{
+                //    var empWallet = emp.Account.Wallets.FirstOrDefault();
+                //    var total = empWallet.Balance;
+
+                //    // emp.EmployeeGroupMappings.Where(x => x.)
+                //    foreach (var group in emp.EmployeeGroupMappings)
+                //    {
+                //        group.IsReceived = false;
+                //    }
+                //    var walletTransaction = new Transaction()
+                //    {
+                //        Id = Guid.NewGuid(),
+                //        WalletId = empWallet.Id,
+                //        Type = (int)WalletTransactionTypeEnums.Reset,
+                //        Description = "Reset",
+                //        RecieveId = enterprise.AccountId,
+                //        SenderId = emp.AccountId,
+                //        Total = (double)total,
+                //        CompanyId = companyId,
+                //        CreatedAt = TimeUtils.GetCurrentSEATime(),
+                //    };
+                //    var empNotification = new DataTier.Models.Notification()
+                //    {
+                //        Id = Guid.NewGuid(),
+                //        Title = "Reset periodically",
+                //        Description = "The amount in your wallet has been updated",
+                //        AccountId = emp.AccountId,
+                //        IsRead = false,
+                //        CreatedAt = TimeUtils.GetCurrentSEATime(),
+                //    };
+                //    empWallet.Balance = 0;
+                //    await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransaction);
+                //    await _unitOfWork.Repository<Notification>().InsertAsync(empNotification);
+                //    await _unitOfWork.Repository<Employee>().UpdateDetached(emp);
+                //    await _unitOfWork.Repository<Wallet>().UpdateDetached(empWallet);
+                //}
                 // update EA balance = Company limits
                 var EAWallet = enterprise.Account.Wallets.FirstOrDefault();
-                EAWallet.Balance = company.Result.Limits;
+                EAWallet.Balance += EAWallet.Used;
                 EAWallet.Used = 0;
                 var dateCheck = company.Result.ExpiredDate.Value.AddDays(-5);
                 if (TimeUtils.GetCurrentSEATime().GetStartOfDate() >= dateCheck.GetStartOfDate())
@@ -585,10 +656,89 @@ namespace CES.BusinessTier.Services
                     Data = ex.Message
                 };
             }
-
-
         }
+        //public async Task<BaseResponseViewModel<string>> ResetAllAfterEAPayment(int companyId)
+        //{   // this function will call immediately after EA use payment function
 
+        //    var employees = await _unitOfWork.Repository<Employee>().AsQueryable(x => x.CompanyId == companyId)
+        //                                                    .Include(x => x.Account).ThenInclude(x => x.Wallets).Include(x => x.EmployeeGroupMappings).ToListAsync();
+        //    var enterprise = await _unitOfWork.Repository<Enterprise>().AsQueryable(x => x.CompanyId == companyId)
+        //                                                    .Include(x => x.Account).ThenInclude(x => x.Wallets).FirstOrDefaultAsync();
+        //    var company = _unitOfWork.Repository<Company>().GetById(companyId);
+
+        //    try
+        //    {
+        //        // Reset balance in Emp wallet = 0
+        //        foreach (var emp in employees)
+        //        {
+        //            var empWallet = emp.Account.Wallets.FirstOrDefault();
+        //            var total = empWallet.Balance;
+
+        //            // emp.EmployeeGroupMappings.Where(x => x.)
+        //            foreach (var group in emp.EmployeeGroupMappings)
+        //            {
+        //                group.IsReceived = false;
+        //            }
+        //            var walletTransaction = new Transaction()
+        //            {
+        //                Id = Guid.NewGuid(),
+        //                WalletId = empWallet.Id,
+        //                Type = (int)WalletTransactionTypeEnums.Reset,
+        //                Description = "Reset",
+        //                RecieveId = enterprise.AccountId,
+        //                SenderId = emp.AccountId,
+        //                Total = (double)total,
+        //                CompanyId = companyId,
+        //                CreatedAt = TimeUtils.GetCurrentSEATime(),
+        //            };
+        //            var empNotification = new DataTier.Models.Notification()
+        //            {
+        //                Id = Guid.NewGuid(),
+        //                Title = "Reset periodically",
+        //                Description = "The amount in your wallet has been updated",
+        //                AccountId = emp.AccountId,
+        //                IsRead = false,
+        //                CreatedAt = TimeUtils.GetCurrentSEATime(),
+        //            };
+        //            empWallet.Balance = 0;
+        //            await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransaction);
+        //            await _unitOfWork.Repository<Notification>().InsertAsync(empNotification);
+        //            await _unitOfWork.Repository<Employee>().UpdateDetached(emp);
+        //            await _unitOfWork.Repository<Wallet>().UpdateDetached(empWallet);
+        //        }
+        //        // update EA balance = Company limits
+        //        var EAWallet = enterprise.Account.Wallets.FirstOrDefault();
+        //        EAWallet.Balance = company.Result.Limits;
+        //        EAWallet.Used = 0;
+        //        var dateCheck = company.Result.ExpiredDate.Value.AddDays(-5);
+        //        if (TimeUtils.GetCurrentSEATime().GetStartOfDate() >= dateCheck.GetStartOfDate())
+        //        {
+        //            company.Result.ExpiredDate = company.Result.ExpiredDate.Value.AddMonths(1);
+        //            company.Result.UpdatedAt = TimeUtils.GetCurrentSEATime();
+        //        }
+        //        await _unitOfWork.Repository<Company>().UpdateDetached(company.Result);
+        //        await _unitOfWork.Repository<Wallet>().UpdateDetached(EAWallet);
+
+        //        await _unitOfWork.CommitAsync();
+
+        //        return new BaseResponseViewModel<string>
+        //        {
+        //            Code = StatusCodes.Status200OK,
+        //            Message = "OK",
+        //            Data = "Reset done!"
+        //        };
+        //    }
+        //    catch (Exception ex)
+        //    {
+
+        //        return new BaseResponseViewModel<string>
+        //        {
+        //            Code = StatusCodes.Status400BadRequest,
+        //            Message = "Bad Request",
+        //            Data = ex.Message
+        //        };
+        //    }
+        //}
         public async Task<BaseResponseViewModel<string>> ResetAllAfterExpired()
         { // this function use for backgroud job
             var companies = await _unitOfWork.Repository<Company>().AsQueryable(x => x.Status == (int)Status.Active).ToListAsync();

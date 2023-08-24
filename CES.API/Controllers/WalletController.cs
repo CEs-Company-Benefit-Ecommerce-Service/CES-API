@@ -154,5 +154,11 @@ namespace CES.API.Controllers
             var result = _walletServices.ResetAllAfterEAPayment(companyId).Result;
             return StatusCode((int)result.Code, result);
         }
+        [HttpPost("reset/employee-wallet/{companyId}")]
+        public async Task<ActionResult> ResetEmpWallet(int companyId)
+        {
+            var result = _walletServices.ResetEmpWallet(companyId).Result;
+            return StatusCode((int)result.Code, result);
+        }
     }
 }
