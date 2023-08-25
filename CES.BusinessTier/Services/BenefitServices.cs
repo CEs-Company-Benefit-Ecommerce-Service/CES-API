@@ -25,6 +25,7 @@ namespace CES.BusinessTier.Services
         Task<DynamicResponse<BenefitResponseModel>> GetAllAsync(BenefitResponseModel filter, PagingModel paging);
         Task<BaseResponseViewModel<BenefitResponseModel>> UpdateAsync(BenefitUpdateModel request, Guid benefitId);
         Task<BaseResponseViewModel<BenefitResponseModel>> CreateAsync(BenefitRequestModel request);
+        Task<BaseResponseViewModel<string>> DeleteBenefit(Guid benefitId);
     }
     public class BenefitServices : IBenefitServices
     {
@@ -304,6 +305,46 @@ namespace CES.BusinessTier.Services
                     Code = StatusCodes.Status400BadRequest,
                     SystemCode = "021",
                     Message = "Update benefit failed",
+                };
+            }
+        }
+        public async Task<BaseResponseViewModel<string>> DeleteBenefit(Guid benefitId)
+        {
+            Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
+            var account = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Wallets).FirstOrDefaultAsync();
+            var eaWallet = account.Wallets.FirstOrDefault();
+            var benefit = await _unitOfWork.Repository<Benefit>().AsQueryable(x => x.Id == benefitId).Include(x => x.Groups).FirstOrDefaultAsync();
+            var group = benefit.Groups.FirstOrDefault();
+
+            var empGrMapping = await _unitOfWork.Repository<EmployeeGroupMapping>().AsQueryable(x => x.GroupId == group.Id).ToListAsync();
+            var totalNotYet = benefit.EstimateTotal - benefit.TotalReceive;
+            try
+            {
+                // remove member
+                _unitOfWork.Repository<EmployeeGroupMapping>().DeleteRange(empGrMapping.AsQueryable());
+                // update eawallet
+                eaWallet.Balance += totalNotYet;
+                eaWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
+                await _unitOfWork.Repository<Wallet>().UpdateDetached(eaWallet);
+                // update benefit and group status
+                benefit.Status = (int)Status.Banned;
+                await _unitOfWork.Repository<Benefit>().UpdateDetached(benefit);
+                group.Status = (int)Status.Banned;
+                await _unitOfWork.Repository<Group>().UpdateDetached(group);
+
+                return new BaseResponseViewModel<string>
+                {
+                    Code = 204,
+                    Message = "No Content"
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponseViewModel<string>
+                {
+                    Code = 400,
+                    Message = "Bad request || " + ex.Message
                 };
             }
         }

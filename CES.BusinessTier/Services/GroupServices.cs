@@ -295,9 +295,13 @@ namespace CES.BusinessTier.Services
             var totalNeedDecrease = totalThat1EmpHave * removeMembers;
             try
             {
+                //update ea wallet
                 eaWallet.Balance += totalNeedDecrease;
                 eaWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
                 await _unitOfWork.Repository<Wallet>().UpdateDetached(eaWallet);
+                //update esimate in benefit
+                group.Benefit.EstimateTotal -= totalNeedDecrease;
+                await _unitOfWork.Repository<Benefit>().UpdateDetached(group.Benefit);
 
                 var project = await Get(requestModel.GroupId);
                 foreach (var accountId in requestModel.AccountId)

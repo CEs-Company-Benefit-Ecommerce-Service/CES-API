@@ -33,7 +33,7 @@ namespace CES.API.Controllers
             var result = await _benefitServices.GetById(id);
             return Ok(result);
         }
-        
+
         /// <summary>
         /// Create Benefit
         /// </summary>
@@ -57,12 +57,19 @@ namespace CES.API.Controllers
             var result = await _benefitServices.CreateAsync(request);
             return StatusCode((int)result.Code, result);
         }
-        
+
         [HttpPut("{id}")]
         [SwaggerOperation(summary: "Status Benefit", description: "1 - Active, 2 -  InActive")]
         public async Task<ActionResult> Put(Guid id, [FromBody] BenefitUpdateModel request)
         {
             var result = await _benefitServices.UpdateAsync(request, id);
+            return StatusCode((int)result.Code, result);
+        }
+        [Authorize(Roles = "Enterprise Admin, System Admin")]
+        [HttpDelete("{benefitId}")]
+        public async Task<ActionResult> Delete(Guid benefitId)
+        {
+            var result = await _benefitServices.DeleteBenefit(benefitId);
             return StatusCode((int)result.Code, result);
         }
     }
