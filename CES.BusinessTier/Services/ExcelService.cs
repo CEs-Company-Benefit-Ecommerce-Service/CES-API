@@ -655,7 +655,7 @@ public class ExcelService : IExcelService
                 "Company:",
                 $"{company.Name}",
                 "From-To:",
-                $"{currentMonth.Item1} - {currentMonth.Item2}"
+                $"{currentMonth.Item1} - {currentMonth.Item2.GetEndOfDate()}"
             };
             List<string> listRow2Title = new List<string>()
             {
@@ -665,6 +665,7 @@ public class ExcelService : IExcelService
                 "Employee Name",
                 "Total",
                 "Status",
+                "DebtStatus",
                 "Order Details",
                 "Product Name",
                 "Quantity",
@@ -701,7 +702,7 @@ public class ExcelService : IExcelService
             }
 
             var orders = await _unitOfWork.Repository<Order>().AsQueryable()
-            .Where(x => x.CompanyId == companyId && x.CreatedAt >= currentMonth.Item1 && x.CreatedAt <= currentMonth.Item2 && x.Status != (int)OrderStatusEnums.New && x.Status != (int)OrderStatusEnums.Cancel)
+            .Where(x => x.CompanyId == companyId && x.CreatedAt >= currentMonth.Item1 && x.CreatedAt <= currentMonth.Item2.GetEndOfDate() && x.DebtStatus == (int)DebtStatusEnums.New)
             .Include(x => x.Employee)
             .ThenInclude(x => x.Account)
             .Include(x => x.OrderDetails)
@@ -714,6 +715,7 @@ public class ExcelService : IExcelService
             foreach (var order in orders)
             {
                 var status = Commons.GetEnumDisplayNameFromValue<OrderStatusEnums>(order.Status);
+                var detbStatus = Commons.GetEnumDisplayNameFromValue<DebtStatusEnums>((int)order.DebtStatus);
                 ws.Cells[initialRow, initialCol].Value = order.Id;
                 ++initialCol;
                 ws.Cells[initialRow, initialCol].Value = order.OrderCode;
@@ -725,6 +727,8 @@ public class ExcelService : IExcelService
                 ws.Cells[initialRow, initialCol].Value = order.Total;
                 ++initialCol;
                 ws.Cells[initialRow, initialCol].Value = status;
+                ++initialCol;
+                ws.Cells[initialRow, initialCol].Value = detbStatus;
                 initialRow++;
                 ++initialCol;
                 foreach (var item in order.OrderDetails)
