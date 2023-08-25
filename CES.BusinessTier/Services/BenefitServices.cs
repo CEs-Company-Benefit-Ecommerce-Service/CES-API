@@ -234,12 +234,12 @@ namespace CES.BusinessTier.Services
 
                     if (resultDate <= fromDate && resultDate.TimeOfDay < fromDate.TimeOfDay)
                     {
-                        fromDate = resultDate.AddDays(7);
+                        resultDate = resultDate.AddDays(7);
                     }
-                    while (fromDate <= toDate)
+                    while (resultDate <= toDate)
                     {
                         totalDays++;
-                        fromDate = resultDate.AddDays(7);
+                        resultDate = resultDate.AddDays(7);
                     }
                     neededBalance = temp.UnitPrice * memberInGroup * totalDays;
                     if (neededBalance > eaWallet.Balance)
