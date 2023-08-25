@@ -254,6 +254,9 @@ namespace CES.BusinessTier.Services
                     eaWallet.Balance -= totalThat1EmpHave * newMembers;
                     eaWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
                     await _unitOfWork.Repository<Wallet>().UpdateDetached(eaWallet);
+                    //update esimate in benefit
+                    group.Benefit.EstimateTotal += totalThat1EmpHave * newMembers;
+                    await _unitOfWork.Repository<Benefit>().UpdateDetached(group.Benefit);
                 }
                 var newGroupAccount = await _projectAccountServices.Created(employee.Id, requestModel.GroupId);
                 if (newGroupAccount == null)
