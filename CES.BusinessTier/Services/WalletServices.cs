@@ -205,15 +205,15 @@ namespace CES.BusinessTier.Services
                             Message = "No found benefit",
                         };
                     }
-                    //if (accountLoginWallet.Balance < benefit.UnitPrice)
-                    //{
-                    //    return new BaseResponseViewModel<WalletResponseModel>
-                    //    {
-                    //        Code = (int)StatusCodes.Status400BadRequest,
-                    //        Message = "Not have enough balance in your wallet",
-                    //    };
-                    //}
-                    //accountLoginWallet.Balance -= benefit.UnitPrice;
+                    if (accountLoginWallet.Balance < benefit.UnitPrice)
+                    {
+                        return new BaseResponseViewModel<WalletResponseModel>
+                        {
+                            Code = (int)StatusCodes.Status400BadRequest,
+                            Message = "Not have enough balance in your wallet",
+                        };
+                    }
+                    accountLoginWallet.Balance -= benefit.UnitPrice;
                     existedWallet.Balance += benefit.UnitPrice;
 
                     break;
@@ -380,16 +380,16 @@ namespace CES.BusinessTier.Services
                     {
                         foreach (var wallet in employeeGroup.Employee.Account.Wallets)
                         {
-                            //if (accountLoginWallet.Balance < benefit.UnitPrice)
-                            //{
-                            //    return new BaseResponseViewModel<WalletResponseModel>
-                            //    {
-                            //        Code = (int)StatusCodes.Status400BadRequest,
-                            //        Message = "Not have enough balance in your wallet",
-                            //    };
-                            //}
-                            //accountLoginWallet.Balance -= benefit.UnitPrice;
-                            //accountLoginWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
+                            if (accountLoginWallet.Balance < benefit.UnitPrice)
+                            {
+                                return new BaseResponseViewModel<WalletResponseModel>
+                                {
+                                    Code = (int)StatusCodes.Status400BadRequest,
+                                    Message = "Not have enough balance in your wallet",
+                                };
+                            }
+                            accountLoginWallet.Balance -= benefit.UnitPrice;
+                            accountLoginWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
                             wallet.Balance += benefit.UnitPrice;
                             wallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
 
