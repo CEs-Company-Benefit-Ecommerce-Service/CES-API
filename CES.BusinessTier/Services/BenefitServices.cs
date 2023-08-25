@@ -232,14 +232,14 @@ namespace CES.BusinessTier.Services
                     DateTime resultDate = formattedDateTimeWeekly.AddDays(daysToAdd);
                     DateTimeOffset dateTimeOffsetWeekly = new DateTimeOffset(resultDate);
 
-                    if (resultDate >= fromDate)
+                    if (resultDate <= fromDate && resultDate.TimeOfDay < fromDate.TimeOfDay)
                     {
-                        fromDate = fromDate.AddDays(7);
+                        fromDate = resultDate.AddDays(7);
                     }
                     while (fromDate <= toDate)
                     {
                         totalDays++;
-                        fromDate = fromDate.AddDays(7);
+                        fromDate = resultDate.AddDays(7);
                     }
                     neededBalance = temp.UnitPrice * memberInGroup * totalDays;
                     if (neededBalance > eaWallet.Balance)
