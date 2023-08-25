@@ -297,8 +297,11 @@ namespace CES.BusinessTier.Services
                     }
                 }
 
-                //check balance
+                // update total receive in benefit
                 var totalMoneyNeedTransfer = group.Benefit.UnitPrice * listAccountId.Count;
+                group.Benefit.TotalReceive = totalMoneyNeedTransfer;
+                group.Benefit.UpdatedAt = TimeUtils.GetCurrentSEATime();
+                //check balance
                 if (enterpriseWalletBalance < totalMoneyNeedTransfer)
                     throw new ErrorResponse(StatusCodes.Status400BadRequest, 400, "Balance is not enough");
 
@@ -376,7 +379,7 @@ namespace CES.BusinessTier.Services
                         try
                         {
                             await _unitOfWork.Repository<Account>().UpdateDetached(account);
-
+                            await _unitOfWork.Repository<Benefit>().UpdateDetached(group.Benefit);
                             await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransactionForReceiver);
                             await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransactionForSender);
                             await _unitOfWork.Repository<Notification>().InsertAsync(empNotification);
