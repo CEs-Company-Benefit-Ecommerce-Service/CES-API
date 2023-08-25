@@ -229,51 +229,53 @@ namespace CES.BusinessTier.Services
                 };
             }
         }
-        public async Task<BaseResponseViewModel<string>> UpdateRange(AccountUpdateRangeModel request)
-        {
-            Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
+        //public async Task<BaseResponseViewModel<string>> UpdateRange(AccountUpdateRangeModel request)
+        //{
+        //    Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
 
-            var accountLogin = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Wallets).FirstOrDefaultAsync();
+        //    var accountLogin = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Wallets).FirstOrDefaultAsync();
 
-            var eaWallet = accountLogin.Wallets.FirstOrDefault();
-            //var companies = await _unitOfWork.Repository<Company>().AsQueryable(x => x.Status == (int)Status.Active).ToListAsync();
+        //    var eaWallet = accountLogin.Wallets.FirstOrDefault();
+        //    //var companies = await _unitOfWork.Repository<Company>().AsQueryable(x => x.Status == (int)Status.Active).ToListAsync();
 
-            try
-            {
-                foreach (var id in request.Ids)
-                {
-                    var account = _unitOfWork.Repository<Account>().GetByIdGuid(id).Result;
-                    var employeeWallet = _unitOfWork.Repository<Wallet>().AsQueryable(x => x.AccountId == account.Id).FirstOrDefault();
-                    if (account != null)
-                    {// update account status
-                        account.Status = (int)Status.Inactive;
+        //    try
+        //    {
+        //        foreach (var id in request.Ids)
+        //        {
+        //            var account = _unitOfWork.Repository<Account>().GetByIdGuid(id).Result;
+        //            var employeeWallet = _unitOfWork.Repository<Wallet>().AsQueryable(x => x.AccountId == account.Id).FirstOrDefault();
+        //            if (account != null)
+        //            {// update account status
+        //                account.Status = (int)Status.Inactive;
 
-                        var employee = await _unitOfWork.Repository<Employee>().AsQueryable(x => x.AccountId == account.Id).FirstOrDefaultAsync();
-                        if (employee != null)
-                        {// update employee status
-                            employee.Status = (int)Status.Inactive;
-                            //Remove out of group
-                            var employeeGrMapping = _unitOfWork.Repository<EmployeeGroupMapping>().AsQueryable(x => x.EmployeeId == employee.Id);
-                            _unitOfWork.Repository<EmployeeGroupMapping>().DeleteRange(employeeGrMapping);
+        //                var employee = await _unitOfWork.Repository<Employee>().AsQueryable(x => x.AccountId == account.Id).FirstOrDefaultAsync();
+        //                if (employee != null)
+        //                {// update employee status
+        //                    employee.Status = (int)Status.Inactive;
+        //                    //Remove out of group
+        //                    var employeeGrMapping = _unitOfWork.Repository<EmployeeGroupMapping>().AsQueryable(x => x.EmployeeId == employee.Id);
+        //                    _unitOfWork.Repository<EmployeeGroupMapping>().DeleteRange(employeeGrMapping);
 
-                            // update balance in emp wallet
-                            eaWallet.Balance += employeeWallet.Balance;
-                            employeeWallet.Balance = 0;
-                            eaWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
-                            employeeWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
-                            await _unitOfWork.Repository<Wallet>().UpdateDetached(eaWallet);
-                            await _unitOfWork.Repository<Wallet>().UpdateDetached(employeeWallet);
-                        }
+        //                    // update balance in emp wallet, ea wallet
+        //                    eaWallet.Balance += employeeWallet.Balance;
+        //                    employeeWallet.Balance = 0;
+        //                    eaWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
+        //                    employeeWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
+        //                    await _unitOfWork.Repository<Wallet>().UpdateDetached(eaWallet);
+        //                    await _unitOfWork.Repository<Wallet>().UpdateDetached(employeeWallet);
 
-                    }
-                }
-            }
-            catch (Exception)
-            {
 
-                throw;
-            }
-        }
+        //                }
+
+        //            }
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+
+        //        throw;
+        //    }
+        //}
         public async Task<BaseResponseViewModel<AccountResponseModel>> CreateAccountAsync(AccountRequestModel requestModel)
         {
             var stringRole = Commons.ConvertIntRoleToString((int)requestModel.Role);
