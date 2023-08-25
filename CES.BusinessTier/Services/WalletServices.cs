@@ -205,15 +205,15 @@ namespace CES.BusinessTier.Services
                             Message = "No found benefit",
                         };
                     }
-                    if (accountLoginWallet.Balance < benefit.UnitPrice)
-                    {
-                        return new BaseResponseViewModel<WalletResponseModel>
-                        {
-                            Code = (int)StatusCodes.Status400BadRequest,
-                            Message = "Not have enough balance in your wallet",
-                        };
-                    }
-                    accountLoginWallet.Balance -= benefit.UnitPrice;
+                    //if (accountLoginWallet.Balance < benefit.UnitPrice)
+                    //{
+                    //    return new BaseResponseViewModel<WalletResponseModel>
+                    //    {
+                    //        Code = (int)StatusCodes.Status400BadRequest,
+                    //        Message = "Not have enough balance in your wallet",
+                    //    };
+                    //}
+                    //accountLoginWallet.Balance -= benefit.UnitPrice;
                     existedWallet.Balance += benefit.UnitPrice;
 
                     break;
@@ -380,16 +380,16 @@ namespace CES.BusinessTier.Services
                     {
                         foreach (var wallet in employeeGroup.Employee.Account.Wallets)
                         {
-                            if (accountLoginWallet.Balance < benefit.UnitPrice)
-                            {
-                                return new BaseResponseViewModel<WalletResponseModel>
-                                {
-                                    Code = (int)StatusCodes.Status400BadRequest,
-                                    Message = "Not have enough balance in your wallet",
-                                };
-                            }
-                            accountLoginWallet.Balance -= benefit.UnitPrice;
-                            accountLoginWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
+                            //if (accountLoginWallet.Balance < benefit.UnitPrice)
+                            //{
+                            //    return new BaseResponseViewModel<WalletResponseModel>
+                            //    {
+                            //        Code = (int)StatusCodes.Status400BadRequest,
+                            //        Message = "Not have enough balance in your wallet",
+                            //    };
+                            //}
+                            //accountLoginWallet.Balance -= benefit.UnitPrice;
+                            //accountLoginWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
                             wallet.Balance += benefit.UnitPrice;
                             wallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
 
@@ -440,7 +440,7 @@ namespace CES.BusinessTier.Services
                             });
 
                             await _unitOfWork.Repository<Wallet>().UpdateDetached(wallet);
-                            await _unitOfWork.Repository<Wallet>().UpdateDetached(accountLoginWallet);
+                            //await _unitOfWork.Repository<Wallet>().UpdateDetached(accountLoginWallet);
                             await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransactionForSender);
                             await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransaction);
                             await _unitOfWork.Repository<Notification>().InsertAsync(empNotification);
@@ -626,7 +626,7 @@ namespace CES.BusinessTier.Services
                 //}
                 // update EA balance = Company limits
                 var EAWallet = enterprise.Account.Wallets.FirstOrDefault();
-                EAWallet.Balance += EAWallet.Used;
+                //EAWallet.Balance += EAWallet.Used;
                 EAWallet.Used = 0;
                 var dateCheck = company.Result.ExpiredDate.Value.AddDays(-5);
                 if (TimeUtils.GetCurrentSEATime().GetStartOfDate() >= dateCheck.GetStartOfDate())

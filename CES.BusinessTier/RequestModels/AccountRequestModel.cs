@@ -25,4 +25,10 @@ namespace CES.BusinessTier.RequestModels
         public string? NewPassword { get; set; }
         public string? OldPassword { get; set; }
     }
+
+    public class AccountUpdateRangeModel
+    {
+        public List<Guid> Ids { get; set; }
+
+    }
 }
