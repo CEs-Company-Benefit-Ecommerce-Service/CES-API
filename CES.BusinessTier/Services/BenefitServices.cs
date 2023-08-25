@@ -277,6 +277,8 @@ namespace CES.BusinessTier.Services
                 eaWallet.Balance -= neededBalance;
                 eaWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
 
+                temp.TotalReceive = 0;
+                temp.EstimateTotal = neededBalance;
                 await _unitOfWork.Repository<Wallet>().UpdateDetached(eaWallet);
                 await _unitOfWork.Repository<Benefit>().UpdateDetached(temp);
                 await _unitOfWork.CommitAsync();

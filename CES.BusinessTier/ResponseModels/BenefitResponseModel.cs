@@ -18,6 +18,9 @@ namespace CES.BusinessTier.ResponseModels
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public int? CompanyId { get; set; }
+        public double? TotalReceive { get; set; }
+        public double? EstimateTotal { get; set; }
+
         public CompanyResponseModel? Company { get; set; }
         public ICollection<GroupResponseModel>? Groups { get; set; }
     }

@@ -218,14 +218,16 @@ namespace CES.BusinessTier.Services
             var newMembers = requestModel.AccountId.Count();
             var group = await _unitOfWork.Repository<Group>().AsQueryable(x => x.Id == requestModel.GroupId).Include(x => x.Benefit).FirstOrDefaultAsync();
             var eaWallet = await _unitOfWork.Repository<Benefit>().AsQueryable(x => x.Id == group.BenefitId).Include(x => x.Company).ThenInclude(x => x.Enterprises).ThenInclude(x => x.Account).ThenInclude(x => x.Wallets).Select(x => x.Company.Enterprises.FirstOrDefault().Account.Wallets.FirstOrDefault()).FirstOrDefaultAsync();
-            if (group.Benefit.UnitPrice * (memberInGroup + newMembers) > eaWallet.Balance)
-            {
-                return new BaseResponseViewModel<GroupResponseModel>()
-                {
-                    Code = 400,
-                    Message = "Total balance to allocate was higher than your balance!",
-                };
-            }
+            //if (group.Benefit.UnitPrice * (memberInGroup + newMembers) > eaWallet.Balance)
+            //{
+            //    return new BaseResponseViewModel<GroupResponseModel>()
+            //    {
+            //        Code = 400,
+            //        Message = "Total balance to allocate was higher than your balance!",
+            //    };
+            //}
+
+
             foreach (var accountId in requestModel.AccountId)
             {
                 var employee = _unitOfWork.Repository<Employee>().GetWhere(x => x.AccountId == accountId).Result.FirstOrDefault();
@@ -237,6 +239,21 @@ namespace CES.BusinessTier.Services
                         Code = 400,
                         Message = "This account was in group",
                     };
+                }
+                if (group.Benefit.Status == (int)Status.Active)
+                {
+                    var totalThat1EmpHave = (group.Benefit.EstimateTotal - group.Benefit.TotalReceive) / memberInGroup;
+                    if (totalThat1EmpHave > eaWallet.Balance)
+                    {
+                        return new BaseResponseViewModel<GroupResponseModel>()
+                        {
+                            Code = 400,
+                            Message = "Total balance to allocate was higher than your balance!",
+                        };
+                    }
+                    eaWallet.Balance -= totalThat1EmpHave * newMembers;
+                    eaWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
+                    await _unitOfWork.Repository<Wallet>().UpdateDetached(eaWallet);
                 }
                 var newGroupAccount = await _projectAccountServices.Created(employee.Id, requestModel.GroupId);
                 if (newGroupAccount == null)
@@ -269,8 +286,19 @@ namespace CES.BusinessTier.Services
         }
         public async Task<BaseResponseViewModel<GroupResponseModel>> RemoveEmployee(GroupMemberRequestModel requestModel)
         {
+            var memberInGroup = _unitOfWork.Repository<EmployeeGroupMapping>().AsQueryable(x => x.GroupId == requestModel.GroupId).Count();
+            var removeMembers = requestModel.AccountId.Count();
+            var group = await _unitOfWork.Repository<Group>().AsQueryable(x => x.Id == requestModel.GroupId).Include(x => x.Benefit).FirstOrDefaultAsync();
+            var eaWallet = await _unitOfWork.Repository<Benefit>().AsQueryable(x => x.Id == group.BenefitId).Include(x => x.Company).ThenInclude(x => x.Enterprises).ThenInclude(x => x.Account).ThenInclude(x => x.Wallets).Select(x => x.Company.Enterprises.FirstOrDefault().Account.Wallets.FirstOrDefault()).FirstOrDefaultAsync();
+
+            var totalThat1EmpHave = (group.Benefit.EstimateTotal - group.Benefit.TotalReceive) / memberInGroup;
+            var totalNeedDecrease = totalThat1EmpHave * removeMembers;
             try
             {
+                eaWallet.Balance += totalNeedDecrease;
+                eaWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
+                await _unitOfWork.Repository<Wallet>().UpdateDetached(eaWallet);
+
                 var project = await Get(requestModel.GroupId);
                 foreach (var accountId in requestModel.AccountId)
                 {
