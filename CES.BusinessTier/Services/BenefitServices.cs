@@ -15,6 +15,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace CES.BusinessTier.Services
 {
@@ -112,7 +113,8 @@ namespace CES.BusinessTier.Services
             if (request.TimeFilter == null)
             {
                 request.TimeFilter = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
-            } else if (request.TimeFilter.Value.Hour >= now.Hour && request.TimeFilter.Value.Minute > now.Minute)
+            }
+            else if (request.TimeFilter.Value.Hour >= now.Hour && request.TimeFilter.Value.Minute > now.Minute)
             {
                 request.TimeFilter = new DateTime(now.Year, now.Month, now.Day, request.TimeFilter.Value.Hour, request.TimeFilter.Value.Minute, request.TimeFilter.Value.Second);
             }
@@ -176,6 +178,10 @@ namespace CES.BusinessTier.Services
 
         public async Task<BaseResponseViewModel<BenefitResponseModel>> UpdateAsync(BenefitUpdateModel request, Guid benefitId)
         {
+            Guid accountLoginId = new Guid(_contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier).Value.ToString());
+            var account = await _unitOfWork.Repository<Account>().AsQueryable(x => x.Id == accountLoginId).Include(x => x.Wallets).FirstOrDefaultAsync();
+            var eaWallet = account.Wallets.FirstOrDefault();
+
             var existedBenefit = _unitOfWork.Repository<Benefit>().FindAsync(x => x.Id == benefitId).Result;
             if (existedBenefit == null)
             {
@@ -186,15 +192,96 @@ namespace CES.BusinessTier.Services
                     Message = "Benefit was not found"
                 };
             }
+
             var temp = _mapper.Map<BenefitUpdateModel, Benefit>(request, existedBenefit);
             temp.UpdatedAt = TimeUtils.GetCurrentSEATime();
+            var group = await _unitOfWork.Repository<Group>().AsQueryable(x => x.BenefitId == benefitId).FirstOrDefaultAsync();
+            var memberInGroup = await _unitOfWork.Repository<EmployeeGroupMapping>().AsQueryable(x => x.GroupId == group.Id).CountAsync();
+            var fromDate = TimeUtils.GetCurrentSEATime();
+            var toDate = group.EndDate;
+            var totalDays = 0;
+            var neededBalance = 0.0;
+            switch (temp.Type)
+            {
+                case 1:
+                    if (fromDate > group.TimeFilter)
+                    {
+                        fromDate = fromDate.AddDays(1);
+                    }
+                    while (fromDate <= toDate)
+                    {
+                        totalDays++;
+                        fromDate = fromDate.AddDays(1);
+                    }
+                    neededBalance = temp.UnitPrice * memberInGroup * totalDays;
+                    if (neededBalance > eaWallet.Balance)
+                    {
+                        return new BaseResponseViewModel<BenefitResponseModel>()
+                        {
+                            Code = StatusCodes.Status400BadRequest,
+                            SystemCode = "021",
+                            Message = "Update benefit failed!\nYour wallet have not enough balance (Balance needed: {neededBalance})",
+                        };
+                    }
+                    break;
+                case 2:
+                    var formattedDateTimeWeekly = new DateTime(fromDate.Year, fromDate.Month, fromDate.Day, group.TimeFilter.Value.Hour,
+                        group.TimeFilter.Value.Minute, group.TimeFilter.Value.Second);
+                    int currentDayOfWeekValue = (int)formattedDateTimeWeekly.DayOfWeek;
+                    int daysToAdd = ((int)group.DayFilter - currentDayOfWeekValue + 7) % 7;
+                    DateTime resultDate = formattedDateTimeWeekly.AddDays(daysToAdd);
+                    DateTimeOffset dateTimeOffsetWeekly = new DateTimeOffset(resultDate);
 
+                    if (resultDate >= fromDate)
+                    {
+                        fromDate = fromDate.AddDays(7);
+                    }
+                    while (fromDate <= toDate)
+                    {
+                        totalDays++;
+                        fromDate = fromDate.AddDays(7);
+                    }
+                    neededBalance = temp.UnitPrice * memberInGroup * totalDays;
+                    if (neededBalance > eaWallet.Balance)
+                    {
+                        return new BaseResponseViewModel<BenefitResponseModel>()
+                        {
+                            Code = StatusCodes.Status400BadRequest,
+                            SystemCode = "021",
+                            Message = "Update benefit failed!\nYour wallet have not enough balance (Balance needed: {neededBalance})",
+                        };
+                    }
+                    break;
+                case 3:
+                    while (fromDate <= toDate)
+                    {
+                        totalDays++;
+                        fromDate.AddMonths(1);
+                    }
+                    neededBalance = temp.UnitPrice * memberInGroup * totalDays;
+                    if (neededBalance > eaWallet.Balance)
+                    {
+                        return new BaseResponseViewModel<BenefitResponseModel>()
+                        {
+                            Code = StatusCodes.Status400BadRequest,
+                            SystemCode = "021",
+                            Message = "Update benefit failed!\nYour wallet have not enough balance (Balance needed: {neededBalance})",
+                        };
+                    }
+                    break;
+                default:
+                    break;
+            }
             try
             {
+                eaWallet.Balance -= neededBalance;
+                eaWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
+
+                await _unitOfWork.Repository<Wallet>().UpdateDetached(eaWallet);
                 await _unitOfWork.Repository<Benefit>().UpdateDetached(temp);
                 await _unitOfWork.CommitAsync();
 
-                var group = await _unitOfWork.Repository<Group>().AsQueryable(x => x.BenefitId == benefitId).FirstOrDefaultAsync();
+
                 GroupUpdateModel groupUpdate = new GroupUpdateModel()
                 {
                     Status = temp.Status
