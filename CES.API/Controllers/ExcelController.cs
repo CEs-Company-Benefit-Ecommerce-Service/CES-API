@@ -102,5 +102,12 @@ namespace CES.API.Controllers
             var result = await _excelService.ImportProductList(file);
             return Ok(result);
         }
+
+        [HttpGet("order/monthly")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> ExportOrdersMonthlyByCompany()
+        {
+            return await _excelService.ExportOrdersMonthlyByCompany();
+        }
     }
 }

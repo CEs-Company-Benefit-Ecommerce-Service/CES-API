@@ -70,4 +70,17 @@ public static class Commons
         return true;
 
     }
+    
+    public static string GetEnumDisplayNameFromValue<T>(int value) where T : Enum
+    {
+        foreach (T enumValue in Enum.GetValues(typeof(T)))
+        {
+            if (Convert.ToInt32(enumValue) == value)
+            {
+                return enumValue.GetDisplayName();
+            }
+        }
+
+        throw new ArgumentException($"No enum value found with value '{value}'", nameof(value));
+    }
 }

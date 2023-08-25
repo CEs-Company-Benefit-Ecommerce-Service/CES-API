@@ -12,7 +12,6 @@ using OfficeOpenXml;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Style;
 using System.Security.Principal;
-
 namespace CES.BusinessTier.Services;
 
 public interface IExcelService
@@ -24,6 +23,7 @@ public interface IExcelService
     Task<DynamicResponse<Product>> ImportProductList(IFormFile file);
     Task<DynamicResponse<Account>> TransferBalanceForEmployee(IFormFile file);
     FileStreamResult DownloadListEmployeeByGroupId(Guid id);
+    Task<FileStreamResult> ExportOrdersMonthlyByCompany();
 }
 
 public class ExcelService : IExcelService
@@ -639,5 +639,118 @@ public class ExcelService : IExcelService
             };
         }
         throw new NotImplementedException();
+    }
+
+    public async Task<FileStreamResult> ExportOrdersMonthlyByCompany()
+    {
+        var companyId = Int32.Parse(_contextAccessor.HttpContext?.User.FindFirst("CompanyId").Value);
+        var currentMonth = TimeUtils.GetLastAndFirstDateInCurrentMonth();
+        var company = _unitOfWork.Repository<Company>()
+            .AsQueryable(x => x.Id == companyId && x.Status == (int)Status.Active).FirstOrDefault();
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        using (ExcelPackage package = new ExcelPackage())
+        {
+            List<string> listRow1Title = new List<string>()
+            {
+                "Company:",
+                $"{company.Name}",
+                "From-To:",
+                $"{currentMonth.Item1} - {currentMonth.Item2}"
+            };
+            List<string> listRow2Title = new List<string>()
+            {
+                "Id",
+                "Order Code",
+                "Employee Id",
+                "Employee Name",
+                "Total",
+                "Status",
+                "Order Details",
+                "Product Name",
+                "Quantity",
+                "Price"
+            };
+
+            int initialRow = 1; //A
+            int initialCol = 1; //1
+
+            ExcelWorksheet ws = package.Workbook.Worksheets.Add($"{company.Name}");
+
+            // Row 1
+            for (int i = 0; i < listRow1Title.Count; i++)
+            {
+                ws.Cells[initialRow, initialCol].Value = listRow1Title[i];
+                ws.Cells[initialRow, initialCol].Style.Font.Bold = true;
+                ws.Cells[initialRow, initialCol].Style.Font.Size = 16;
+                ws.Cells[initialRow, initialCol].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                ws.Cells[initialRow, initialCol].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                initialCol++;
+            }
+            initialRow++;
+
+            //Row 2
+            initialCol = 1;
+            for (int i = 0; i < listRow2Title.Count; i++)
+            {
+                ws.Cells[initialRow, initialCol].Value = listRow2Title[i];
+                ws.Cells[initialRow, initialCol].Style.Font.Bold = true;
+                ws.Cells[initialRow, initialCol].Style.Font.Size = 16;
+                ws.Cells[initialRow, initialCol].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                ws.Cells[initialRow, initialCol].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                initialCol++;
+            }
+
+            var orders = await _unitOfWork.Repository<Order>().AsQueryable()
+            .Where(x => x.CompanyId == companyId && x.CreatedAt >= currentMonth.Item1 && x.CreatedAt <= currentMonth.Item2 && x.Status != (int)OrderStatusEnums.New && x.Status != (int)OrderStatusEnums.Cancel)
+            .Include(x => x.Employee)
+            .ThenInclude(x => x.Account)
+            .Include(x => x.OrderDetails)
+            .ThenInclude(x => x.Product)
+            .ToListAsync();
+
+            // Row 3
+            initialRow++;
+            initialCol = 1;
+            foreach (var order in orders)
+            {
+                var status = Commons.GetEnumDisplayNameFromValue<OrderStatusEnums>(order.Status);
+                ws.Cells[initialRow, initialCol].Value = order.Id;
+                ++initialCol;
+                ws.Cells[initialRow, initialCol].Value = order.OrderCode;
+                ++initialCol;
+                ws.Cells[initialRow, initialCol].Value = order.Employee.Id;
+                ++initialCol;
+                ws.Cells[initialRow, initialCol].Value = order.Employee.Account.Name;
+                ++initialCol;
+                ws.Cells[initialRow, initialCol].Value = order.Total;
+                ++initialCol;
+                ws.Cells[initialRow, initialCol].Value = status;
+                initialRow++;
+                ++initialCol;
+                foreach (var item in order.OrderDetails)
+                {
+                    var row = initialCol;
+                    ws.Cells[initialRow, row].Value = item.Id;
+                    ++row;
+                    ws.Cells[initialRow, row].Value = item.Product.Name;
+                    ++row;
+                    ws.Cells[initialRow, row].Value = item.Quantity;
+                    ++row;
+                    ws.Cells[initialRow, row].Value = item.Price;
+                    initialRow++;
+                }
+                initialRow++;
+                initialCol = 1;
+            }
+
+            ws.Cells.AutoFitColumns();
+
+            var stream = new MemoryStream(package.GetAsByteArray());
+
+            return new FileStreamResult(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            {
+                FileDownloadName = $"{company.Name}_orders.xlsx" // Specify the desired file name
+            };
+        }
     }
 }
