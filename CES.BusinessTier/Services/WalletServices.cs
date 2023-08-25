@@ -440,7 +440,7 @@ namespace CES.BusinessTier.Services
                             });
 
                             await _unitOfWork.Repository<Wallet>().UpdateDetached(wallet);
-                            //await _unitOfWork.Repository<Wallet>().UpdateDetached(accountLoginWallet);
+                            await _unitOfWork.Repository<Wallet>().UpdateDetached(accountLoginWallet);
                             await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransactionForSender);
                             await _unitOfWork.Repository<Transaction>().InsertAsync(walletTransaction);
                             await _unitOfWork.Repository<Notification>().InsertAsync(empNotification);
@@ -626,7 +626,7 @@ namespace CES.BusinessTier.Services
                 //}
                 // update EA balance = Company limits
                 var EAWallet = enterprise.Account.Wallets.FirstOrDefault();
-                //EAWallet.Balance += EAWallet.Used;
+                EAWallet.Balance += EAWallet.Used;
                 EAWallet.Used = 0;
                 var dateCheck = company.Result.ExpiredDate.Value.AddDays(-5);
                 if (TimeUtils.GetCurrentSEATime().GetStartOfDate() >= dateCheck.GetStartOfDate())
