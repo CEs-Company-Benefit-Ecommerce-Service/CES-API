@@ -332,6 +332,7 @@ namespace CES.BusinessTier.Services
                 group.Status = (int)Status.Banned;
                 await _unitOfWork.Repository<Group>().UpdateDetached(group);
 
+                await _unitOfWork.CommitAsync();
                 return new BaseResponseViewModel<string>
                 {
                     Code = 204,
