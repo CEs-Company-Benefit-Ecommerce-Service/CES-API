@@ -292,7 +292,6 @@ namespace CES.BusinessTier.Services
                             var isReceived = groupEmployeeReceiveStatus[employee.Id];
                             groupEmployeeReceiveStatus.Add(employee.AccountId, isReceived ? isReceived : false);
                         }
-
                         listAccountId.Add(employee.AccountId.ToString());
                     }
                 }

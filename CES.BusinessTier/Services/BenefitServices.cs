@@ -202,12 +202,7 @@ namespace CES.BusinessTier.Services
             var toDate = group.EndDate;
             var totalDays = 0;
             var neededBalance = 0.0;
-            var formattedDateTimeWeekly = new DateTime(fromDate.Year, fromDate.Month, fromDate.Day, group.TimeFilter.Value.Hour,
-                        group.TimeFilter.Value.Minute, group.TimeFilter.Value.Second);
-            int currentDayOfWeekValue = (int)formattedDateTimeWeekly.DayOfWeek;
-            int daysToAdd = ((int)group.DayFilter - currentDayOfWeekValue + 7) % 7;
-            DateTime resultDate = formattedDateTimeWeekly.AddDays(daysToAdd);
-            DateTimeOffset dateTimeOffsetWeekly = new DateTimeOffset(resultDate);
+            
             switch (temp.Type)
             {
                 case 1:
@@ -232,7 +227,12 @@ namespace CES.BusinessTier.Services
                     }
                     break;
                 case 2:
-
+                    var formattedDateTimeWeekly = new DateTime(fromDate.Year, fromDate.Month, fromDate.Day, group.TimeFilter.Value.Hour,
+                        group.TimeFilter.Value.Minute, group.TimeFilter.Value.Second);
+                    int currentDayOfWeekValue = (int)formattedDateTimeWeekly.DayOfWeek;
+                    int daysToAdd = ((int)group.DayFilter - currentDayOfWeekValue + 7) % 7;
+                    DateTime resultDate = formattedDateTimeWeekly.AddDays(daysToAdd);
+                    DateTimeOffset dateTimeOffsetWeekly = new DateTimeOffset(resultDate);
 
                     if (resultDate <= fromDate && resultDate.TimeOfDay < fromDate.TimeOfDay)
                     {
@@ -255,14 +255,25 @@ namespace CES.BusinessTier.Services
                     }
                     break;
                 case 3:
-                    if (resultDate <= fromDate && resultDate.TimeOfDay < fromDate.TimeOfDay)
+                    var formattedDateTimeMonthly = new DateTime(fromDate.Year, fromDate.Month, (int)group.DateFilter, group.TimeFilter.Value.Hour,
+                        group.TimeFilter.Value.Minute, group.TimeFilter.Value.Second);
+                    DateTime resultDateMonthly = formattedDateTimeMonthly.AddMonths(1);
+                    DateTime formattedDayOfMonthly = new DateTime(resultDateMonthly.Year, resultDateMonthly.Month,
+                        (int)group.DateFilter, resultDateMonthly.Hour, resultDateMonthly.Minute,
+                        resultDateMonthly.Second);
+                    DateTimeOffset nowDateTimeOffsetMonthly = new DateTimeOffset(fromDate);
+                    DateTimeOffset nowFormattedDateTimeOffsetMonthly = new DateTimeOffset(formattedDateTimeMonthly);
+                    DateTimeOffset dateTimeOffsetMonthly = new DateTimeOffset(formattedDayOfMonthly);
+
+                    if (nowFormattedDateTimeOffsetMonthly < nowDateTimeOffsetMonthly)
                     {
-                        resultDate = resultDate.AddMonths(1);
+                        formattedDateTimeMonthly = formattedDateTimeMonthly.AddMonths(1);
                     }
-                    while (fromDate <= toDate)
+                    
+                    while (formattedDateTimeMonthly <= toDate)
                     {
                         totalDays++;
-                        fromDate = fromDate.AddMonths(1);
+                        formattedDateTimeMonthly = formattedDateTimeMonthly.AddMonths(1);
                     }
                     neededBalance = temp.UnitPrice * memberInGroup * totalDays;
                     if (neededBalance > eaWallet.Balance)
