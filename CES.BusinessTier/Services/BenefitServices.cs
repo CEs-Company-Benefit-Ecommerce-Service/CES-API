@@ -202,7 +202,7 @@ namespace CES.BusinessTier.Services
             var toDate = group.EndDate;
             var totalDays = 0;
             var neededBalance = 0.0;
-            
+
             switch (temp.Type)
             {
                 case 1:
@@ -269,7 +269,7 @@ namespace CES.BusinessTier.Services
                     {
                         formattedDateTimeMonthly = formattedDateTimeMonthly.AddMonths(1);
                     }
-                    
+
                     while (formattedDateTimeMonthly <= toDate)
                     {
                         totalDays++;
@@ -291,13 +291,13 @@ namespace CES.BusinessTier.Services
             }
             try
             {
-                eaWallet.Balance -= neededBalance;
-                eaWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
+                //eaWallet.Balance -= neededBalance;
+                //eaWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
 
-                temp.TotalReceive = 0;
-                temp.EstimateTotal = neededBalance;
-                await _unitOfWork.Repository<Wallet>().UpdateDetached(eaWallet);
-                await _unitOfWork.Repository<Benefit>().UpdateDetached(temp);
+                //temp.TotalReceive = 0;
+                //temp.EstimateTotal = neededBalance;
+                //await _unitOfWork.Repository<Wallet>().UpdateDetached(eaWallet);
+                //await _unitOfWork.Repository<Benefit>().UpdateDetached(temp);
                 await _unitOfWork.CommitAsync();
 
 
