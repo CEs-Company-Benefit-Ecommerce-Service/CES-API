@@ -10,6 +10,57 @@ using System.Threading.Tasks;
 
 namespace CES.BusinessTier.Middlewares
 {
+    //public class ExceptionMiddleware : IMiddleware
+    //{
+    //    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+    //    {
+    //        try
+    //        {
+    //            await next(context);
+    //        }
+    //        catch (Exception exception)
+    //        {
+    //            var errorResult = new ErrorDetailResponse();
+    //            errorResult.Message = exception.Message;
+
+    //            if (exception is not ErrorResponse && exception.InnerException != null)
+    //            {
+    //                while (exception.InnerException != null)
+    //                {
+    //                    exception = exception.InnerException;
+    //                }
+    //            }
+
+    //            switch (exception)
+    //            {
+    //                case ErrorResponse e:
+    //                    errorResult.StatusCode = (int)e.Error.StatusCode;
+    //                    errorResult.ErrorCode = (int)e.Error.ErrorCode;
+    //                    if (e.Error.Message is not null)
+    //                    {
+    //                        errorResult.Message = e.Error.Message;
+    //                    }
+
+    //                    break;
+
+    //                case KeyNotFoundException:
+    //                    errorResult.StatusCode = (int)HttpStatusCode.NotFound;
+    //                    break;
+
+    //                default:
+    //                    errorResult.StatusCode = (int)HttpStatusCode.InternalServerError;
+    //                    break;
+    //            }
+    //            var response = context.Response;
+    //            if (!response.HasStarted)
+    //            {
+    //                response.ContentType = "application/json";
+    //                response.StatusCode = errorResult.StatusCode;
+    //                await response.WriteAsync(JsonConvert.SerializeObject(errorResult));
+    //            }
+    //        }
+    //    }
+    //}
     public class ExceptionMiddleware : IMiddleware
     {
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -20,45 +71,47 @@ namespace CES.BusinessTier.Middlewares
             }
             catch (Exception exception)
             {
-                var errorResult = new ErrorDetailResponse();
-                errorResult.Message = exception.Message;
+                await HandleExceptionAsync(context, exception);
+            }
+        }
 
-                if (exception is not ErrorResponse && exception.InnerException != null)
+        private async Task HandleExceptionAsync(HttpContext context, Exception exception)
+        {
+            var errorResult = CreateErrorResult(exception);
+
+            var response = context.Response;
+            if (!response.HasStarted)
+            {
+                response.ContentType = "application/json";
+                response.StatusCode = errorResult.StatusCode;
+                await response.WriteAsync(JsonConvert.SerializeObject(errorResult));
+            }
+        }
+
+        private ErrorDetailResponse CreateErrorResult(Exception exception)
+        {
+            var errorResult = new ErrorDetailResponse();
+            errorResult.Message = exception.Message;
+
+            if (exception is ErrorResponse errorException)
+            {
+                errorResult.StatusCode = (int)errorException.Error.StatusCode;
+                errorResult.ErrorCode = (int)errorException.Error.ErrorCode;
+                if (errorException.Error.Message is not null)
                 {
-                    while (exception.InnerException != null)
-                    {
-                        exception = exception.InnerException;
-                    }
-                }
-
-                switch (exception)
-                {
-                    case ErrorResponse e:
-                        errorResult.StatusCode = (int)e.Error.StatusCode;
-                        errorResult.ErrorCode = (int)e.Error.ErrorCode;
-                        if (e.Error.Message is not null)
-                        {
-                            errorResult.Message = e.Error.Message;
-                        }
-
-                        break;
-
-                    case KeyNotFoundException:
-                        errorResult.StatusCode = (int)HttpStatusCode.NotFound;
-                        break;
-
-                    default:
-                        errorResult.StatusCode = (int)HttpStatusCode.InternalServerError;
-                        break;
-                }
-                var response = context.Response;
-                if (!response.HasStarted)
-                {
-                    response.ContentType = "application/json";
-                    response.StatusCode = errorResult.StatusCode;
-                    await response.WriteAsync(JsonConvert.SerializeObject(errorResult));
+                    errorResult.Message = errorException.Error.Message;
                 }
             }
+            else if (exception is KeyNotFoundException)
+            {
+                errorResult.StatusCode = (int)HttpStatusCode.NotFound;
+            }
+            else
+            {
+                errorResult.StatusCode = (int)HttpStatusCode.InternalServerError;
+            }
+
+            return errorResult;
         }
     }
 }

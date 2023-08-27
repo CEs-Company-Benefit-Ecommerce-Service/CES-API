@@ -202,6 +202,12 @@ namespace CES.BusinessTier.Services
             var toDate = group.EndDate;
             var totalDays = 0;
             var neededBalance = 0.0;
+            var formattedDateTimeWeekly = new DateTime(fromDate.Year, fromDate.Month, fromDate.Day, group.TimeFilter.Value.Hour,
+                        group.TimeFilter.Value.Minute, group.TimeFilter.Value.Second);
+            int currentDayOfWeekValue = (int)formattedDateTimeWeekly.DayOfWeek;
+            int daysToAdd = ((int)group.DayFilter - currentDayOfWeekValue + 7) % 7;
+            DateTime resultDate = formattedDateTimeWeekly.AddDays(daysToAdd);
+            DateTimeOffset dateTimeOffsetWeekly = new DateTimeOffset(resultDate);
             switch (temp.Type)
             {
                 case 1:
@@ -226,12 +232,7 @@ namespace CES.BusinessTier.Services
                     }
                     break;
                 case 2:
-                    var formattedDateTimeWeekly = new DateTime(fromDate.Year, fromDate.Month, fromDate.Day, group.TimeFilter.Value.Hour,
-                        group.TimeFilter.Value.Minute, group.TimeFilter.Value.Second);
-                    int currentDayOfWeekValue = (int)formattedDateTimeWeekly.DayOfWeek;
-                    int daysToAdd = ((int)group.DayFilter - currentDayOfWeekValue + 7) % 7;
-                    DateTime resultDate = formattedDateTimeWeekly.AddDays(daysToAdd);
-                    DateTimeOffset dateTimeOffsetWeekly = new DateTimeOffset(resultDate);
+
 
                     if (resultDate <= fromDate && resultDate.TimeOfDay < fromDate.TimeOfDay)
                     {
@@ -254,10 +255,14 @@ namespace CES.BusinessTier.Services
                     }
                     break;
                 case 3:
+                    if (resultDate <= fromDate && resultDate.TimeOfDay < fromDate.TimeOfDay)
+                    {
+                        resultDate = resultDate.AddMonths(1);
+                    }
                     while (fromDate <= toDate)
                     {
                         totalDays++;
-                        fromDate.AddMonths(1);
+                        fromDate = fromDate.AddMonths(1);
                     }
                     neededBalance = temp.UnitPrice * memberInGroup * totalDays;
                     if (neededBalance > eaWallet.Balance)
