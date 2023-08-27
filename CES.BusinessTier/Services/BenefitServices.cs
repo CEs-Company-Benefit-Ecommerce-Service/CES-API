@@ -198,6 +198,14 @@ namespace CES.BusinessTier.Services
             temp.UpdatedAt = TimeUtils.GetCurrentSEATime();
             var group = await _unitOfWork.Repository<Group>().AsQueryable(x => x.BenefitId == benefitId).FirstOrDefaultAsync();
             var memberInGroup = await _unitOfWork.Repository<EmployeeGroupMapping>().AsQueryable(x => x.GroupId == group.Id).CountAsync();
+            if (memberInGroup <= 0)
+            {
+                return new BaseResponseViewModel<BenefitResponseModel>
+                {
+                    Code = 400,
+                    Message = "Not have employee in benefit"
+                };
+            }
             var fromDate = TimeUtils.GetCurrentSEATime();
             var toDate = group.EndDate;
             var totalDays = 0;
@@ -291,13 +299,13 @@ namespace CES.BusinessTier.Services
             }
             try
             {
-                //eaWallet.Balance -= neededBalance;
-                //eaWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
+                eaWallet.Balance -= neededBalance;
+                eaWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
 
-                //temp.TotalReceive = 0;
-                //temp.EstimateTotal = neededBalance;
-                //await _unitOfWork.Repository<Wallet>().UpdateDetached(eaWallet);
-                //await _unitOfWork.Repository<Benefit>().UpdateDetached(temp);
+                temp.TotalReceive = 0;
+                temp.EstimateTotal = neededBalance;
+                await _unitOfWork.Repository<Wallet>().UpdateDetached(eaWallet);
+                await _unitOfWork.Repository<Benefit>().UpdateDetached(temp);
                 await _unitOfWork.CommitAsync();
 
 

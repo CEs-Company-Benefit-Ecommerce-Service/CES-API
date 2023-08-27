@@ -229,21 +229,29 @@ namespace CES.BusinessTier.Services
 
             //if (group.Benefit.Status == (int)Status.Active)
             //{
-            var totalThat1EmpHave = (group.Benefit.EstimateTotal - group.Benefit.TotalReceive) / memberInGroup;
-            if (totalThat1EmpHave * newMembers > eaWallet.Balance)
+            if (group.Benefit.Status == (int)Status.Active)
             {
-                return new BaseResponseViewModel<GroupResponseModel>()
+                var totalThat1EmpHave = 0.0;
+                if (memberInGroup > 0)
                 {
-                    Code = 400,
-                    Message = "Total balance to allocate was higher than your balance!",
-                };
+                    totalThat1EmpHave = (double)(group.Benefit.EstimateTotal - group.Benefit.TotalReceive) / memberInGroup;
+                }
+                if (totalThat1EmpHave * newMembers > eaWallet.Balance)
+                {
+                    return new BaseResponseViewModel<GroupResponseModel>()
+                    {
+                        Code = 400,
+                        Message = "Total balance to allocate was higher than your balance!",
+                    };
+                }
+                eaWallet.Balance -= totalThat1EmpHave * newMembers;
+                eaWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
+                await _unitOfWork.Repository<Wallet>().UpdateDetached(eaWallet);
+                //update esimate in benefit
+                group.Benefit.EstimateTotal += totalThat1EmpHave * newMembers;
+                await _unitOfWork.Repository<Benefit>().UpdateDetached(group.Benefit);
             }
-            eaWallet.Balance -= totalThat1EmpHave * newMembers;
-            eaWallet.UpdatedAt = TimeUtils.GetCurrentSEATime();
-            await _unitOfWork.Repository<Wallet>().UpdateDetached(eaWallet);
-            //update esimate in benefit
-            group.Benefit.EstimateTotal += totalThat1EmpHave * newMembers;
-            await _unitOfWork.Repository<Benefit>().UpdateDetached(group.Benefit);
+
             //}
 
             foreach (var accountId in requestModel.AccountId)
